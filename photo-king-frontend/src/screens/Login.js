@@ -2,8 +2,9 @@ import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } fro
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Component } from 'react';
+import { useState } from 'react';
 
-function LoginScreen (){
+export default function LoginScreen (){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
   const [password, setPassword] = useState(""); // State for password
@@ -13,8 +14,7 @@ function LoginScreen (){
     <SafeAreaView style={styles.container}>
       <Text margin={10}>Username</Text>
       <TextInput
-        style={{height: 60, borderColor: 'red', 
-                borderWidth: 1, margin:10, fontSize:25,}}
+        style={styles.textIn}
         onChangeText={setUsername}
         autoCapitalize ='none'
         autoCorrect ={false}
@@ -22,15 +22,14 @@ function LoginScreen (){
       />
       <Text margin={10}>Password</Text>
       <TextInput
-        style={{height: 60, borderColor: 'red', 
-                borderWidth: 1, margin:10, fontSize:25,}}
+        style={styles.textIn}
         onChangeText={setPassword}
         autoCapitalize ='none'
         autoCorrect ={false}
         placeholder="Enter password"
         secureTextEntry={true}
       />
-      <TouchableOpacity style={styles.button} onPress={logIn}>
+      <TouchableOpacity style={styles.button} onPress={() => {console.log("logging IN!")}}>
         <Text>Log in</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -38,21 +37,17 @@ function LoginScreen (){
 }
 
 
-// Sets up stack navigator
-const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Login',
-  screens: {
-    Login: LoginScreen,
-  },
-});
 
-const Navigation = createStaticNavigation(RootStack);
 
-export default function App() {
-  return <Navigation />;
-}
 
 const styles = StyleSheet.create({
+  textIn: {
+    height: 60, 
+    borderColor: 'red', 
+    borderWidth: 1, 
+    margin:10, 
+    fontSize:25,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
