@@ -1,15 +1,17 @@
 import { StyleSheet } from 'react-native';
 
 export const colors = {
-    primary: '#342E37',
-    secondary: '#99b898',
-    tertiary: '#f5f5f5'
-};
-export const fonts = {
-    primary: 'Verdana'
+    primary: '#99b898',
+    secondary: '#960019',
+    tertiary: '#342E37',
+    greyWhite: '#f5f5f5'
 };
 
 export default styles = StyleSheet.create({
+    baseText: {
+        fontFamily: 'DMSans-Regular',
+        fontSize:25
+    },
     textIn: {
         height: 60, 
         width: 300,

@@ -1,5 +1,6 @@
 import { Component } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
+import { Text, SafeAreaView, TextInput } from 'react-native';
+import DefaultText from './DefaultText';
 
 export default class Input extends Component {
     constructor(){
@@ -8,7 +9,7 @@ export default class Input extends Component {
     render() {
       return (
         <SafeAreaView style={styles.inputContainer}>
-            <Text>Username</Text>
+            <DefaultText>Username</DefaultText>
             <TextInput
                 style={styles.textIn}
                 onChangeText={this.props.userUpdate}
