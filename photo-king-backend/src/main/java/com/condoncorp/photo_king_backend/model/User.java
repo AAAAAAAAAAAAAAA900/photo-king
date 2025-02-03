@@ -3,7 +3,6 @@ package com.condoncorp.photo_king_backend.model;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 
 @Entity
 @Table(name = "user")
@@ -21,14 +20,21 @@ public class User {
     private String email;
     @Column(unique = true, nullable = false, length = 20, name = "phone")
     private String phone;
+    @Column(unique = true, nullable = false, length = 20, name = "firstname")
+    private String firstname;
+    @Column(unique = true, nullable = false, length = 20, name = "lastname")
+    private String lastname;
 
-    public User(int id, String username, String password, String email, String phone) {
+    public User(int id, String username, String password, String phone, String email, String lastname, String firstname) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.email = email;
         this.phone = phone;
+        this.email = email;
+        this.lastname = lastname;
+        this.firstname = firstname;
     }
+
 
     public User() {}
 
@@ -70,5 +76,21 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 }

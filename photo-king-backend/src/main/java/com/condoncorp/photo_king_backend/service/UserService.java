@@ -46,6 +46,8 @@ public class UserService {
         user.setPassword(userDTO.getPassword());
         user.setEmail(userDTO.getEmail());
         user.setPhone(userDTO.getPhone());
+        user.setFirstname(userDTO.getFirstname());
+        user.setLastname(userDTO.getLastname());
         return user;
     }
 
