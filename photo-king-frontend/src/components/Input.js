@@ -1,5 +1,6 @@
 import { Component } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, TextInput } from 'react-native';
+import DefaultText from './DefaultText';
 
 export default class Input extends Component {
     constructor(){
@@ -7,8 +8,7 @@ export default class Input extends Component {
     }
     render() {
       return (
-        <SafeAreaView style={styles.container}>
-            <Text margin={10}>Username</Text>
+        <SafeAreaView style={styles.inputContainer}>
             <TextInput
                 style={styles.textIn}
                 onChangeText={this.props.userUpdate}
@@ -16,7 +16,6 @@ export default class Input extends Component {
                 autoCorrect ={false}
                 placeholder="Enter username"
             />
-            <Text margin={10}>Password</Text>
             <TextInput
                 style={styles.textIn}
                 onChangeText={this.props.passUpdate}
