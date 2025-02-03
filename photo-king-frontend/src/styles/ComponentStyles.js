@@ -4,20 +4,30 @@ export const colors = {
     primary: '#99b898',
     secondary: '#960019',
     tertiary: '#342E37',
-    greyWhite: '#f5f5f5'
+    greyWhite: '#f5f5f5',
+    lightBlue: '#73c2fb'
 };
 
 export default styles = StyleSheet.create({
     baseText: {
         fontFamily: 'DMSans-Regular',
-        fontSize:25
+        fontSize:16
+    },
+    titleText:{
+        fontFamily: 'DMSans-Regular',
+        fontSize: 25
+    },
+    urlText:{
+        
     },
     textIn: {
-        height: 60, 
+        height: 40, 
         width: 300,
         borderColor: colors.secondary, 
-        borderWidth: 1, 
-        fontSize:25,
+        backgroundColor:colors.greyWhite,
+        borderWidth: 1,
+        fontFamily: 'DMSans-Regular', 
+        fontSize: 16,
     },
     container: {
         flex: 1,
@@ -35,11 +45,12 @@ export default styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'space-between',
         rowGap:10,
+        alignItems: 'center',
     },
     button: {
         height:40, 
         width:90, 
-        backgroundColor: 'dodgerblue',
+        backgroundColor: colors.lightBlue,
         alignItems: 'center',
         justifyContent: 'center',
     }
