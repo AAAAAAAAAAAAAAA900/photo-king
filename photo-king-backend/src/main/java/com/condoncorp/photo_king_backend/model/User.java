@@ -19,12 +19,15 @@ public class User {
     private String password;
     @Column(unique = true, nullable = false, length = 320, name = "email")
     private String email;
+    @Column(unique = true, nullable = false, length = 20, name = "phone")
+    private String phone;
 
-    public User(int id, String username, String password, String email, ArrayList<Integer> groupId) {
+    public User(int id, String username, String password, String email, String phone) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.phone = phone;
     }
 
     public User() {}
@@ -61,4 +64,11 @@ public class User {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }

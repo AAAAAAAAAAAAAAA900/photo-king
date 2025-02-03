@@ -1,7 +1,8 @@
 package com.condoncorp.photo_king_backend.controller;
 
-import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.model.User;
+import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +18,21 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(path = "/login")
-    public User login(@RequestBody UserDTO userDTO) {
-        return userService.loginUser(userDTO);
+    public User login(@RequestBody AuthRegReq authRegReq) {
+        return userService.loginUser(authRegReq);
+    }
+
+    @PostMapping(path = "/register")
+    public User register(@RequestBody UserDTO userDTO) {
+        return userService.registerUser(userDTO);
     }
 
     @GetMapping(path = "/get-users")
     public List<User> getUsers() {
         return userService.getUsers();
     }
+
+
 
 
 }
