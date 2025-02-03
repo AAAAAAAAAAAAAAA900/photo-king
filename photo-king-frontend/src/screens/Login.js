@@ -4,6 +4,7 @@ import styles, { colors } from '../styles/ComponentStyles.js';
 import Input from '../components/Input.js';
 import axios from 'axios';
 import DefaultText from '../components/DefaultText.js';
+import { API_URL } from '../api/utils.js';
 
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
@@ -14,7 +15,7 @@ export default function LoginScreen ({navigation}){
   const Login = async () => {
     // Send login attempt to backend
     try {
-      const response = await axios.post('https://20a6-2600-4040-af73-4a00-98d9-4725-d184-8b0.ngrok-free.app/api/user/login', {username: username, password: password},
+      const response = await axios.post(`${API_URL}/api/user/login`, {username: username, password: password},
         {
           headers: {
             'Content-Type': 'application/json'
