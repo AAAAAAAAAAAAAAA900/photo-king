@@ -1,4 +1,4 @@
-import { View, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import Input from '../components/Input.js';
@@ -38,7 +38,7 @@ export default function LoginScreen ({navigation}){
           <DefaultText>Log in</DefaultText>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
-          <DefaultText>create an account</DefaultText>
+          <Text style={styles.urlText}>create an account</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

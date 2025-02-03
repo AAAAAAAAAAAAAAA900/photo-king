@@ -18,12 +18,15 @@ export default styles = StyleSheet.create({
         fontSize: 25
     },
     urlText:{
-        
+        fontFamily: 'DMSans-Bold',
+        fontSize: 16,
+        textDecorationLine: 'underline'
     },
     textIn: {
         height: 40, 
         width: 300,
         borderColor: colors.secondary, 
+        borderRadius:5,
         backgroundColor:colors.greyWhite,
         borderWidth: 1,
         fontFamily: 'DMSans-Regular', 
@@ -51,6 +54,7 @@ export default styles = StyleSheet.create({
         height:40, 
         width:90, 
         backgroundColor: colors.lightBlue,
+        borderRadius:5,
         alignItems: 'center',
         justifyContent: 'center',
     }

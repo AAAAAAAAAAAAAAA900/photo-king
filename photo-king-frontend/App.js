@@ -20,7 +20,8 @@ export default function App() {
   useEffect(() => {
     async function loadFonts(){
       await Font.loadAsync({
-        'DMSans-Regular': require('./assets/fonts/DMSans-Regular.ttf')
+        'DMSans-Regular': require('./assets/fonts/DMSans-Regular.ttf'),
+        'DMSans-Bold': require('./assets/fonts/DMSans-Bold.ttf')
       });
       setFontsLoaded(true);
     }
