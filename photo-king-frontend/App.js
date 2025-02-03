@@ -1,18 +1,57 @@
 import { NavigationContainer } from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import styles, { colors } from './src/styles/ComponentStyles.js';
+import { useEffect, useState } from 'react';
+import * as Font from 'expo-font';
+
 import LoginScreen from './src/screens/Login.js';
+import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  // Tracks if fonts have loaded
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Runs when componentDidMount
+  // Loads the fonts in before navigation
+  useEffect(() => {
+    async function loadFonts(){
+      await Font.loadAsync({
+        'DMSans-Regular': require('./assets/fonts/DMSans-Regular.ttf')
+      });
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  // blocks page loading before fonts are loaded
+  if(!fontsLoaded){
+    return null;
+  }
+
+  // Sets up navigator
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name='Login' component={LoginScreen}/>
-          <Stack.Screen name='Home' component={HomeScreen}/>
+          <Stack.Screen 
+            name='Login' 
+            options={{headerTitleStyle:styles.titleText}} 
+            component={LoginScreen}
+          />
+          <Stack.Screen 
+            name='Register'
+            options={{headerTitleStyle:styles.titleText}} 
+            component={RegisterScreen}
+          />
+          <Stack.Screen 
+            name='Home'
+            options={{headerTitleStyle:styles.titleText}} 
+            component={HomeScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

@@ -31,7 +31,7 @@ export default function RegisterScreen ({navigation}){
   // Login screen view
   return(
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={Login}>
+      <TouchableOpacity style={styles.button} onPress={Register}>
         <Text>Register</Text>
       </TouchableOpacity>
     </SafeAreaView>
