@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
-import styles from '../styles/ComponentStyles.js';
+import styles, { colors } from '../styles/ComponentStyles.js';
 import Input from '../components/Input.js';
 import axios from 'axios';
 
@@ -8,7 +8,6 @@ export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
   const [password, setPassword] = useState(""); // State for password
-  
   // Login attempt
   const Login = async () => {
 
@@ -31,12 +30,13 @@ export default function LoginScreen ({navigation}){
 
   // Login screen view
   return(
-    <SafeAreaView style={styles.container}>
-      <Input userUpdate={setUsername} passUpdate={setPassword}>
-      </Input>
-      <TouchableOpacity style={styles.button} onPress={Login}>
-        <Text>Log in</Text>
-      </TouchableOpacity>
+    <SafeAreaView  style={[styles.containerCenterAll, {backgroundColor:colors.primary}]}>
+      <View padding={20} borderWidth={5} style={[styles.inputContainer, {alignSelf:'center'}]} >
+        <Input userUpdate={setUsername} passUpdate={setPassword}/>
+        <TouchableOpacity style={styles.button} onPress={Login}>
+          <Text>Log in</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

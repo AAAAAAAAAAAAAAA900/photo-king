@@ -7,8 +7,8 @@ export default class Input extends Component {
     }
     render() {
       return (
-        <SafeAreaView style={styles.container}>
-            <Text margin={10}>Username</Text>
+        <SafeAreaView style={styles.inputContainer}>
+            <Text>Username</Text>
             <TextInput
                 style={styles.textIn}
                 onChangeText={this.props.userUpdate}
@@ -16,7 +16,7 @@ export default class Input extends Component {
                 autoCorrect ={false}
                 placeholder="Enter username"
             />
-            <Text margin={10}>Password</Text>
+            <Text>Password</Text>
             <TextInput
                 style={styles.textIn}
                 onChangeText={this.props.passUpdate}
