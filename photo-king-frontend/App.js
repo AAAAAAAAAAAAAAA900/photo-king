@@ -16,7 +16,7 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   // Runs when componentDidMount
-  // Loads the fonts in before navigation
+  // Loads the fonts in before navigation/first page loads
   useEffect(() => {
     async function loadFonts(){
       await Font.loadAsync({
@@ -37,7 +37,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Home">
           <Stack.Screen 
             name='Login' 
             options={{headerTitleStyle:styles.titleText, headerShown: false }}

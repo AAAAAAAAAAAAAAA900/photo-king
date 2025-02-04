@@ -6,7 +6,8 @@ export const colors = {
     secondary: '#960019',
     tertiary: '#342E37',
     greyWhite: '#f5f5f5',
-    lightBlue: '#73c2fb'
+    lightBlue: '#73c2fb',
+    grey: '#dddddd'
 };
 
 export default styles = StyleSheet.create({
@@ -58,5 +59,16 @@ export default styles = StyleSheet.create({
         borderRadius:5,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    group: {
+        padding: 20, 
+        margin: 10, 
+        backgroundColor: colors.greyWhite, 
+        borderRadius: 10
+    },
+    separator:{
+        height: 1,
+        backgroundColor: colors.grey,
+        marginHorizontal: 30,
     }
 });
