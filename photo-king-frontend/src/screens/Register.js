@@ -7,7 +7,6 @@ import { API_URL } from '../api/utils.js';
 
 export default function RegisterScreen ({navigation}){  
 
-  const [formData, setFormData] = useState({});
 
   const { 
     control,
@@ -18,12 +17,11 @@ export default function RegisterScreen ({navigation}){
   } = useForm();
 
   const onSubmit = data => {
-    setFormData(data);
-    Register(formData);
+    Register(data);
   }
 
   // Send Register attempt to backend
-  const Register = async () => {
+  const Register = async (data) => {
     try {
       const response = await axios.post(`${API_URL}/api/user/register`, data,
         {
