@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
 
 export const colors = {
-    primary: '#99b898',
+    // primary: '#99b898', //vomit
+    primary: '#7DF9FF',
     secondary: '#960019',
     tertiary: '#342E37',
     greyWhite: '#f5f5f5',
@@ -18,12 +19,15 @@ export default styles = StyleSheet.create({
         fontSize: 25
     },
     urlText:{
-        
+        fontFamily: 'DMSans-Bold',
+        fontSize: 16,
+        textDecorationLine: 'underline'
     },
     textIn: {
         height: 40, 
         width: 300,
         borderColor: colors.secondary, 
+        borderRadius:5,
         backgroundColor:colors.greyWhite,
         borderWidth: 1,
         fontFamily: 'DMSans-Regular', 
@@ -51,6 +55,7 @@ export default styles = StyleSheet.create({
         height:40, 
         width:90, 
         backgroundColor: colors.lightBlue,
+        borderRadius:5,
         alignItems: 'center',
         justifyContent: 'center',
     }
