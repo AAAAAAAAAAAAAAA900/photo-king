@@ -40,7 +40,7 @@ export default function App() {
         <Stack.Navigator>
           <Stack.Screen 
             name='Login' 
-            options={{headerTitleStyle:styles.titleText}} 
+            options={{headerTitleStyle:styles.titleText, headerShown: false }}
             component={LoginScreen}
           />
           <Stack.Screen 
