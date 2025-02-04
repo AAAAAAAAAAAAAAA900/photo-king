@@ -5,8 +5,7 @@ import { useRoute } from '@react-navigation/native';
 
 export default function HomeScreen ({navigation}){
   const route = useRoute();
-  // const user = route.params?.user;
-  const user = 'TEMPLATE USER';
+  const user = route.params?.user;
 
   // query groups user belongs to
   const loadUserGroups = (userID) => {
