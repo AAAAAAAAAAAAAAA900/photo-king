@@ -8,6 +8,7 @@ import * as Font from 'expo-font';
 import LoginScreen from './src/screens/Login.js';
 import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
+import GroupScreen from './src/screens/Group.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,7 +38,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Home">
           <Stack.Screen 
             name='Login' 
             options={{headerTitleStyle:styles.titleText, headerShown: false }}
@@ -52,6 +53,11 @@ export default function App() {
             name='Home'
             options={{headerTitleStyle:styles.titleText}} 
             component={HomeScreen}
+          />
+          <Stack.Screen 
+            name='Group'
+            options={{headerTitleStyle:styles.titleText}} 
+            component={GroupScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>
