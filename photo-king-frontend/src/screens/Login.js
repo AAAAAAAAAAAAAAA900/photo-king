@@ -23,7 +23,7 @@ export default function LoginScreen ({navigation}){
           }
         }
       );
-      navigation.navigate("Home");
+      navigation.navigate("Home", {user:username});
 
     }
     catch (error) {
@@ -45,7 +45,7 @@ export default function LoginScreen ({navigation}){
           <TouchableOpacity style={styles.button} onPress={Login}>
             <DefaultText>Log in</DefaultText>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {navigation.navigate("Register", {user:username})}}>
+          <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
             <Text style={styles.urlText}>create an account</Text>
           </TouchableOpacity>
         </View>
