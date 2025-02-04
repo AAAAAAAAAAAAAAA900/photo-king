@@ -3,7 +3,7 @@ import styles from '../styles/ComponentStyles.js';
 
 export default function HomeScreen ({navigation}){
   
-  // Home screen view
+  // Home screen view: scrollable list of groups
   return(
     <SafeAreaView style={styles.container}>
       <FlatList>
