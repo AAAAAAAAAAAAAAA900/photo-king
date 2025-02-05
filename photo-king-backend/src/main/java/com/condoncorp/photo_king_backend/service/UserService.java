@@ -16,6 +16,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+
+    // HANDLES USER LOGIN
     public User loginUser(AuthRegReq authRegReq) {
         Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
         if (user.isEmpty()) {
@@ -24,11 +26,13 @@ public class UserService {
         return user.get();
     }
 
+    // HANDLES USER REGISTRATION
     public User registerUser(UserDTO userDTO) {
         User user = convertDTOtoEntity(userDTO);
         return userRepository.save(user);
     }
 
+    // CONVERTS DATA FROM FRONTEND TO ENTITY
     public User convertDTOtoEntity(UserDTO userDTO) {
         User user = new User();
 
@@ -51,9 +55,23 @@ public class UserService {
         return user;
     }
 
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    // RETURNS USER BY ID
+    public User getUserById(Integer id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        return user.get();
     }
+
+    // SAVES USER TO DATABASE
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+
+
+
 
 
 }
