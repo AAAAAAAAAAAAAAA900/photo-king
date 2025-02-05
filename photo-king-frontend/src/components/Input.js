@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import { SafeAreaView, TextInput } from 'react-native';
-import DefaultText from './DefaultText';
 
 export default class Input extends Component {
     constructor(){
