@@ -64,6 +64,14 @@ public class UserService {
         return user.get();
     }
 
+    public User getUserByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        return user.get();
+    }
+
     // SAVES USER TO DATABASE
     public void saveUser(User user) {
         userRepository.save(user);
