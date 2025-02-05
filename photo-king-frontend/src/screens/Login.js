@@ -23,7 +23,7 @@ export default function LoginScreen ({navigation}){
           }
         }
       );
-      navigation.navigate("Home", {user:username});
+      navigation.navigate("Home", {username : username});
 
     }
     catch (error) {

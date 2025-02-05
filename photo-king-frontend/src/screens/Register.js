@@ -31,7 +31,6 @@ export default function RegisterScreen ({navigation}){
         }
       );
       navigation.navigate("Home");
-
     }
     catch (error) {
       console.log(error);
