@@ -37,7 +37,7 @@ export default function HomeScreen ({navigation}){
 
   // useEffect to get user data on load
   useEffect(() => {
-    getUser().then(r => console.log("yay"));
+    getUser();
   }, []);
 
   useEffect(() => {
