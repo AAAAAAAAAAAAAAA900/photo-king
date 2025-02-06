@@ -72,3 +72,4 @@ export default styles = StyleSheet.create({
         marginHorizontal: 30,
     }
 });
+

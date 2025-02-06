@@ -1,31 +1,71 @@
-import { SafeAreaView, FlatList, View } from 'react-native';
-import styles from '../styles/ComponentStyles.js';
+import {SafeAreaView, FlatList, View, ActivityIndicator, Text} from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
+import styles from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
+import axios from "axios";
+import {useEffect, useState} from "react";
+import {API_URL} from "../api/utils";
 
 export default function HomeScreen ({navigation}){
-  const route = useRoute();
-  const user = route.params?.user;
 
-  // query groups user belongs to
-  const loadUserGroups = (userID) => {
-    // PLACEHOLDER IMPLEMENTATION
-    const groups = []
-    for (let i = 0; i < 10; ++i){
-      groups[i] = {title:('group ' + (i+1)), id: (i+1)}
+  const route = useRoute();
+  const { username } = route.params;
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // loading page
+
+
+
+  const getUser = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+      );
+      setUser(response.data)
+
     }
-    return (groups);
+    catch (error) {
+      console.log(error);
+    }
+    finally {
+      setLoading(false);
+    }
   }
 
+  // useEffect to get user data on load
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  useEffect(() => {
+  }, [user]);
+
   // Home screen view: scrollable list of groups
-  return(
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        ItemSeparatorComponent={() => <View style={styles.separator} />}  // The lines seperating groups
-        data={loadUserGroups(/*REPLACE THIS WITH THE USERS NAME*/ user)}
-        keyExtractor={(item) => item.id}
-        renderItem={({item}) => <GroupPreview groupTitle={item.title} navFunction={() => {navigation.navigate("Group", {user:user, group:item.title})}}/>}
-      />
-    </SafeAreaView>
+
+  return (
+      <SafeAreaView style={{ padding: 20 }}>
+        {/* Show loading indicator while fetching data */}
+        {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+        ) : user ? (
+            // Render user info only if `user` is not null
+            <FlatList
+                ItemSeparatorComponent={ () => <View style={styles.separator} /> }
+                data={user.photoGroups}
+                renderItem={({item}) => <GroupPreview groupTitle={item.name} navFunction={() => {navigation.navigate("Group", {
+                      user: user,
+                      group: item
+                    }
+                )}}/>}
+                keyExtractor={ item => item.id }
+            />
+        ) : (
+            // Show error message if user is null (e.g., not found)
+            <Text style={{ color: 'red' }}>User not found</Text>
+        )}
+      </SafeAreaView>
   );
 }

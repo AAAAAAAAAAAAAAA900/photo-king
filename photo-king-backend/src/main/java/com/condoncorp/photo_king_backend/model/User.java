@@ -1,7 +1,11 @@
 package com.condoncorp.photo_king_backend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -25,14 +29,23 @@ public class User {
     @Column(unique = true, nullable = false, length = 20, name = "lastname")
     private String lastname;
 
-    public User(int id, String username, String password, String phone, String email, String lastname, String firstname) {
-        this.id = id;
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<PhotoGroup> photoGroups = new HashSet<>();
+
+    public User(String username, String password, String phone, String email, String lastname, String firstname) {
         this.username = username;
         this.password = password;
         this.phone = phone;
         this.email = email;
         this.lastname = lastname;
         this.firstname = firstname;
+        this.photoGroups = new HashSet<>();
     }
 
 
@@ -92,5 +105,13 @@ public class User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public Set<PhotoGroup> getPhotoGroups() {
+        return photoGroups;
+    }
+
+    public void setPhotoGroups(Set<PhotoGroup> photoGroups) {
+        this.photoGroups = photoGroups;
     }
 }

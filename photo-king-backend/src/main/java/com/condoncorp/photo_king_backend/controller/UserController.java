@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping(path = "api/user")
 public class UserController {
@@ -27,11 +26,10 @@ public class UserController {
         return userService.registerUser(userDTO);
     }
 
-    @GetMapping(path = "/get-users")
-    public List<User> getUsers() {
-        return userService.getUsers();
+    @GetMapping(path = "/get-user/{username}")
+    public User getUser(@PathVariable String username) {
+        return userService.getUserByUsername(username);
     }
-
 
 
 
