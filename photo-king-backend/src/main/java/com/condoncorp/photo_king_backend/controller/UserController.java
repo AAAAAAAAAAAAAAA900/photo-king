@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(path = "api/user")
@@ -31,6 +32,14 @@ public class UserController {
         return userService.getUserByUsername(username);
     }
 
+    @PostMapping(path="/add-friend/{userId}/{friendId}")
+    public Set<User> addFriend(@PathVariable int userId, @PathVariable int friendId) {
+        return userService.addFriend(userId, friendId);
+    }
 
+    @DeleteMapping(path = "/delete/{id}")
+    public void deleteUser(@PathVariable int id) {
+        userService.deleteUser(id);
+    }
 
 }
