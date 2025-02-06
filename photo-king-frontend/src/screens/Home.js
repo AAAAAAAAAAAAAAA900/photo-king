@@ -13,8 +13,7 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // loading page
 
-
-
+  // User data from username: API call
   const getUser = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
@@ -25,7 +24,6 @@ export default function HomeScreen ({navigation}){
           }
       );
       setUser(response.data)
-
     }
     catch (error) {
       console.log(error);
@@ -40,11 +38,18 @@ export default function HomeScreen ({navigation}){
     getUser();
   }, []);
 
+  /*
   useEffect(() => {
   }, [user]);
+  Im commenting this out because Im pretty sure it litterally does nothing.
+                         (-___-)
+                            |
+                          \ | /
+                            | 
+                           / \
+  */
 
   // Home screen view: scrollable list of groups
-
   return (
       <SafeAreaView style={{ padding: 20 }}>
         {/* Show loading indicator while fetching data */}
@@ -55,11 +60,12 @@ export default function HomeScreen ({navigation}){
             <FlatList
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={user.photoGroups}
-                renderItem={({item}) => <GroupPreview groupTitle={item.name} navFunction={() => {navigation.navigate("Group", {
-                      user: user,
-                      group: item
-                    }
-                )}}/>}
+                renderItem={({item}) => 
+                  <GroupPreview groupTitle={item.name} navFunction={() => {
+                    navigation.navigate("Group", {user: user,group: item})
+                  }}
+                  />
+                }
                 keyExtractor={ item => item.id }
             />
         ) : (
