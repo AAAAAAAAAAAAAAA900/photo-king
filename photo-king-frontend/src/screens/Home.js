@@ -38,17 +38,6 @@ export default function HomeScreen ({navigation}){
     getUser();
   }, []);
 
-  /*
-  useEffect(() => {
-  }, [user]);
-  Im commenting this out because Im pretty sure it litterally does nothing.
-                         (-___-)
-                            |
-                          \ | /
-                            | 
-                           / \
-  */
-
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ padding: 20 }}>
