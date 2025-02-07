@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Button } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Button, Alert } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
@@ -47,7 +47,14 @@ export default function GroupScreen({navigation}){
     }, []);
     
     const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
+
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
+        if (status !== 'granted'){
+            Alert.alert('Photo permissions are needed to upload from gallery!');
+            return;
+        }
+        
         let result = await ImagePicker.launchImageLibraryAsync({
           /*mediaTypes: ['images', 'videos'],*/ //Uncomment for videos
           /*allowsEditing: true,*/ //uncomment if multiple selection false
