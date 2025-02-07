@@ -1,10 +1,11 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Button } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import {useEffect, useState} from "react";
 import GroupPreview from '../components/GroupPreview.js';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -15,6 +16,7 @@ export default function GroupScreen({navigation}){
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [userSearch, setUserSearch] = useState('');
     const [filteredData, setFilteredData] = useState([]);
+    const [uploadImage, setUploadImage] = useState([]);
 
     // FlatList element's view
     const Pic = ({ photo }) => {
@@ -42,8 +44,31 @@ export default function GroupScreen({navigation}){
     // useEffect to get group pictures on load
     useEffect(() => {
         loadPictures();
-    }, [/*group*/]);
+    }, []);
     
+    const pickImage = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await ImagePicker.launchImageLibraryAsync({
+          /*mediaTypes: ['images', 'videos'],*/ //Uncomment for videos
+          /*allowsEditing: true,*/ //uncomment if multiple selection false
+          /*aspect: [4, 3],*/
+          allowsMultipleSelection:true,
+        });
+
+        if (!result.canceled) {
+            setUploadImage(result.assets);
+            const pics = pictures.concat((result.assets).map((image) => {return {icon:(
+                <Image
+                    style={groupStyles.pic}
+                    source={{uri:image.uri}}
+                    // defaultSource= default image to display while loading images.
+                />
+            ), id:image.uri};}));
+            setPictures(pics);
+            /* API CALL ADD IMAGE TO TABLE */
+        }
+    };
+
     const templateData = [ // DELETE LATER 
         {username: 'Buckeye Bill', object: "Buckeye Bill's user obj"},
         {username: 'Matthew Hayes', object: "Matthew Hayes's user obj"},
@@ -62,7 +87,7 @@ export default function GroupScreen({navigation}){
         } else{
             setFilteredData(templateData);
         }
-    }
+    };
 
     // Update search results on type change
     useEffect(() => {
@@ -86,7 +111,10 @@ export default function GroupScreen({navigation}){
                             <DefaultText>Camera</DefaultText>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
-                            onPress={() => {setPhotoModalVisible(!photoModalVisible)}}>
+                            onPress={() => {
+                                setPhotoModalVisible(!photoModalVisible);
+                                pickImage();
+                            }}>
                             <DefaultText>Gallery</DefaultText>
                         </TouchableOpacity>
                     </View>
@@ -121,7 +149,6 @@ export default function GroupScreen({navigation}){
                     </View>
                 </View>
             </Modal>
-            
 
             <DefaultText> {JSON.stringify(user)} {JSON.stringify(group)}</DefaultText>
 

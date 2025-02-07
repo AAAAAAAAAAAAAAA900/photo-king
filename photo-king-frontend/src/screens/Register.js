@@ -30,7 +30,7 @@ export default function RegisterScreen ({navigation}){
           }
         }
       );
-      navigation.navigate("Home");
+      navigation.navigate("Home", {username : username});
     }
     catch (error) {
       console.log(error);
