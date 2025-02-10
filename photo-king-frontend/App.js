@@ -39,7 +39,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Group">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen 
             name='Login' 
             options={{headerTitleStyle:styles.titleText, headerShown: false }}
