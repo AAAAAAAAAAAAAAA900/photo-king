@@ -12,8 +12,30 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow PhotoKing to access your photos.",
+          "savePhotosPermission": "Allow PhotoKing to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "cameraPermission": "Allow PhotoKing to access your camera"
+        }
+      ]
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need access to your photo library to upload pictures.",
+        "NSPhotoLibraryAddUsageDescription": "We need access to save images to your library.",
+        "NSCameraUsageDescription": "We need access to your camera to take pictures."
+      }
     },
     "android": {
       "adaptiveIcon": {
