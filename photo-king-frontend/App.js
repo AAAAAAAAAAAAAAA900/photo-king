@@ -9,6 +9,9 @@ import LoginScreen from './src/screens/Login.js';
 import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
 import GroupScreen from './src/screens/Group.js';
+import TitleButtons from './src/components/TitleButtons.js';
+import { View } from 'react-native';
+import DefaultText from './src/components/DefaultText.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,7 +41,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Group">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen 
             name='Login' 
             options={{headerTitleStyle:styles.titleText, headerShown: false }}
@@ -51,7 +54,11 @@ export default function App() {
           />
           <Stack.Screen 
             name='Home'
-            options={{headerTitleStyle:styles.titleText}} 
+            options={{
+              // headerTitleStyle:styles.titleText,
+              headerTitle: () =><DefaultText style={styles.titleText}>Home</DefaultText>,
+              headerRight: () => (<TitleButtons/>),
+          }} 
             component={HomeScreen}
           />
           <Stack.Screen 
