@@ -1,5 +1,4 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { Button, Alert } from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import styles, { colors } from './src/styles/ComponentStyles.js';
@@ -10,6 +9,9 @@ import LoginScreen from './src/screens/Login.js';
 import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
 import GroupScreen from './src/screens/Group.js';
+import TitleButtons from './src/components/TitleButtons.js';
+import { View } from 'react-native';
+import DefaultText from './src/components/DefaultText.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,9 +55,9 @@ export default function App() {
           <Stack.Screen 
             name='Home'
             options={{
-              headerTitleStyle:styles.titleText ,
-              headerRight: () => (
-              <Button onPress={() => Alert.alert('This is a button!')}>Info</Button>),
+              // headerTitleStyle:styles.titleText,
+              headerTitle: () =><DefaultText style={styles.titleText}>Home</DefaultText>,
+              headerRight: () => (<TitleButtons/>),
           }} 
             component={HomeScreen}
           />
