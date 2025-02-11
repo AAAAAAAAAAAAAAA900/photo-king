@@ -1,8 +1,11 @@
 package com.condoncorp.photo_king_backend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,9 +27,9 @@ public class User {
     private String email;
     @Column(unique = true, nullable = false, length = 20, name = "phone")
     private String phone;
-    @Column(unique = true, nullable = false, length = 20, name = "firstname")
+    @Column(nullable = false, length = 20, name = "firstname")
     private String firstname;
-    @Column(unique = true, nullable = false, length = 20, name = "lastname")
+    @Column(nullable = false, length = 20, name = "lastname")
     private String lastname;
 
     @JsonManagedReference
@@ -36,7 +39,18 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+    @Cascade(CascadeType.ALL)
     private Set<PhotoGroup> photoGroups = new HashSet<>();
+
+    @JsonBackReference
+    @ManyToMany
+    @JoinTable(
+            name = "friends_list",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    @Cascade(CascadeType.ALL)
+    private Set<User> friends = new HashSet<>();
 
     public User(String username, String password, String phone, String email, String lastname, String firstname) {
         this.username = username;
@@ -46,6 +60,7 @@ public class User {
         this.lastname = lastname;
         this.firstname = firstname;
         this.photoGroups = new HashSet<>();
+        this.friends = new HashSet<>();
     }
 
 
@@ -113,5 +128,23 @@ public class User {
 
     public void setPhotoGroups(Set<PhotoGroup> photoGroups) {
         this.photoGroups = photoGroups;
+    }
+
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<User> friends) {
+        this.friends = friends;
+    }
+
+    public void addFriend(User friend) {
+        this.friends.add(friend);
+        friend.getFriends().add(this);
+    }
+
+    public void removeFriend(User friend) {
+        this.friends.remove(friend);
+        friend.getFriends().remove(this);
     }
 }

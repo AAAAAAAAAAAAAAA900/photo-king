@@ -2,13 +2,15 @@ package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -16,6 +18,31 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+
+    // SAVES USER TO DATABASE
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    // DELETES USER FROM DATABASE BY ID
+    @Transactional
+    public void deleteUser(Integer id) {
+        User user = getUserById(id);
+
+        for (PhotoGroup photoGroup : user.getPhotoGroups()) {
+            photoGroup.getUsers().remove(user);
+        }
+
+        user.getPhotoGroups().clear();
+
+        for (User friend : user.getFriends()) {
+            friend.getFriends().remove(user);
+        }
+
+        user.getFriends().clear();
+
+        userRepository.deleteById(id);
+    }
 
     // HANDLES USER LOGIN
     public User loginUser(AuthRegReq authRegReq) {
@@ -72,12 +99,14 @@ public class UserService {
         return user.get();
     }
 
-    // SAVES USER TO DATABASE
-    public void saveUser(User user) {
-        userRepository.save(user);
+
+    public Set<User> addFriend(Integer userId, Integer friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        user.addFriend(friend);
+        saveUser(user);
+        return user.getFriends();
     }
-
-
 
 
 

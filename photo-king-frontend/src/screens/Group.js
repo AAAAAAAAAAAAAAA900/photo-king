@@ -26,7 +26,7 @@ export default function GroupScreen({navigation}){
     // API call(?) to get photos from group
     const loadPictures /*= async*/ = () => {
         const pics = [];
-        for (let i = 0; i < 40; ++i){
+        for (let i = 0; i < 3; ++i){
             pics[i]= {
                 icon: (
                     <Image
@@ -49,7 +49,7 @@ export default function GroupScreen({navigation}){
     const pickImage = async () => {
 
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        
+                                            // useMediaLibraryPermissions?
         if (status !== 'granted'){
             Alert.alert('Photo permissions are needed to upload from gallery!');
             return;
@@ -60,6 +60,34 @@ export default function GroupScreen({navigation}){
           /*allowsEditing: true,*/ //uncomment if multiple selection false
           /*aspect: [4, 3],*/
           allowsMultipleSelection:true,
+        });
+
+        if (!result.canceled) {
+            setUploadImage(result.assets);
+            const pics = pictures.concat((result.assets).map((image) => {return {icon:(
+                <Image
+                    style={groupStyles.pic}
+                    source={{uri:image.uri}}
+                    // defaultSource= default image to display while loading images.
+                />
+            ), id:image.uri};}));
+            setPictures(pics);
+            /* API CALL ADD IMAGE TO TABLE */
+        }
+    };
+
+    const takeImage = async () => {
+
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        
+        if (status !== 'granted'){
+            Alert.alert('Photo permissions are needed to upload from gallery!');
+            return;
+        }
+        
+        let result = await ImagePicker.launchCameraAsync({
+          /*mediaTypes: ['images', 'videos'],*/ //Uncomment for videos
+          allowsEditing: true,
         });
 
         if (!result.canceled) {
@@ -114,7 +142,10 @@ export default function GroupScreen({navigation}){
                 <View style={styles.containerCenterAll}>
                     <View style={groupStyles.popupView}>
                         <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
-                            onPress={() => {setPhotoModalVisible(!photoModalVisible)}}>
+                            onPress={() => {
+                                setPhotoModalVisible(!photoModalVisible);
+                                takeImage();
+                            }}>
                             <DefaultText>Camera</DefaultText>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
