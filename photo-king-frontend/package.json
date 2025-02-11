@@ -20,7 +20,8 @@
     "react-hook-form": "^7.54.2",
     "react-native": "^0.76.6",
     "react-native-elements": "^3.4.3",
-    "expo-image-picker": "~16.0.5"
+    "expo-image-picker": "~16.0.5",
+    "expo-media-library": "~17.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

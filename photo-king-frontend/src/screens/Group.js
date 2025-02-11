@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Button, Alert } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import styles, { colors } from '../styles/ComponentStyles.js';
 import {useEffect, useState} from "react";
 import GroupPreview from '../components/GroupPreview.js';
 import * as ImagePicker from 'expo-image-picker';
+import { Controller } from 'react-hook-form';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -47,13 +48,22 @@ export default function GroupScreen({navigation}){
     }, []);
     
     const pickImage = async () => {
-
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                                             // useMediaLibraryPermissions?
+        console.log("HERE");
+   
         if (status !== 'granted'){
-            Alert.alert('Photo permissions are needed to upload from gallery!');
+            Alert.alert(
+                "Permission Required",
+                "You need to grant gallery access to upload images.",
+                [
+                    { text: "Cancel", style: "cancel"},
+                    { text: "Open Settings", onPress: () => Linking.openSettings() }
+                ]
+            );
             return;
         }
+
         
         let result = await ImagePicker.launchImageLibraryAsync({
           /*mediaTypes: ['images', 'videos'],*/ //Uncomment for videos
@@ -79,12 +89,19 @@ export default function GroupScreen({navigation}){
     const takeImage = async () => {
 
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        
+
         if (status !== 'granted'){
-            Alert.alert('Photo permissions are needed to upload from gallery!');
+            Alert.alert(
+                "Permission Required",
+                "You need to grant camera access to take pictures.",
+                [
+                    { text: "Cancel", style: "cancel"},
+                    { text: "Open Settings", onPress: () => Linking.openSettings() }
+                ]
+            );
             return;
         }
-        
+
         let result = await ImagePicker.launchCameraAsync({
           /*mediaTypes: ['images', 'videos'],*/ //Uncomment for videos
           allowsEditing: true,
@@ -132,25 +149,25 @@ export default function GroupScreen({navigation}){
     return(
         <SafeAreaView style={{flex:1}}>
 
-            {/* add photo pop-up */}
+            {/* add photo pop-up 
             <Modal
                 animationType="fade"
                 transparent={true}
                 visible={photoModalVisible}
-                onRequestClose={() => {setPhotoModalVisible(!photoModalVisible);}}
+                onRequestClose={() => {setPhotoModalVisible(false);}}
             >
                 <View style={styles.containerCenterAll}>
                     <View style={groupStyles.popupView}>
                         <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
                             onPress={() => {
-                                setPhotoModalVisible(!photoModalVisible);
+                                setPhotoModalVisible(false);
                                 takeImage();
                             }}>
                             <DefaultText>Camera</DefaultText>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
                             onPress={() => {
-                                setPhotoModalVisible(!photoModalVisible);
+                                setPhotoModalVisible(false);
                                 pickImage();
                             }}>
                             <DefaultText>Gallery</DefaultText>
@@ -158,6 +175,7 @@ export default function GroupScreen({navigation}){
                     </View>
                 </View>
             </Modal>
+            */}
             
             {/* add user pop-up */}
             <Modal
@@ -201,13 +219,17 @@ export default function GroupScreen({navigation}){
             </View>
             <View style={groupStyles.buttonHolder}>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
-                    onPress={() => {setPhotoModalVisible(!photoModalVisible)}}>
-                    <DefaultText>Add photo</DefaultText>
+                    onPress={() => {setPhotoModalVisible(takeImage())}}>
+                    <DefaultText>Add From Camera</DefaultText>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
+                    onPress={() => {setPhotoModalVisible(pickImage)}}>
+                    <DefaultText>Add From Gallery</DefaultText>
+                </TouchableOpacity>
+                {/*<TouchableOpacity style={[styles.button, {width:'50%'}]}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
                     <DefaultText>Add user</DefaultText>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
             </View>
         </SafeAreaView>
     );
