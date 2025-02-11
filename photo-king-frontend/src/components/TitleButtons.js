@@ -3,19 +3,19 @@ import DefaultText from './DefaultText';
 import styles, { colors } from '../styles/ComponentStyles.js';
 
 
-export default function TitleButtons(){
+export default function TitleButtons({navigation}){
 
     return(
         <View pointerEvents="auto" style={{flexDirection:"row", justifyContent: "space-between", padding:10 }}>
             <TouchableOpacity
                 style={styles.button}
-                onPressOut={() => {console.log("HERE");}}
+                onPressOut={() => {navigation.navigate("Profile")}}
             >
                 <DefaultText>Profile</DefaultText>
             </TouchableOpacity>
             <TouchableOpacity 
                 style={styles.button}
-                onPressOut={() => {console.log("HERE");}}
+                onPressOut={() => {navigation.navigate("Settings")}}
             >
                 <DefaultText>Settings</DefaultText>
             </TouchableOpacity>
