@@ -5,6 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import axios from "axios";
 import {useEffect, useState} from "react";
 import {API_URL} from "../api/utils";
+import DefaultText from '../components/DefaultText.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -45,7 +46,9 @@ export default function HomeScreen ({navigation}){
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
-            // Render user info only if `user` is not null
+          // Render user info only if `user` is not null
+          user.photoGroups.length ? (
+            // List groups if user has any
             <FlatList
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={user.photoGroups}
@@ -57,6 +60,9 @@ export default function HomeScreen ({navigation}){
                 }
                 keyExtractor={ item => item.id }
             />
+          ) : (
+            // No active groups message
+            <DefaultText>You have no active groups!</DefaultText>) 
         ) : (
             // Show error message if user is null (e.g., not found)
             <Text style={{ color: 'red' }}>User not found</Text>

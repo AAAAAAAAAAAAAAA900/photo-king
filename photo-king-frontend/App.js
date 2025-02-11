@@ -12,6 +12,8 @@ import GroupScreen from './src/screens/Group.js';
 import TitleButtons from './src/components/TitleButtons.js';
 import { View } from 'react-native';
 import DefaultText from './src/components/DefaultText.js';
+import ProfileScreen from './src/screens/Profile.js';
+import SettingsScreen from './src/screens/Settings.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,17 +56,27 @@ export default function App() {
           />
           <Stack.Screen 
             name='Home'
-            options={{
+            options={({ navigation }) => ({
               // headerTitleStyle:styles.titleText,
               headerTitle: () =><DefaultText style={styles.titleText}>Home</DefaultText>,
-              headerRight: () => (<TitleButtons/>),
-          }} 
+              headerRight: () => (<TitleButtons navigation={navigation}/>),
+          })} 
             component={HomeScreen}
           />
           <Stack.Screen 
             name='Group'
             options={{headerTitleStyle:styles.titleText}} 
             component={GroupScreen}
+          />
+          <Stack.Screen 
+            name='Profile'
+            options={{headerTitleStyle:styles.titleText}} 
+            component={ProfileScreen}
+          />
+          <Stack.Screen 
+            name='Settings'
+            options={{headerTitleStyle:styles.titleText}} 
+            component={SettingsScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>
