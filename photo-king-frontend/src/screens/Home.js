@@ -5,6 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import axios from "axios";
 import {useEffect, useState} from "react";
 import {API_URL} from "../api/utils";
+import DefaultText from '../components/DefaultText.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -13,8 +14,7 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // loading page
 
-
-
+  // User data from username: API call
   const getUser = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
@@ -25,7 +25,6 @@ export default function HomeScreen ({navigation}){
           }
       );
       setUser(response.data)
-
     }
     catch (error) {
       console.log(error);
@@ -40,28 +39,30 @@ export default function HomeScreen ({navigation}){
     getUser();
   }, []);
 
-  useEffect(() => {
-  }, [user]);
-
   // Home screen view: scrollable list of groups
-
   return (
       <SafeAreaView style={{ padding: 20 }}>
         {/* Show loading indicator while fetching data */}
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
-            // Render user info only if `user` is not null
+          // Render user info only if `user` is not null
+          user.photoGroups.length ? (
+            // List groups if user has any
             <FlatList
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={user.photoGroups}
-                renderItem={({item}) => <GroupPreview groupTitle={item.name} navFunction={() => {navigation.navigate("Group", {
-                      user: user,
-                      group: item
-                    }
-                )}}/>}
+                renderItem={({item}) => 
+                  <GroupPreview groupTitle={item.name} navFunction={() => {
+                    navigation.navigate("Group", {user: user,group: item})
+                  }}
+                  />
+                }
                 keyExtractor={ item => item.id }
             />
+          ) : (
+            // No active groups message
+            <DefaultText>You have no active groups!</DefaultText>) 
         ) : (
             // Show error message if user is null (e.g., not found)
             <Text style={{ color: 'red' }}>User not found</Text>
