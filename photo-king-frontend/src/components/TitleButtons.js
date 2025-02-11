@@ -9,13 +9,13 @@ export default function TitleButtons(){
         <View pointerEvents="auto" style={{flexDirection:"row", justifyContent: "space-between", padding:10 }}>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => {console.log("HERE");}}
+                onPressOut={() => {console.log("HERE");}}
             >
                 <DefaultText>Profile</DefaultText>
             </TouchableOpacity>
             <TouchableOpacity 
                 style={styles.button}
-                onPress={() => {console.log("HERE");}}
+                onPressOut={() => {console.log("HERE");}}
             >
                 <DefaultText>Settings</DefaultText>
             </TouchableOpacity>
