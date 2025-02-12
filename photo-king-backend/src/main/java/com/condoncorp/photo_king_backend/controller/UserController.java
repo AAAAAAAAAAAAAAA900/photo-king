@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.dto.UserFriendOTD;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.service.UserService;
@@ -40,6 +41,11 @@ public class UserController {
     @DeleteMapping(path = "/delete/{id}")
     public void deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
+    }
+
+    @GetMapping(path = "/get-friends/{username}")
+    public UserFriendOTD getFriendOTD(@PathVariable String username) {
+        return userService.getFriendOTD(username);
     }
 
 }

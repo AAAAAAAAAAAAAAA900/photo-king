@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.dto.UserFriendOTD;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
@@ -106,6 +107,11 @@ public class UserService {
         user.addFriend(friend);
         saveUser(user);
         return user.getFriends();
+    }
+
+    public UserFriendOTD getFriendOTD(String username) {
+        User user = getUserByUsername(username);
+        return UserFriendOTD.convertUserToOTD(user);
     }
 
 
