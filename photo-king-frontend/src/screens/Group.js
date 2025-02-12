@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import GroupPreview from '../components/GroupPreview.js';
 import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
+import {useActionSheet} from "@expo/react-native-action-sheet";
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -18,6 +19,29 @@ export default function GroupScreen({navigation}){
     const [userSearch, setUserSearch] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [uploadImage, setUploadImage] = useState([]);
+
+    const { showActionSheetWithOptions } = useActionSheet();
+
+    const onPressPhoto = () => {
+        const options = ['Gallery', 'Camera', 'Cancel']
+        const cancelButtonIndex = 2;
+
+        showActionSheetWithOptions({
+            options,
+            cancelButtonIndex
+        }, (selectedIndex) => {
+            switch (selectedIndex) {
+                case cancelButtonIndex:
+                    break;
+                case 0:
+                    pickImage();
+                    break;
+                case 1:
+                    takeImage();
+                    break;
+            }
+        })
+    }
 
     // FlatList element's view
     const Pic = ({ photo }) => {
@@ -50,8 +74,7 @@ export default function GroupScreen({navigation}){
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                                             // useMediaLibraryPermissions?
-        console.log("HERE");
-   
+
         if (status !== 'granted'){
             Alert.alert(
                 "Permission Required",
@@ -219,8 +242,8 @@ export default function GroupScreen({navigation}){
             </View>
             <View style={groupStyles.buttonHolder}>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
-                    onPress={() => {setPhotoModalVisible(takeImage())}}>
-                    <DefaultText>Add From Camera</DefaultText>
+                    onPress={() => {onPressPhoto()}}>
+                    <DefaultText>BUTTON TEST</DefaultText>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                     onPress={() => {setPhotoModalVisible(pickImage)}}>
