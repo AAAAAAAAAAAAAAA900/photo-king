@@ -14,6 +14,7 @@ import { View } from 'react-native';
 import DefaultText from './src/components/DefaultText.js';
 import ProfileScreen from './src/screens/Profile.js';
 import SettingsScreen from './src/screens/Settings.js';
+import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 
 const Stack = createNativeStackNavigator();
 
@@ -41,46 +42,48 @@ export default function App() {
 
   // Sets up navigator
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen 
-            name='Login' 
-            options={{headerTitleStyle:styles.titleText, headerShown: false }}
-            component={LoginScreen}
-          />
-          <Stack.Screen 
-            name='Register'
-            options={{headerTitleStyle:styles.titleText}} 
-            component={RegisterScreen}
-          />
-          <Stack.Screen 
-            name='Home'
-            options={({ navigation }) => ({
-              // headerTitleStyle:styles.titleText,
-              headerTitle: () =><DefaultText style={styles.titleText}>Home</DefaultText>,
-              headerRight: () => (<TitleButtons navigation={navigation}/>),
-          })} 
-            component={HomeScreen}
-          />
-          <Stack.Screen 
-            name='Group'
-            options={{headerTitleStyle:styles.titleText}} 
-            component={GroupScreen}
-          />
-          <Stack.Screen 
-            name='Profile'
-            options={{headerTitleStyle:styles.titleText}} 
-            component={ProfileScreen}
-          />
-          <Stack.Screen 
-            name='Settings'
-            options={{headerTitleStyle:styles.titleText}} 
-            component={SettingsScreen}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+      <ActionSheetProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+              <Stack.Screen
+                name='Login'
+                options={{headerTitleStyle:styles.titleText, headerShown: false }}
+                component={LoginScreen}
+              />
+              <Stack.Screen
+                name='Register'
+                options={{headerTitleStyle:styles.titleText}}
+                component={RegisterScreen}
+              />
+              <Stack.Screen
+                name='Home'
+                options={({ navigation }) => ({
+                  // headerTitleStyle:styles.titleText,
+                  headerTitle: () =><DefaultText style={styles.titleText}>Home</DefaultText>,
+                  headerRight: () => (<TitleButtons navigation={navigation}/>),
+              })}
+                component={HomeScreen}
+              />
+              <Stack.Screen
+                name='Group'
+                options={{headerTitleStyle:styles.titleText}}
+                component={GroupScreen}
+              />
+              <Stack.Screen
+                name='Profile'
+                options={{headerTitleStyle:styles.titleText}}
+                component={ProfileScreen}
+              />
+              <Stack.Screen
+                name='Settings'
+                options={{headerTitleStyle:styles.titleText}}
+                component={SettingsScreen}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ActionSheetProvider>
   );
 }
 
