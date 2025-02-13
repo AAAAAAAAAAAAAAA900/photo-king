@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
@@ -42,7 +43,7 @@ public class User {
     @Cascade(CascadeType.ALL)
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "friends_list",

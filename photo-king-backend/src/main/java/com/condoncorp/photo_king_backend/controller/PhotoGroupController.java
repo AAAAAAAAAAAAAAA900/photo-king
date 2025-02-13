@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(path="/api/photo-group")
+@RequestMapping(path="api/photo-group")
 public class PhotoGroupController {
     @Autowired
     private PhotoGroupRepository photoGroupRepository;
