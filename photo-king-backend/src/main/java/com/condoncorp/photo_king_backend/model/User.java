@@ -42,7 +42,7 @@ public class User {
     @Cascade(CascadeType.ALL)
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
-    @JsonBackReference
+    @JsonManagedReference
     @ManyToMany
     @JoinTable(
             name = "friends_list",
