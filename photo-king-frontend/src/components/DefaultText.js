@@ -1,6 +1,6 @@
 import { Text } from 'react-native';
 import styles from '../styles/ComponentStyles.js';
 
-export default function DefaultText ({children, style}) {
-    return(<Text style={[styles.baseText, style]}>{children}</Text>);
+export default function DefaultText ({children}) {
+    return(<Text style={styles.baseText}>{children}</Text>);
 }
