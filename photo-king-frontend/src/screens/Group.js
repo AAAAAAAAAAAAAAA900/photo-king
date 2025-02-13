@@ -202,6 +202,7 @@ export default function GroupScreen({navigation}){
                             <FriendSearch searchData={user.friends} onSelect={(friend) => {
                                 Alert.alert(
                                     `Add ${friend} to group?`,
+                                    "They will have access to all photos in this group.",
                                     [
                                         { text: "Cancel", style: "cancel"},
                                         { text: "Confirm", onPress: () => {/*addUserToGroup(friend);*/ console.log("Uncomment function");} }
