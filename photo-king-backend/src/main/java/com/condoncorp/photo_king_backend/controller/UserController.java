@@ -5,6 +5,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +19,13 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(path = "/login")
-    public User login(@RequestBody AuthRegReq authRegReq) {
+    public UserDTO login(@RequestBody AuthRegReq authRegReq) {
         return userService.loginUser(authRegReq);
     }
 
-    @PostMapping(path = "/register")
-    public User register(@RequestBody UserDTO userDTO) {
-        return userService.registerUser(userDTO);
+    @PostMapping(path = "/register", consumes = {"application/json"})
+    public UserDTO register(@RequestBody User user) {
+        return userService.registerUser(user);
     }
 
     @GetMapping(path = "/get-user/{username}")
@@ -41,6 +42,5 @@ public class UserController {
     public void deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
     }
-
 
 }

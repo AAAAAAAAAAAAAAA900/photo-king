@@ -45,42 +45,43 @@ public class UserService {
     }
 
     // HANDLES USER LOGIN
-    public User loginUser(AuthRegReq authRegReq) {
+    public UserDTO loginUser(AuthRegReq authRegReq) {
         Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        return user.get();
+        return new UserDTO(user.get());
     }
 
     // HANDLES USER REGISTRATION
-    public User registerUser(UserDTO userDTO) {
-        User user = convertDTOtoEntity(userDTO);
-        return userRepository.save(user);
+    public UserDTO registerUser(User user) {
+        User newUser = new User(user);
+        return new UserDTO(userRepository.save(newUser));
     }
+
 
     // CONVERTS DATA FROM FRONTEND TO ENTITY
-    public User convertDTOtoEntity(UserDTO userDTO) {
-        User user = new User();
-
-        Optional<User> findByUsername = userRepository.findByUsername(userDTO.getUsername());
-        if (findByUsername.isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
-
-        Optional<User> findByEmail = userRepository.findByEmail(userDTO.getEmail());
-        if (findByEmail.isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setEmail(userDTO.getEmail());
-        user.setPhone(userDTO.getPhone());
-        user.setFirstname(userDTO.getFirstname());
-        user.setLastname(userDTO.getLastname());
-        return user;
-    }
+//    public User convertDTOtoEntity(UserDTO userDTO) {
+//        User user = new User();
+//
+//        Optional<User> findByUsername = userRepository.findByUsername(userDTO.getUsername());
+//        if (findByUsername.isPresent()) {
+//            throw new RuntimeException("User already exists");
+//        }
+//
+//        Optional<User> findByEmail = userRepository.findByEmail(userDTO.getEmail());
+//        if (findByEmail.isPresent()) {
+//            throw new RuntimeException("Email already exists");
+//        }
+//
+//        user.setUsername(userDTO.getUsername());
+//        user.setPassword(userDTO.getPassword());
+//        user.setEmail(userDTO.getEmail());
+//        user.setPhone(userDTO.getPhone());
+//        user.setFirstname(userDTO.getFirstname());
+//        user.setLastname(userDTO.getLastname());
+//        return user;
+//    }
 
     // RETURNS USER BY ID
     public User getUserById(Integer id) {

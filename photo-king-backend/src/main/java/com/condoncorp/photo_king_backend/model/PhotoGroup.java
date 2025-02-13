@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -17,7 +18,6 @@ public class PhotoGroup {
     @Column(unique = true, nullable = false, length = 20, name = "name")
     private String name;
 
-    @JsonIgnore
     @ManyToMany(mappedBy = "photoGroups")
     private Set<User> users = new HashSet<>();
 

@@ -33,7 +33,7 @@ public class User {
     @Column(nullable = false, length = 20, name = "lastname")
     private String lastname;
 
-    @JsonManagedReference
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_group",
@@ -60,6 +60,17 @@ public class User {
         this.email = email;
         this.lastname = lastname;
         this.firstname = firstname;
+        this.photoGroups = new HashSet<>();
+        this.friends = new HashSet<>();
+    }
+
+    public User(User user) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.phone = user.getPhone();
+        this.email = user.getEmail();
+        this.lastname = user.getLastname();
+        this.firstname = user.getFirstname();
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
     }
