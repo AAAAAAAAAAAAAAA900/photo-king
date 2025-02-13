@@ -1,5 +1,4 @@
 import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert } from 'react-native';
-import { SearchBar } from '@rneui/themed';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -8,6 +7,7 @@ import GroupPreview from '../components/GroupPreview.js';
 import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
 import {useActionSheet} from "@expo/react-native-action-sheet";
+import FriendSearch from '../components/FriendSearch.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -16,8 +16,6 @@ export default function GroupScreen({navigation}){
     const [pictures, setPictures] = useState([]);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [userModalVisible, setUserModalVisible] = useState(false);
-    const [userSearch, setUserSearch] = useState('');
-    const [filteredData, setFilteredData] = useState([]);
     const [uploadImage, setUploadImage] = useState([]);
 
     const { showActionSheetWithOptions } = useActionSheet();
@@ -144,30 +142,20 @@ export default function GroupScreen({navigation}){
         }
     };
 
-    const templateData = [ // DELETE LATER 
-        {username: 'Buckeye Bill', object: "Buckeye Bill's user obj"},
-        {username: 'Matthew Hayes', object: "Matthew Hayes's user obj"},
-        {username: 'Samwise', object: "Samwise's user obj"},
-        {username: 'Robert J Wobert', object: "Robert J Wobert's user obj"},
-        {username: 'Mean Martin', object: "Mean Martin's user obj"},
-        {username: '123THE_GAMER123', object: "123THE_GAMER123's user obj"},
-        {username: 'Meatball_Mike!', object: "Meatball_Mike!'s user obj"}
-    ];
-    // User search bar search function
-    const search = (text) => {
-        if (text){
-            const data = /* API call: query for friends of user WHERE username LIKE '{text}%' */
-                templateData.filter((item) => item.username.toLowerCase().includes(text.toLowerCase()));
-            setFilteredData(data);
-        } else{
-            setFilteredData(templateData);
-        }
-    };
-
-    // Update search results on type change
-    useEffect(() => {
-        search(userSearch);
-    }, [userSearch]);
+    // const addUserToGroup = async (username) => {
+    //     try {
+    //         const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
+    //         {
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
+    //         setUser(response.data);
+    //     }
+    //     catch (error) {
+    //         console.log(error);
+    //     }
+    // };
 
     return(
         <SafeAreaView style={{flex:1}}>
@@ -211,19 +199,16 @@ export default function GroupScreen({navigation}){
                 <View style={styles.containerCenterAll}>
                     <View style={groupStyles.popupView}>
                         <View style={{flex:1}}>
-                            <SearchBar
-                                placeholder="Search Friends..."
-                                onChangeText={(userSearch) => {setUserSearch(userSearch)}}
-                                value={userSearch}
-                                inputContainerStyle={[styles.textIn, {width:'100%'}]}
-                                containerStyle={styles.containerCenterAll}
-                                lightTheme={true}
-                            />
-                            <FlatList
-                                data={filteredData}
-                                keyExtractor={(item) => item.username}
-                                renderItem={({item}) => <GroupPreview groupTitle={item.username} navFunction={() => {setUserModalVisible(!userModalVisible)}}  />}
-                            />
+                            <FriendSearch searchData={user.friends} onSelect={(friend) => {
+                                Alert.alert(
+                                    `Add ${friend} to group?`,
+                                    [
+                                        { text: "Cancel", style: "cancel"},
+                                        { text: "Confirm", onPress: () => {/*addUserToGroup(friend);*/ console.log("Uncomment function");} }
+                                    ]
+                                );
+                                setUserModalVisible(false);
+                            }}/>
                         </View>
                     </View>
                 </View>
@@ -243,16 +228,12 @@ export default function GroupScreen({navigation}){
             <View style={groupStyles.buttonHolder}>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                     onPress={() => {onPressPhoto()}}>
-                    <DefaultText>BUTTON TEST</DefaultText>
+                    <DefaultText>Add Photo</DefaultText>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
-                    onPress={() => {setPhotoModalVisible(pickImage)}}>
-                    <DefaultText>Add From Gallery</DefaultText>
-                </TouchableOpacity>
-                {/*<TouchableOpacity style={[styles.button, {width:'50%'}]}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
-                    <DefaultText>Add user</DefaultText>
-                </TouchableOpacity>*/}
+                    <DefaultText>Add User</DefaultText>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

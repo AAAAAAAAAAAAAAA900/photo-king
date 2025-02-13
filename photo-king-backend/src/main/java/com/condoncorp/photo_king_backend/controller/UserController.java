@@ -19,12 +19,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(path = "/login")
-    public User login(@RequestBody AuthRegReq authRegReq) {
+    public UserDTO login(@RequestBody AuthRegReq authRegReq) {
         return userService.loginUser(authRegReq);
     }
 
     @PostMapping(path = "/register", consumes = {"application/json"})
-    public User register(@RequestBody User user) {
+    public UserDTO register(@RequestBody User user) {
         return userService.registerUser(user);
     }
 

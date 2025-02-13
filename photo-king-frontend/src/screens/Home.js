@@ -119,12 +119,12 @@ export default function HomeScreen ({navigation}){
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
           // Render user info only if `user` is not null
-          user.photoGroups && user.photoGroups.length ? (
+          user.groups && user.groups.length ? (
             // List groups if user has any
             <View style={{flex:1}}>
               <FlatList
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                  data={user.photoGroups}
+                  data={user.groups}
                   renderItem={({item}) => 
                     <GroupPreview groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})

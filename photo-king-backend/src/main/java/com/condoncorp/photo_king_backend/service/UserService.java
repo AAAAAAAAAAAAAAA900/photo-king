@@ -45,19 +45,20 @@ public class UserService {
     }
 
     // HANDLES USER LOGIN
-    public User loginUser(AuthRegReq authRegReq) {
+    public UserDTO loginUser(AuthRegReq authRegReq) {
         Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        return user.get();
+        return new UserDTO(user.get());
     }
 
     // HANDLES USER REGISTRATION
-    public User registerUser(User user) {
+    public UserDTO registerUser(User user) {
         User newUser = new User(user);
-        return userRepository.save(newUser);
+        return new UserDTO(userRepository.save(newUser));
     }
+
 
     // CONVERTS DATA FROM FRONTEND TO ENTITY
 //    public User convertDTOtoEntity(UserDTO userDTO) {

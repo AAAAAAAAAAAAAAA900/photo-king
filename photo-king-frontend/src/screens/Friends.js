@@ -3,6 +3,8 @@ import DefaultText from "../components/DefaultText";
 import { useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import FriendSearch from "../components/FriendSearch";
 
 
 export default function FriendsScreen({navigation}){
@@ -10,7 +12,7 @@ export default function FriendsScreen({navigation}){
     const user = route.params?.user;
     const [loading, setLoading] = useState(false);
     const [friendsList, setFriendsList] = useState([]);
-    console.log(user.friends);
+
     if (!user){
         return(<DefaultText>ERROR CASE: user lost</DefaultText>)
     }
@@ -46,7 +48,7 @@ export default function FriendsScreen({navigation}){
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <View style={{flex:1}}>
-                    <DefaultText>friends</DefaultText>
+                    <FriendSearch onSelect={()=>{}} searchData={user.friends}/>
                 </View>
             )}
             <NavBar navigation={navigation} user={user} screen='Friends'/>
