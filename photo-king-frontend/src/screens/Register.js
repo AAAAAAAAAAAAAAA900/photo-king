@@ -22,6 +22,8 @@ export default function RegisterScreen ({navigation}){
 
   // Send Register attempt to backend
   const Register = async (data) => {
+    data["photoGroups"] = [];
+    data["friends"] = [];
     try {
       const response = await axios.post(`${API_URL}/api/user/register`, data,
         {
@@ -30,7 +32,7 @@ export default function RegisterScreen ({navigation}){
           }
         }
       );
-      navigation.navigate("Home", {username : username});
+      navigation.navigate("Home", {user : response.data});
     }
     catch (error) {
       console.log(error);

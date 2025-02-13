@@ -14,6 +14,7 @@ import { View } from 'react-native';
 import DefaultText from './src/components/DefaultText.js';
 import ProfileScreen from './src/screens/Profile.js';
 import SettingsScreen from './src/screens/Settings.js';
+import FriendsScreen from './src/screens/Friends.js';
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 
 const Stack = createNativeStackNavigator();
@@ -79,6 +80,11 @@ export default function App() {
                 name='Settings'
                 options={{headerTitleStyle:styles.titleText}}
                 component={SettingsScreen}
+              />
+              <Stack.Screen
+                name='Friends'
+                options={{headerTitleStyle:styles.titleText}}
+                component={FriendsScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>
