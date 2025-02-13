@@ -23,7 +23,7 @@ export default function LoginScreen ({navigation}){
           }
         }
       );
-      navigation.navigate("Home", {username : username});
+      navigation.navigate("Home", {user : response.data});
 
     }
     catch (error) {
@@ -35,7 +35,7 @@ export default function LoginScreen ({navigation}){
   return(
     <SafeAreaView  style={[styles.container/*, {backgroundColor:colors.primary}*/]}>
       <LinearGradient 
-        colors={[colors.primary, "#000000"]} // Change colors as needed
+        colors={[colors.primary, colors.secondary]} // Change colors as needed
         start={{ x: 0, y: 0 }} // Top-left corner
         end={{ x: 1, y: 1 }} // Bottom-right corner
         style={styles.containerCenterAll}
