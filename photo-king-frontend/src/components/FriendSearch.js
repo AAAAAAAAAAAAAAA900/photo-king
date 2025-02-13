@@ -26,10 +26,10 @@ export default function FriendSearch({searchData, onSelect}){
         search(userSearch);
     }, [userSearch]);
     
-    function FriendPreview({username, pfp}){
+    function FriendPreview({friend}){
         return(
-            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(username) : null}}>
-                <DefaultText>{username}</DefaultText>
+            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend.username, friend.id) : null}}>
+                <DefaultText>{friend.username}</DefaultText>
             </TouchableOpacity>
         );
     }
@@ -47,7 +47,7 @@ export default function FriendSearch({searchData, onSelect}){
             <FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.username}
-                renderItem={({item}) => <FriendPreview username={item.username}/>}
+                renderItem={({item}) => <FriendPreview friend={item}/>}
             />
         </View>
     );

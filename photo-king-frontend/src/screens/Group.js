@@ -8,6 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
 import {useActionSheet} from "@expo/react-native-action-sheet";
 import FriendSearch from '../components/FriendSearch.js';
+import axios from "axios";
+import {API_URL} from "../api/utils";
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -40,6 +42,8 @@ export default function GroupScreen({navigation}){
             }
         })
     }
+
+
 
     // FlatList element's view
     const Pic = ({ photo }) => {
@@ -142,51 +146,22 @@ export default function GroupScreen({navigation}){
         }
     };
 
-    // const addUserToGroup = async (username) => {
-    //     try {
-    //         const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
-    //         {
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         });
-    //         setUser(response.data);
-    //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    // };
+    const addUserToGroup = async (id) => {
+        try {
+            const response = await axios.post(`${API_URL}/api/user-groups/add-user/${id}/${group.id}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    };
 
     return(
         <SafeAreaView style={{flex:1}}>
-
-            {/* add photo pop-up 
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={photoModalVisible}
-                onRequestClose={() => {setPhotoModalVisible(false);}}
-            >
-                <View style={styles.containerCenterAll}>
-                    <View style={groupStyles.popupView}>
-                        <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
-                            onPress={() => {
-                                setPhotoModalVisible(false);
-                                takeImage();
-                            }}>
-                            <DefaultText>Camera</DefaultText>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, {width:'50%', height:'100%'}]}
-                            onPress={() => {
-                                setPhotoModalVisible(false);
-                                pickImage();
-                            }}>
-                            <DefaultText>Gallery</DefaultText>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-            */}
             
             {/* add user pop-up */}
             <Modal
@@ -199,12 +174,13 @@ export default function GroupScreen({navigation}){
                 <View style={styles.containerCenterAll}>
                     <View style={groupStyles.popupView}>
                         <View style={{flex:1}}>
-                            <FriendSearch searchData={user.friends} onSelect={(friend) => {
+                            <FriendSearch searchData={user.friends} onSelect={(friend, friend_id) => {
                                 Alert.alert(
                                     `Add ${friend} to group?`,
+                                    "They will have access to all photos in this group.",
                                     [
                                         { text: "Cancel", style: "cancel"},
-                                        { text: "Confirm", onPress: () => {/*addUserToGroup(friend);*/ console.log("Uncomment function");} }
+                                        { text: "Confirm", onPress: () => {addUserToGroup(friend_id)} }
                                     ]
                                 );
                                 setUserModalVisible(false);
