@@ -134,7 +134,7 @@ export default function GroupScreen({navigation}){
             ), id:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
-            await uploadPhotos(result);
+            uploadPhotos(result);
 
         }
     };
@@ -173,7 +173,7 @@ export default function GroupScreen({navigation}){
             ), id:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
-            await uploadPhotos(result);
+            uploadPhotos(result);
         }
     };
 

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,13 +26,15 @@ public class UserImageController {
             System.out.println("User ID: " + userId);
             System.out.println("Group ID: " + groupId);
 
+            List<String> uploadedUrls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = userImageService.upload(file, userId, groupId);
                 if (url != null) {
-                    return url;
+                    uploadedUrls.add(url);
                 }
             }
-            return "UPLOAD FAILED";
+
+            return uploadedUrls.toString();
         } catch (Exception e) {
             System.out.println("Upload error: " + e.getMessage());
             return "INTERNAL SERVER ERROR";
