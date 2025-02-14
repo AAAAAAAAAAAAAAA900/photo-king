@@ -11,31 +11,11 @@ import NavBar from '../components/NavBar.js';
 export default function HomeScreen ({navigation}){
 
   const route = useRoute();
-  const user = route.params?.user;
+  const [user, setUser] = useState(route.params?.user);
   // const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-
-  // // User data from username: API call
-  // const getUser = async () => {
-  //   try {
-  //     const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'application/json'
-  //           }
-  //         }
-  //     );
-  //     setUser(response.data)
-  //   }
-  //   catch (error) {
-  //     console.log(error);
-  //   }
-  //   finally {
-  //     setLoading(false);
-  //   }
-  // }
 
   const addGroup = async () => {
 
@@ -52,13 +32,14 @@ export default function HomeScreen ({navigation}){
 
       try {
         const user_group_response = await axios.post(`${API_URL}/api/user-groups/add-user/${user.id}/${group_data.id}`)
-
+        setUser({
+          ...user,
+          groups: [...user.groups, group_data]
+        });
       }
       catch (error) {
         console.log(error);
       }
-
-
     }
     catch (error) {
       console.log(error);
@@ -66,12 +47,6 @@ export default function HomeScreen ({navigation}){
   }
 
   
-
-  // useEffect to get user data on load
-  // useEffect(() => {
-  //   getUser();
-  // }, []);
-
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ padding: 20, flex:1 }}>

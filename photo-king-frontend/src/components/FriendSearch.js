@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import DefaultText from "./DefaultText";
 import styles from '../styles/ComponentStyles.js';
 
-
-
 export default function FriendSearch({searchData, onSelect}){
     const [userSearch, setUserSearch] = useState('');
     const [filteredData, setFilteredData] = useState([]);
+
+    useEffect(() => {
+        setFilteredData(searchData); // Update filtered data when the friend list updates
+    }, [searchData]);
 
     // User search bar search function
     const search = (text) => {
@@ -28,7 +30,7 @@ export default function FriendSearch({searchData, onSelect}){
     
     function FriendPreview({friend}){
         return(
-            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend.username, friend.id) : null}}>
+            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend) : null}}>
                 <DefaultText>{friend.username}</DefaultText>
             </TouchableOpacity>
         );
