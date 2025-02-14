@@ -17,7 +17,6 @@ export default function HomeScreen ({navigation}){
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
 
-  console.log(user);
   const addGroup = async () => {
 
     try {

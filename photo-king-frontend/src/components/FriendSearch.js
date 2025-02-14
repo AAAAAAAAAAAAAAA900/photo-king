@@ -30,7 +30,7 @@ export default function FriendSearch({searchData, onSelect}){
     
     function FriendPreview({friend}){
         return(
-            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend.username, friend.id) : null}}>
+            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend) : null}}>
                 <DefaultText>{friend.username}</DefaultText>
             </TouchableOpacity>
         );

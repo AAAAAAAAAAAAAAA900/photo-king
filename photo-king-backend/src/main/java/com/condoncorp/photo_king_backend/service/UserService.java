@@ -103,6 +103,15 @@ public class UserService {
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
+    public Set<FriendDTO> removeFriend(Integer userId, Integer friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        user.removeFriend(friend);
+        friend.removeFriend(user);
+        saveUser(user);
+        saveUser(friend);
+        return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
+    }
 
 
 

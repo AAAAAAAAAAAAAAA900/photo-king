@@ -40,6 +40,11 @@ public class UserController {
         return userService.addFriend(userId, friendId);
     }
 
+    @PostMapping(path="/remove-friend/{userId}/{friendId}")
+    public Set<FriendDTO> removeFriend(@PathVariable int userId, @PathVariable int friendId) {
+        return userService.removeFriend(userId, friendId);
+    }
+
     @DeleteMapping(path = "/delete/{id}")
     public void deleteUser(@PathVariable int id) {
         userService.deleteUser(id);

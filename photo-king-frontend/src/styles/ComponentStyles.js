@@ -70,6 +70,13 @@ export default styles = StyleSheet.create({
         height: 1,
         backgroundColor: colors.grey,
         marginHorizontal: 30,
+    },
+    popupView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width:300,
+        height:300,
+        backgroundColor: colors.greyWhite
     }
 });
 

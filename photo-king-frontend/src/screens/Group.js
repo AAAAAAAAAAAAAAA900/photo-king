@@ -203,15 +203,15 @@ export default function GroupScreen({navigation}){
                 style={{justifyContent:'center'}}
             >
                 <View style={styles.containerCenterAll}>
-                    <View style={groupStyles.popupView}>
+                    <View style={styles.popupView}>
                         <View style={{flex:1}}>
-                            <FriendSearch searchData={user.friends} onSelect={(friend, friend_id) => {
+                            <FriendSearch searchData={user.friends} onSelect={(friend) => {
                                 Alert.alert(
-                                    `Add ${friend} to group?`,
+                                    `Add ${friend.username} to group?`,
                                     "They will have access to all photos in this group.",
                                     [
                                         { text: "Cancel", style: "cancel"},
-                                        { text: "Confirm", onPress: () => {addUserToGroup(friend_id)} }
+                                        { text: "Confirm", onPress: () => {addUserToGroup(friend.id)} }
                                     ]
                                 );
                                 setUserModalVisible(false);
@@ -266,12 +266,4 @@ const groupStyles = StyleSheet.create({
         alignSelf: 'baseline',
         flexDirection:"row"
     },
-    popupView: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection:'row',
-        width:300,
-        height:300,
-        backgroundColor: colors.greyWhite
-    }
 });
