@@ -1,9 +1,7 @@
 package com.condoncorp.photo_king_backend.model;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -63,17 +61,7 @@ public class User {
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
     }
-
-    public User(User user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.phone = user.getPhone();
-        this.email = user.getEmail();
-        this.lastname = user.getLastname();
-        this.firstname = user.getFirstname();
-        this.photoGroups = new HashSet<>();
-        this.friends = new HashSet<>();
-    }
+    
 
 
     public User() {}

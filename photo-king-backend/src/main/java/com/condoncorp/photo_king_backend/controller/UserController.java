@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.service.UserService;
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/register", consumes = {"application/json"})
-    public UserDTO register(@RequestBody User user) {
+    public UserDTO register(@RequestBody UserRegisterDTO user) {
         return userService.registerUser(user);
     }
 
