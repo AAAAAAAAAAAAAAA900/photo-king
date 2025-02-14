@@ -92,12 +92,12 @@ public class UserService {
         return user.get();
     }
 
-    public User getUserByUsername(String username) {
+    public UserDTO getUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        return user.get();
+        return new UserDTO(user.get());
     }
 
 
@@ -105,7 +105,9 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
         user.addFriend(friend);
+        friend.addFriend(user);
         saveUser(user);
+        saveUser(friend);
         return user.getFriends();
     }
 
