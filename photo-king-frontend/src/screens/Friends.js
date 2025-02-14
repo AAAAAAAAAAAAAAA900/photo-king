@@ -43,8 +43,6 @@ export default function FriendsScreen({navigation}){
             return(-1);
         }
         try {
-            console.log(user);
-            console.log(friend.id);
             const response = await axios.post(`${API_URL}/api/user/add-friend/${user.id}/${friend.id}`,
                 {
                     headers: {
@@ -83,6 +81,7 @@ export default function FriendsScreen({navigation}){
                     autoCapitalize ='none'
                     autoCorrect ={false}
                     placeholder="Enter username"
+                    value={userSearch}
                 />
                 <TouchableOpacity style={styles.button} onPress={()=>{addFriend();}}>
                     <DefaultText>Add Friend</DefaultText>
