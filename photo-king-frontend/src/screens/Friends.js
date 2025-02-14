@@ -11,7 +11,7 @@ import {API_URL} from "../api/utils";
 
 export default function FriendsScreen({navigation}){
     const route = useRoute();
-    const [user, setUser] = useState(route.params?.user)
+    const [user, setUser] = useState(route.params?.user);
     const [loading, setLoading] = useState(false);
     const [friendsList, setFriendsList] = useState(route.params?.user.friends);
     const [userSearch, setUserSearch] = useState("");
