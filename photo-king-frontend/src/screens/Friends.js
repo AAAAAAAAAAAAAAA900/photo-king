@@ -11,9 +11,9 @@ import {API_URL} from "../api/utils";
 
 export default function FriendsScreen({navigation}){
     const route = useRoute();
-    const user = route.params?.user;
+    const [user, setUser] = useState(route.params?.user)
     const [loading, setLoading] = useState(false);
-    const [friendsList, setFriendsList] = useState([]);
+    const [friendsList, setFriendsList] = useState(route.params?.user.friends);
     const [userSearch, setUserSearch] = useState("");
 
     if (!user){
@@ -50,6 +50,11 @@ export default function FriendsScreen({navigation}){
                     }
                 }
             );
+            setFriendsList([...response.data]);
+            setUser({
+                ...user,
+                friends: response.data
+            });
             setUserSearch("");
             Alert.alert("User added as friend.", 
                 `The user ${friend.username} was added as friend.`,
@@ -71,7 +76,7 @@ export default function FriendsScreen({navigation}){
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <View style={{flex:1}}>
-                    <FriendSearch onSelect={()=>{}} searchData={user.friends}/>
+                    <FriendSearch onSelect={()=>{}} searchData={friendsList}/>
                 </View>
             )}
             <View style={{flexDirection:'row'}}>

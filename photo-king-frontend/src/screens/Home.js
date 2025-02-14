@@ -12,30 +12,11 @@ export default function HomeScreen ({navigation}){
 
   const route = useRoute();
   const user = route.params?.user;
+  console.log(user.friends);
   // const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-
-  // // User data from username: API call
-  // const getUser = async () => {
-  //   try {
-  //     const response = await axios.get(`${API_URL}/api/user/get-user/${username}`,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'application/json'
-  //           }
-  //         }
-  //     );
-  //     setUser(response.data)
-  //   }
-  //   catch (error) {
-  //     console.log(error);
-  //   }
-  //   finally {
-  //     setLoading(false);
-  //   }
-  // }
 
   const addGroup = async () => {
 

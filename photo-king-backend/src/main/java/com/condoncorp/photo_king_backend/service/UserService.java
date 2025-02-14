@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
+import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -91,14 +93,14 @@ public class UserService {
     }
 
 
-    public Set<User> addFriend(Integer userId, Integer friendId) {
+    public Set<FriendDTO> addFriend(Integer userId, Integer friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
         user.addFriend(friend);
         friend.addFriend(user);
         saveUser(user);
         saveUser(friend);
-        return user.getFriends();
+        return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
 

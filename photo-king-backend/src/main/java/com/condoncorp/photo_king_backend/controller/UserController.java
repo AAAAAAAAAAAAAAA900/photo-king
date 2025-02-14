@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
 import com.condoncorp.photo_king_backend.model.User;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping(path="/add-friend/{userId}/{friendId}")
-    public Set<User> addFriend(@PathVariable int userId, @PathVariable int friendId) {
+    public Set<FriendDTO> addFriend(@PathVariable int userId, @PathVariable int friendId) {
         return userService.addFriend(userId, friendId);
     }
 
