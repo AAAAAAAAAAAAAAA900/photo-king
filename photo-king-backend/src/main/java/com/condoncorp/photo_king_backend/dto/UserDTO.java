@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class UserDTO {
 
+    private int id;
     private String username;
     private String email;
     private String phone;
@@ -18,6 +19,7 @@ public class UserDTO {
     private Set<PhotoGroup> groups;
 
     public UserDTO(User user){
+        this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.phone = user.getPhone();
@@ -28,6 +30,7 @@ public class UserDTO {
         this.groups = user.getPhotoGroups();
     }
 
+    public int getId() { return id; }
     public String getUsername() {
         return username;
     }
