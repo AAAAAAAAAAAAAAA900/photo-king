@@ -18,7 +18,6 @@ export default function GroupScreen({navigation}){
     const [pictures, setPictures] = useState([]);
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [userModalVisible, setUserModalVisible] = useState(false);
-    const [uploadImage, setUploadImage] = useState([]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -41,6 +40,34 @@ export default function GroupScreen({navigation}){
                     break;
             }
         })
+    }
+
+    const uploadPhotos = async (images) => {
+        console.log(images);
+        const formData = new FormData();
+
+        images.assets.forEach((image) => {
+            formData.append('files', {
+                uri: image.uri,
+                name: image.fileName || image.filename || 'image.jpg', // Ensure proper name field
+                type: image.type
+            });
+        });
+
+        formData.append('userId', user.id);
+        formData.append('groupId', group.id);
+
+        try {
+            const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload Success');
+            console.log(response.data);
+        } catch (error) {
+            console.log('Upload Error:', error.response?.data || error.message);
+        }
     }
 
 
@@ -98,7 +125,6 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            setUploadImage(result);
             const pics = pictures.concat((result.assets).map((image) => {return {icon:(
                 <Image
                     style={groupStyles.pic}
@@ -108,37 +134,12 @@ export default function GroupScreen({navigation}){
             ), id:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
-            await uploadPhotos();
+            uploadPhotos(result);
+
         }
     };
 
-    const uploadPhotos = async () => {
-        const formData = new FormData();
 
-        uploadImage.assets.forEach((image) => {
-            formData.append('files', {
-                uri: image.uri,
-                name: image.filename,
-                type: image.type
-            });
-        });
-        formData.append('userId', user.id);
-        formData.append('groupId', group.id);
-
-        /* API CALL ADD IMAGE TO TABLE */
-        try {
-            const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            console.log("Upload Success");
-            console.log(response.data)
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
 
     const takeImage = async () => {
 
@@ -162,7 +163,7 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            setUploadImage(result.assets);
+
             const pics = pictures.concat((result.assets).map((image) => {return {icon:(
                 <Image
                     style={groupStyles.pic}
@@ -172,6 +173,7 @@ export default function GroupScreen({navigation}){
             ), id:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
+            uploadPhotos(result);
         }
     };
 
