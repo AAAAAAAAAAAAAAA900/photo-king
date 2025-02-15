@@ -16,6 +16,7 @@ import ProfileScreen from './src/screens/Profile.js';
 import SettingsScreen from './src/screens/Settings.js';
 import FriendsScreen from './src/screens/Friends.js';
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
+import PhotoScreen from './src/screens/Photo.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -85,6 +86,11 @@ export default function App() {
                 name='Friends'
                 options={headerStyles.noBack}
                 component={FriendsScreen}
+              />
+              <Stack.Screen
+                name='Photo'
+                options={headerStyles.default}
+                component={PhotoScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>
