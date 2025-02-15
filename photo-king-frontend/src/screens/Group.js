@@ -74,24 +74,23 @@ export default function GroupScreen({navigation}){
 
     // FlatList element's view
     const Pic = ({ photo }) => {
-        return <TouchableOpacity style={groupStyles.picHolder}>{photo.icon}</TouchableOpacity>;
+        return (
+            <TouchableOpacity 
+            onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
+            style={groupStyles.picHolder}>
+                <Image
+                    style={groupStyles.pic}
+                    source={{uri: photo.uri}}
+                    // defaultSource= default image to display while loading images.
+                />
+            </TouchableOpacity>
+        );
     };
 
     // API call(?) to get photos from group
     const loadPictures /*= async*/ = () => {
         const pics = [];
-        for (let i = 0; i < 3; ++i){
-            pics[i]= {
-                icon: (
-                    <Image
-                        style={groupStyles.pic}
-                        source={require('../../assets/icons/icon.png')}
-                        // defaultSource= default image to display while loading images.
-                    />
-                ),
-                id:i.toString()
-            };
-        }
+        // api call to fill pics
         setPictures(pics);
     }
 
@@ -103,7 +102,6 @@ export default function GroupScreen({navigation}){
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                                             // useMediaLibraryPermissions?
-
         if (status !== 'granted'){
             Alert.alert(
                 "Permission Required",
@@ -115,7 +113,6 @@ export default function GroupScreen({navigation}){
             );
             return;
         }
-
         
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ['images'],
@@ -125,17 +122,10 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            const pics = pictures.concat((result.assets).map((image) => {return {icon:(
-                <Image
-                    style={groupStyles.pic}
-                    source={{uri:image.uri}}
-                    // defaultSource= default image to display while loading images.
-                />
-            ), id:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
-
         }
     };
 
@@ -163,14 +153,7 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-
-            const pics = pictures.concat((result.assets).map((image) => {return {icon:(
-                <Image
-                    style={groupStyles.pic}
-                    source={{uri:image.uri}}
-                    // defaultSource= default image to display while loading images.
-                />
-            ), id:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
@@ -221,14 +204,12 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
-            <DefaultText> {JSON.stringify(user)} {JSON.stringify(group)}</DefaultText>
-
             {/* Photo list */}
             <View style={groupStyles.picList}>
                 <FlatList 
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
-                    keyExtractor={(picture) => picture.id}
+                    keyExtractor={(picture) => picture.uri}
                     data={pictures}
                 />
             </View>
