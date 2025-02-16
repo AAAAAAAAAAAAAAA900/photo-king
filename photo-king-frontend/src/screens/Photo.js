@@ -16,7 +16,7 @@ export default function PhotoScreen ({navigation}){
     return(
         <SafeAreaView style={{flex:1}}>
             <Image 
-            source={{uri: photo.uri}}
+            source={{uri: photo.url}}
             style={{flex:1, maxHeight:'60%', maxWidth:'100%'}}
             />
         </SafeAreaView>
