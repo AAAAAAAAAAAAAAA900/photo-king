@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserImageService {
@@ -48,15 +49,27 @@ public class UserImageService {
         return userImage.getUrl();
     }
 
+    public void deleteImage(int id) throws IOException {
+
+        Optional<UserImage> userImage = userImageRepository.findById(id);
+
+        if (userImage.isEmpty()) {
+            return;
+        }
+
+        cloudinaryService.delete(userImage.get().getPublicId());
+        userImageRepository.deleteById(id);
+
+    }
+
 
     public void saveUserImage(UserImage userImage) {
         userImageRepository.save(userImage);
     }
 
 
-    // TESTING PURPOSES
-    public List<UserImage> getUserImages() {
-        return userImageRepository.findAll();
+    public List<UserImage> getImagesByGroup(PhotoGroup photoGroup) {
+        return userImageRepository.findByUserPhotoGroup(photoGroup);
     }
 
 }
