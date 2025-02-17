@@ -43,7 +43,6 @@ export default function GroupScreen({navigation}){
     }
 
     const uploadPhotos = async (images) => {
-        console.log(images);
         const formData = new FormData();
 
         images.assets.forEach((image) => {
@@ -68,8 +67,19 @@ export default function GroupScreen({navigation}){
         } catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
+
+        loadPictures(setPictures);
+
     }
 
+    const loadPictures = async (setPictures) => {
+        try {
+            const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+            setPictures(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
 
     // FlatList element's view
@@ -80,24 +90,14 @@ export default function GroupScreen({navigation}){
             style={groupStyles.picHolder}>
                 <Image
                     style={groupStyles.pic}
-                    source={{uri: photo.uri}}
+                    source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
             </TouchableOpacity>
         );
     };
 
-    // API call(?) to get photos from group
-    const loadPictures /*= async*/ = () => {
-        const pics = [];
-        // api call to fill pics
-        setPictures(pics);
-    }
 
-    // useEffect to get group pictures on load
-    useEffect(() => {
-        loadPictures();
-    }, []);
     
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,7 +122,7 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.url};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
@@ -153,7 +153,7 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.url};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
@@ -173,6 +173,11 @@ export default function GroupScreen({navigation}){
             console.log(error);
         }
     };
+
+    // useEffect to get group pictures on load
+    useEffect(() => {
+        loadPictures(setPictures).then(r => {});
+    }, []);
 
     return(
         <SafeAreaView style={{flex:1}}>
@@ -209,7 +214,7 @@ export default function GroupScreen({navigation}){
                 <FlatList 
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
-                    keyExtractor={(picture) => picture.uri}
+                    keyExtractor={(picture) => picture.url}
                     data={pictures}
                 />
             </View>
