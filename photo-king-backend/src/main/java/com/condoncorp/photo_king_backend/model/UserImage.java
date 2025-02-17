@@ -19,20 +19,18 @@ public class UserImage {
     @Column(nullable = false, name = "image_name")
     private String image_name;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private int userId;
 
-    @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
-    private PhotoGroup photoGroup;
+    @Column(name = "group_id", nullable = false)
+    private int groupId;
 
-    public UserImage(String url, String publicId, String image_name, User user, PhotoGroup photoGroup) {
+    public UserImage(String url, String publicId, String image_name, int userId, int groupId) {
         this.url = url;
         this.publicId = publicId;
         this.image_name = image_name;
-        this.user = user;
-        this.photoGroup = photoGroup;
+        this.userId = userId;
+        this.groupId = groupId;
     }
 
     public UserImage() {
@@ -71,19 +69,19 @@ public class UserImage {
         this.image_name = image_name;
     }
 
-    public User getUser() {
-        return user;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public PhotoGroup getPhotoGroup() {
-        return photoGroup;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setPhotoGroup(PhotoGroup photoGroup) {
-        this.photoGroup = photoGroup;
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 }

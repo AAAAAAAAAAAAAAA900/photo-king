@@ -29,8 +29,9 @@ public class UserImageService {
 
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
 
-        User user = userService.getUserById(userId);
-        PhotoGroup photoGroup = photoGroupService.getGroupById(groupId);
+        if (!userService.userExists(userId) || !photoGroupService.groupExists(groupId)) {
+            return null;
+        }
 
         BufferedImage bi = ImageIO.read(file.getInputStream());
         if (bi == null) {
@@ -42,8 +43,8 @@ public class UserImageService {
         userImage.setImage_name((String) result.get("original_filename"));
         userImage.setUrl((String) result.get("url"));
         userImage.setPublicId((String) result.get("public_id"));
-        userImage.setUser(user);
-        userImage.setPhotoGroup(photoGroup);
+        userImage.setUserId(userId);
+        userImage.setGroupId(groupId);
         userImageRepository.save(userImage);
 
         return userImage.getUrl();

@@ -25,6 +25,7 @@ public class UserImageController {
     @Autowired
     private PhotoGroupService photoGroupService;
 
+    // HANDLES IMAGE UPLOADING AND SAVES TO IMAGE CLOUD AND DATABASE
     @PostMapping(path = "/upload")
     public String uploadImage(@RequestParam("files") List<MultipartFile> files, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) {
         try {
@@ -51,6 +52,7 @@ public class UserImageController {
         }
     }
 
+    // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     @GetMapping(path = "/get-group-images/{groupId}")
     public List<UserImage> getGroupImages(@PathVariable int groupId) {
         PhotoGroup photoGroup = photoGroupService.getGroupById(groupId);
@@ -58,6 +60,7 @@ public class UserImageController {
         return userImageService.getImagesByGroup(photoGroup);
     }
 
+    // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
     @DeleteMapping(path = "/delete-image/{id}")
     public void deleteImage(@PathVariable int id) throws IOException {
         userImageService.deleteImage(id);
