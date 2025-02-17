@@ -1,7 +1,8 @@
 import { useRoute } from "@react-navigation/native";
-import { FlatList, Image, SafeAreaView, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
+import { useState } from "react";
 
 
 
@@ -10,15 +11,42 @@ export default function PhotoScreen ({navigation}){
     const user = route.params?.user;
     const group = route.params?.group;
     const photo = route.params?.photo;
+    const [photoModalVisible, setPhotoModalVisible] = useState(false);
+    const { width, height } = useWindowDimensions();
 
     return(
         <SafeAreaView style={{flex:1}}>
-            <View style={{flex:1, maxHeight:'60%', maxWidth:'100%', backgroundColor:colors.grey }}>
+
+            <Modal
+            animationType="fade"
+            transparent={true}
+            visible={photoModalVisible}
+            onRequestClose={() => {setPhotoModalVisible(false);}}
+            >
+                <View style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                    <Image
+                    source={{uri: photo.uri}}
+                    style={{height:'90%', width:'90%', resizeMode:'contain'}}
+                    />
+                    <TouchableOpacity
+                    onPress={()=>{setPhotoModalVisible(false);}}
+                    style={[styles.button, {position:'absolute', top:height*0.1, right:width*0.1}]}
+                    >
+                        <DefaultText>close icon</DefaultText>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+
+            <TouchableOpacity 
+            style={{flex:1, maxHeight:'60%', maxWidth:'100%', backgroundColor:colors.grey }}
+            onPress={()=>{setPhotoModalVisible(true);}}
+            >
                 <Image 
                 source={{uri: photo.uri}}
                 style={{height:'100%', width:'100%', resizeMode:'contain'}}
                 />
-            </View>
+            </TouchableOpacity>
             <View borderWidth={1} style={{padding: 20, flexDirection:'row', backgroundColor:colors.primary}}>
                 <TouchableOpacity
                 onPress={()=>{}}
