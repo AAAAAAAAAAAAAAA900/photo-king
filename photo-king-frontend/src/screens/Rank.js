@@ -28,7 +28,7 @@ export default function RankScreen({navigation}){
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
-                <DefaultText style={{position:'relative', top:5, left:5}}>1</DefaultText>
+                <DefaultText style={{position:'absolute', top:5, left:5}}>1</DefaultText>
             </TouchableOpacity>
         );
     };

@@ -28,7 +28,6 @@ public class UserImageService {
     private PhotoGroupService photoGroupService;
 
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
-
         if (!userService.userExists(userId) || !photoGroupService.groupExists(groupId)) {
             return null;
         }

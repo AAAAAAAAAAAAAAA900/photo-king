@@ -10,6 +10,7 @@ import {useActionSheet} from "@expo/react-native-action-sheet";
 import FriendSearch from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
+import { lookup } from 'react-native-mime-types';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -49,12 +50,14 @@ export default function GroupScreen({navigation}){
             formData.append('files', {
                 uri: image.uri,
                 name: image.fileName || image.filename || 'image.jpg', // Ensure proper name field
-                type: image.type
+                type: lookup(image.uri)
             });
         });
 
         formData.append('userId', user.id);
         formData.append('groupId', group.id);
+
+        console.log(formData._parts);
 
         try {
             const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
