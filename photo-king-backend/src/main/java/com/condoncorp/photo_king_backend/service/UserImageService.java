@@ -69,8 +69,8 @@ public class UserImageService {
     }
 
 
-    public List<UserImage> getImagesByGroup(PhotoGroup photoGroup) {
-        return userImageRepository.findByUserPhotoGroup(photoGroup);
+    public List<UserImage> getImagesByGroup(int groupId) {
+        return userImageRepository.findByUserPhotoGroup(groupId);
     }
 
 }

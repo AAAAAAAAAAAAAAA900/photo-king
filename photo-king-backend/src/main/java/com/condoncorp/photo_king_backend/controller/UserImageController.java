@@ -55,9 +55,7 @@ public class UserImageController {
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     @GetMapping(path = "/get-group-images/{groupId}")
     public List<UserImage> getGroupImages(@PathVariable int groupId) {
-        PhotoGroup photoGroup = photoGroupService.getGroupById(groupId);
-
-        return userImageService.getImagesByGroup(photoGroup);
+        return userImageService.getImagesByGroup(groupId);
     }
 
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
