@@ -77,6 +77,19 @@ export default styles = StyleSheet.create({
         width:300,
         height:300,
         backgroundColor: colors.greyWhite
-    }
+    },
+    picHolder: {
+        flex:1,
+        maxWidth: "33%",
+        aspectRatio:1,
+        alignItems:'center',
+        margin: 1.5
+    },
+    pic: { 
+        flex:1, 
+        height:'100%', 
+        width:'100%', 
+        resizeMode:'cover' 
+    },
 });
 

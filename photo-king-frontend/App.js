@@ -17,6 +17,7 @@ import SettingsScreen from './src/screens/Settings.js';
 import FriendsScreen from './src/screens/Friends.js';
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import PhotoScreen from './src/screens/Photo.js';
+import RankScreen from './src/screens/Rank.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -91,6 +92,11 @@ export default function App() {
                 name='Photo'
                 options={headerStyles.default}
                 component={PhotoScreen}
+              />
+              <Stack.Screen
+                name='Rank'
+                options={headerStyles.default}
+                component={RankScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>

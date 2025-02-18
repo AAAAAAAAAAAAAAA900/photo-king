@@ -1,8 +1,9 @@
 import { useRoute } from "@react-navigation/native";
-import { Image, SafeAreaView, TouchableOpacity, View } from "react-native";
+import { Image, SafeAreaView, TouchableOpacity, View, FlatList } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { loadPictures } from "./Group.js";
+import { useEffect, useState } from "react";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
@@ -20,7 +21,7 @@ export default function RankScreen({navigation}){
     const RankablePic = ({ photo }) => {
         return (
             <TouchableOpacity 
-            onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
+            onPress={()=>{console.log("ranking an image");}}
             style={styles.picHolder}>
                 <Image
                     style={styles.pic}

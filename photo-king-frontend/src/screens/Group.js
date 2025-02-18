@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -69,9 +69,7 @@ export default function GroupScreen({navigation}){
         }
 
         loadPictures(setPictures, group);
-
     }
-
 
     // FlatList element's view
     const Pic = ({ photo }) => {
@@ -119,8 +117,6 @@ export default function GroupScreen({navigation}){
             uploadPhotos(result);
         }
     };
-
-
 
     const takeImage = async () => {
 
@@ -199,6 +195,17 @@ export default function GroupScreen({navigation}){
                     </View>
                 </View>
             </Modal>
+
+            {/* Group title bar */}
+            <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
+                <Text style={styles.titleText}>{group.name}</Text>
+                <TouchableOpacity
+                style={styles.button}
+                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                >
+                    <DefaultText>Rank Images</DefaultText>
+                </TouchableOpacity>
+            </View>
 
             {/* Photo list */}
             <View style={groupStyles.picList}>
