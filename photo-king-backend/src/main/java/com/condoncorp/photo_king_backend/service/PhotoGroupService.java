@@ -33,6 +33,10 @@ public class PhotoGroupService {
         photoGroupRepository.save(photoGroup);
     }
 
+    public boolean groupExists(int id) {
+        return photoGroupRepository.existsById(id);
+    }
+
 
 
 

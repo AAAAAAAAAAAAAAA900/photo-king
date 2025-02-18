@@ -47,6 +47,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    // CHECKS IF USER EXISTS BY ID
+    public boolean userExists(int id) {
+        return userRepository.existsById(id);
+    }
+
     // HANDLES USER LOGIN
     public UserDTO loginUser(AuthRegReq authRegReq) {
         Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
