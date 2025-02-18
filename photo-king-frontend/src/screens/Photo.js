@@ -25,7 +25,7 @@ export default function PhotoScreen ({navigation}){
             >
                 <View style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <Image
-                    source={{uri: photo.uri}}
+                    source={{uri: photo.url}}
                     style={{height:'90%', width:'90%', resizeMode:'contain'}}
                     />
                     <TouchableOpacity
@@ -43,7 +43,7 @@ export default function PhotoScreen ({navigation}){
             onPress={()=>{setPhotoModalVisible(true);}}
             >
                 <Image 
-                source={{uri: photo.uri}}
+                source={{uri: photo.url}}
                 style={{height:'100%', width:'100%', resizeMode:'contain'}}
                 />
             </TouchableOpacity>
