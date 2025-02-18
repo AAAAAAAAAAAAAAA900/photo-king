@@ -68,17 +68,8 @@ export default function GroupScreen({navigation}){
             console.log('Upload Error:', error.response?.data || error.message);
         }
 
-        loadPictures(setPictures);
+        loadPictures(setPictures, group);
 
-    }
-
-    const loadPictures = async (setPictures) => {
-        try {
-            const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
-            setPictures(response.data);
-        } catch (error) {
-            console.log(error);
-        }
     }
 
 
@@ -87,9 +78,9 @@ export default function GroupScreen({navigation}){
         return (
             <TouchableOpacity 
             onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
-            style={groupStyles.picHolder}>
+            style={styles.picHolder}>
                 <Image
-                    style={groupStyles.pic}
+                    style={styles.pic}
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
@@ -176,7 +167,7 @@ export default function GroupScreen({navigation}){
 
     // useEffect to get group pictures on load
     useEffect(() => {
-        loadPictures(setPictures).then(r => {});
+        loadPictures(setPictures, group).then(r => {});
     }, []);
 
     return(
@@ -235,21 +226,17 @@ const groupStyles = StyleSheet.create({
     picList: {
         flex: 1
     },
-    picHolder: {
-        flex:1,
-        maxWidth: "33%",
-        aspectRatio:1,
-        alignItems:'center',
-        margin: 1.5
-    },
-    pic: { 
-        flex:1, 
-        height:'100%', 
-        width:'100%', 
-        resizeMode:'cover' 
-    },
     buttonHolder: {
         alignSelf: 'baseline',
         flexDirection:"row"
     },
 });
+
+export const loadPictures = async (setPictures, group) => {
+    try {
+        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        setPictures(response.data);
+    } catch (error) {
+        console.log(error);
+    }
+}
