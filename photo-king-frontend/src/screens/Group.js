@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -10,6 +10,7 @@ import {useActionSheet} from "@expo/react-native-action-sheet";
 import FriendSearch from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
+import { lookup } from 'react-native-mime-types';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -43,19 +44,20 @@ export default function GroupScreen({navigation}){
     }
 
     const uploadPhotos = async (images) => {
-        console.log(images);
         const formData = new FormData();
 
         images.assets.forEach((image) => {
             formData.append('files', {
                 uri: image.uri,
                 name: image.fileName || image.filename || 'image.jpg', // Ensure proper name field
-                type: image.type
+                type: lookup(image.uri)
             });
         });
 
         formData.append('userId', user.id);
         formData.append('groupId', group.id);
+
+        console.log(formData._parts);
 
         try {
             const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
@@ -68,36 +70,26 @@ export default function GroupScreen({navigation}){
         } catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
+
+        loadPictures(setPictures, group);
     }
-
-
 
     // FlatList element's view
     const Pic = ({ photo }) => {
         return (
             <TouchableOpacity 
             onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
-            style={groupStyles.picHolder}>
+            style={styles.picHolder}>
                 <Image
-                    style={groupStyles.pic}
-                    source={{uri: photo.uri}}
+                    style={styles.pic}
+                    source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
             </TouchableOpacity>
         );
     };
 
-    // API call(?) to get photos from group
-    const loadPictures /*= async*/ = () => {
-        const pics = [];
-        // api call to fill pics
-        setPictures(pics);
-    }
 
-    // useEffect to get group pictures on load
-    useEffect(() => {
-        loadPictures();
-    }, []);
     
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,14 +114,12 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.url};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
         }
     };
-
-
 
     const takeImage = async () => {
 
@@ -153,7 +143,7 @@ export default function GroupScreen({navigation}){
         });
 
         if (!result.canceled) {
-            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.uri};}));
+            const pics = pictures.concat((result.assets).map((image) => {return {uri:image.url};}));
             setPictures(pics);
             /* API CALL ADD IMAGE TO TABLE */
             uploadPhotos(result);
@@ -173,6 +163,11 @@ export default function GroupScreen({navigation}){
             console.log(error);
         }
     };
+
+    // useEffect to get group pictures on load
+    useEffect(() => {
+        loadPictures(setPictures, group).then(r => {});
+    }, []);
 
     return(
         <SafeAreaView style={{flex:1}}>
@@ -204,12 +199,23 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
+            {/* Group title bar */}
+            <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
+                <Text style={styles.titleText}>{group.name}</Text>
+                <TouchableOpacity
+                style={styles.button}
+                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                >
+                    <DefaultText>Rank Images</DefaultText>
+                </TouchableOpacity>
+            </View>
+
             {/* Photo list */}
             <View style={groupStyles.picList}>
                 <FlatList 
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
-                    keyExtractor={(picture) => picture.uri}
+                    keyExtractor={(picture) => picture.url}
                     data={pictures}
                 />
             </View>
@@ -230,21 +236,17 @@ const groupStyles = StyleSheet.create({
     picList: {
         flex: 1
     },
-    picHolder: {
-        flex:1,
-        maxWidth: "33%",
-        aspectRatio:1,
-        alignItems:'center',
-        margin: 1.5
-    },
-    pic: { 
-        flex:1, 
-        height:'100%', 
-        width:'100%', 
-        resizeMode:'cover' 
-    },
     buttonHolder: {
         alignSelf: 'baseline',
         flexDirection:"row"
     },
 });
+
+export const loadPictures = async (setPictures, group) => {
+    try {
+        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        setPictures(response.data);
+    } catch (error) {
+        console.log(error);
+    }
+}

@@ -147,4 +147,5 @@ public class User {
         this.friends.remove(friend);
         friend.getFriends().remove(this);
     }
+
 }

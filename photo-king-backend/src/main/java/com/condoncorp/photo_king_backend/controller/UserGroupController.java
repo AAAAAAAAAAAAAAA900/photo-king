@@ -16,6 +16,7 @@ public class UserGroupController {
     private UserGroupService userGroupService;
 
 
+    // ADDS A USER TO ANY GROUP
     @PostMapping("/add-user/{userId}/{groupId}")
     public User addUserToGroup(@PathVariable int userId, @PathVariable int groupId) {
         return userGroupService.addUserToGroup(userId, groupId);

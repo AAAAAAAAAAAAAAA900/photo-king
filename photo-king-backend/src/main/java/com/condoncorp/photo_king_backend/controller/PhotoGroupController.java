@@ -17,6 +17,7 @@ public class PhotoGroupController {
     @Autowired
     private PhotoGroupService photoGroupService;
 
+    // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
     public PhotoGroup addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
         return photoGroupService.addGroup(photoGroupDTO);

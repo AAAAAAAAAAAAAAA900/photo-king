@@ -1,10 +1,16 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.model.PhotoGroup;
+import com.condoncorp.photo_king_backend.model.User;
+import com.condoncorp.photo_king_backend.model.UserImage;
+import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
+import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +20,14 @@ public class UserImageController {
 
     @Autowired
     private UserImageService userImageService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private PhotoGroupService photoGroupService;
 
+    // HANDLES IMAGE UPLOADING AND SAVES TO IMAGE CLOUD AND DATABASE
     @PostMapping(path = "/upload")
-    public String uploadImage(@RequestParam("files") List<MultipartFile> files, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) throws Exception {
+    public String uploadImage(@RequestParam("files") List<MultipartFile> files, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) {
         try {
             if (files == null || files.isEmpty()) {
                 return "NO FILE RECEIVED";
@@ -39,7 +50,19 @@ public class UserImageController {
             System.out.println("Upload error: " + e.getMessage());
             return "INTERNAL SERVER ERROR";
         }
-
     }
+
+    // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
+    @GetMapping(path = "/get-group-images/{groupId}")
+    public List<UserImage> getGroupImages(@PathVariable int groupId) {
+        return userImageService.getImagesByGroup(groupId);
+    }
+
+    // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
+    @DeleteMapping(path = "/delete-image/{id}")
+    public void deleteImage(@PathVariable int id) throws IOException {
+        userImageService.deleteImage(id);
+    }
+
 
 }

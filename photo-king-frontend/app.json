@@ -41,6 +41,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "useNextNotificationsApi": true,
+      "permissions": [],
+      "config": {
+        "cleartextTraffic": true
       }
     },
     "web": {
