@@ -85,6 +85,9 @@ export default function GroupScreen({navigation}){
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
+                <View style={{width:30, height:30, borderRadius:15, position:'absolute', bottom:5, left:5, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                    <DefaultText>{photo.points}</DefaultText>
+                </View>
             </TouchableOpacity>
         );
     };
@@ -249,7 +252,7 @@ export default function GroupScreen({navigation}){
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
                     keyExtractor={(picture) => picture.url}
-                    data={[...pictures].sort((a,b)=> a.points-b.points)}
+                    data={[...pictures].sort((a,b)=> b.points-a.points)}
                 />
             </View>
             <View style={groupStyles.buttonHolder}>
