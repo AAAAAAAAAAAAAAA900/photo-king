@@ -44,8 +44,8 @@ public class UserImageController {
                     uploadedUrls.add(url);
                 }
             }
-
             return uploadedUrls.toString();
+
         } catch (Exception e) {
             System.out.println("Upload error: " + e.getMessage());
             return "INTERNAL SERVER ERROR";

@@ -16,4 +16,7 @@ public interface UserImageRepository extends JpaRepository<UserImage, Integer> {
 
     @Query("SELECT ui FROM UserImage ui WHERE ui.groupId = ?1")
     List<UserImage> findByUserPhotoGroup(int groupId);
+
+    @Query("SELECT ui FROM UserImage ui WHERE ui.userId = ?1")
+    List<UserImage> findByUser(int userId);
 }

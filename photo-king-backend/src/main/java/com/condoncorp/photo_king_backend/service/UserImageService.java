@@ -3,7 +3,9 @@ package com.condoncorp.photo_king_backend.service;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
+import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.repository.UserImageRepository;
+import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,12 +26,13 @@ public class UserImageService {
     @Autowired
     private CloudinaryService cloudinaryService;
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
-    private PhotoGroupService photoGroupService;
+    private PhotoGroupRepository photoGroupRepository;
 
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
-        if (!userService.userExists(userId) || !photoGroupService.groupExists(groupId)) {
+
+        if (!userImageRepository.existsById(userId) || !photoGroupRepository.existsById(groupId)) {
             return null;
         }
 
@@ -71,5 +75,7 @@ public class UserImageService {
     public List<UserImage> getImagesByGroup(int groupId) {
         return userImageRepository.findByUserPhotoGroup(groupId);
     }
+
+    public List<UserImage> getImagesByUser(int userId) { return userImageRepository.findByUser(userId); }
 
 }

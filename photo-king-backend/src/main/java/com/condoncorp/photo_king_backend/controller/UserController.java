@@ -8,6 +8,7 @@ import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
@@ -49,7 +50,7 @@ public class UserController {
 
     // DELETES USER FROM DATABASE. REQUIRES USER ID.
     @DeleteMapping(path = "/delete/{id}")
-    public void deleteUser(@PathVariable int id) {
+    public void deleteUser(@PathVariable int id) throws IOException {
         userService.deleteUser(id);
     }
 

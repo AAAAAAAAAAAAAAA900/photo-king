@@ -34,3 +34,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# files to ignore
+src/api/utils.js
