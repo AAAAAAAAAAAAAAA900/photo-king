@@ -25,16 +25,20 @@ public class UserImage {
     @Column(name = "group_id", nullable = false)
     private int groupId;
 
+    @Column(name = "points")
+    private int points;
+
     public UserImage(String url, String publicId, String image_name, int userId, int groupId) {
         this.url = url;
         this.publicId = publicId;
         this.image_name = image_name;
         this.userId = userId;
         this.groupId = groupId;
+        this.points = 0;
     }
 
     public UserImage() {
-
+        this.points = 0;
     }
 
     public int getId() {
@@ -83,5 +87,13 @@ public class UserImage {
 
     public void setGroupId(int groupId) {
         this.groupId = groupId;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 }
