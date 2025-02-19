@@ -6,11 +6,13 @@ import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
+import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +22,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserImageService userImageService;
 
 
     // SAVES USER TO DATABASE
@@ -29,28 +33,31 @@ public class UserService {
 
     // DELETES USER FROM DATABASE BY ID
     @Transactional
-    public void deleteUser(Integer id) {
+    public void deleteUser(Integer id) throws IOException {
         User user = getUserById(id);
 
+        // REMOVES USER FROM ALL PHOTO GROUPS
         for (PhotoGroup photoGroup : user.getPhotoGroups()) {
             photoGroup.getUsers().remove(user);
         }
 
         user.getPhotoGroups().clear();
 
+        // REMOVES USER FROM ALL FRIENDS
         for (User friend : user.getFriends()) {
             friend.getFriends().remove(user);
         }
 
         user.getFriends().clear();
 
+        // RETURNS ALL IMAGES FROM USER THEN DELETES IT ALL
+        for (UserImage userImage : userImageService.getImagesByUser(id)) {
+            userImageService.deleteImage(userImage.getId());
+        }
+
         userRepository.deleteById(id);
     }
 
-    // CHECKS IF USER EXISTS BY ID
-    public boolean userExists(int id) {
-        return userRepository.existsById(id);
-    }
 
     // HANDLES USER LOGIN
     public UserDTO loginUser(AuthRegReq authRegReq) {

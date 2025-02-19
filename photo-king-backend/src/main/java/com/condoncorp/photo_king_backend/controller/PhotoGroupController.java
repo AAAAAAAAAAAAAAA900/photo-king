@@ -7,6 +7,8 @@ import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping(path="api/photo-group")
@@ -21,6 +23,11 @@ public class PhotoGroupController {
     @PostMapping(path = "/add")
     public PhotoGroup addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
         return photoGroupService.addGroup(photoGroupDTO);
+    }
+
+    @DeleteMapping(path = "/delete/{id}")
+    public void deleteGroup(@PathVariable int id) throws IOException {
+        photoGroupService.deleteGroup(id);
     }
 
 
