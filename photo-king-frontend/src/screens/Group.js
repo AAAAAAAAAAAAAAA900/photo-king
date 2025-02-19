@@ -14,11 +14,11 @@ import { lookup } from 'react-native-mime-types';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
-    const user = route.params?.user;
+    const [user, setUser] = useState(route.params?.user);
     const group = route.params?.group;
     const [pictures, setPictures] = useState([]);
-    const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [userModalVisible, setUserModalVisible] = useState(false);
+    const [isGroupDeleted, setIsGroupDeleted] = useState(false);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -88,8 +88,6 @@ export default function GroupScreen({navigation}){
             </TouchableOpacity>
         );
     };
-
-
     
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -164,6 +162,28 @@ export default function GroupScreen({navigation}){
         }
     };
 
+    const deleteGroup = async () => {
+        try{
+            const response = await axios.delete(`${API_URL}/api/photo-group/delete/${group.id}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            setUser({...user, groups: user.groups.filter((thisGroup) => thisGroup.id != group.id)});
+            setIsGroupDeleted(true);
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
+    // Ensures group is removed from user obj before navigation
+    useEffect(() => {
+        if(isGroupDeleted) navigation.navigate("Home", {user: user});
+    }, [isGroupDeleted]);
+
+
     // useEffect to get group pictures on load
     useEffect(() => {
         loadPictures(setPictures, group).then(r => {});
@@ -207,6 +227,19 @@ export default function GroupScreen({navigation}){
                 onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
                 >
                     <DefaultText>Rank Images</DefaultText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                style={[styles.button, {backgroundColor:colors.secondary}]}
+                onPress={()=>{Alert.alert(
+                    `Delete ${group.name}?`,
+                    "This will delete all photos stored here",
+                    [
+                        { text: "Cancel", style: "cancel"},
+                        { text: "Confirm", onPress: () => {deleteGroup()} }
+                    ]
+                );}}
+                >
+                    <DefaultText>Delete Group</DefaultText>
                 </TouchableOpacity>
             </View>
 
