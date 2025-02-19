@@ -1,8 +1,10 @@
 import { useRoute } from "@react-navigation/native";
-import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
 import { useState } from "react";
+import axios from "axios";
+import {API_URL} from "../api/utils";
 
 
 
@@ -13,6 +15,19 @@ export default function PhotoScreen ({navigation}){
     const photo = route.params?.photo;
     const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const { width, height } = useWindowDimensions();
+
+    const deletePhoto = async () => {
+        try {
+            const response = await axios.delete(`${API_URL}/api/user-image/delete-image/${photo.id}`, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            navigation.navigate("Group", {user:user, group:group});
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     return(
         <SafeAreaView style={{flex:1}}>
@@ -37,7 +52,6 @@ export default function PhotoScreen ({navigation}){
                 </View>
             </Modal>
 
-
             <TouchableOpacity 
             style={{flex:1, maxHeight:'60%', maxWidth:'100%', backgroundColor:colors.grey }}
             onPress={()=>{setPhotoModalVisible(true);}}
@@ -48,12 +62,21 @@ export default function PhotoScreen ({navigation}){
                 />
             </TouchableOpacity>
             <View borderWidth={1} style={{padding: 20, flexDirection:'row', backgroundColor:colors.primary}}>
-                <TouchableOpacity
-                onPress={()=>{}}
-                style={[styles.button, {backgroundColor: colors.secondary}]}
-                >
-                    <DefaultText>Like</DefaultText>
-                </TouchableOpacity>
+                { photo.userId == user.id &&
+                    <TouchableOpacity
+                    onPress={()=>{Alert.alert(
+                                        `Delete this photo?`,
+                                        "It will be removed from the group for everyone.",
+                                        [
+                                            { text: "Cancel", style: "cancel"},
+                                            { text: "Confirm", onPress: () => {deletePhoto()} }
+                                        ]
+                                    );}}
+                    style={[styles.button, {backgroundColor: colors.secondary}]}
+                    >
+                        <DefaultText>Delete Photo</DefaultText>
+                    </TouchableOpacity>
+                }
                 <TouchableOpacity
                 onPress={()=>{}}
                 style={[styles.button, {backgroundColor: colors.secondary}]}

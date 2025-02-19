@@ -99,7 +99,7 @@ export default function HomeScreen ({navigation}){
             <View style={{flex:1}}>
               <FlatList
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                  data={user.groups}
+                  data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
                     <GroupPreview groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})
