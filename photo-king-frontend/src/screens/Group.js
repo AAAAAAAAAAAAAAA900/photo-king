@@ -17,7 +17,6 @@ export default function GroupScreen({navigation}){
     const user = route.params?.user;
     const group = route.params?.group;
     const [pictures, setPictures] = useState([]);
-    const [photoModalVisible, setPhotoModalVisible] = useState(false);
     const [userModalVisible, setUserModalVisible] = useState(false);
 
     const { showActionSheetWithOptions } = useActionSheet();
@@ -88,8 +87,6 @@ export default function GroupScreen({navigation}){
             </TouchableOpacity>
         );
     };
-
-
     
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -164,6 +161,21 @@ export default function GroupScreen({navigation}){
         }
     };
 
+    const deleteGroup = async () => {
+        console.log("delete group");
+    }
+
+    const deleteGroupAlert = () => {
+        Alert.alert(
+            `Delete ${group.name}?`,
+            "This will delete all photos stored here",
+            [
+                { text: "Cancel", style: "cancel"},
+                { text: "Confirm", onPress: () => {deleteGroup()} }
+            ]
+        );
+    }
+
     // useEffect to get group pictures on load
     useEffect(() => {
         loadPictures(setPictures, group).then(r => {});
@@ -207,6 +219,12 @@ export default function GroupScreen({navigation}){
                 onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
                 >
                     <DefaultText>Rank Images</DefaultText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                style={[styles.button, {backgroundColor:colors.secondary}]}
+                onPress={()=>{deleteGroupAlert();}}
+                >
+                    <DefaultText>Delete Group</DefaultText>
                 </TouchableOpacity>
             </View>
 
