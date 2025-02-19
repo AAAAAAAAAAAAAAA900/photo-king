@@ -64,5 +64,11 @@ public class UserImageController {
         userImageService.deleteImage(id);
     }
 
+    // UPDATES AN IMAGE'S POINTS
+    @PutMapping(path = "/update-points/{id}/{points}")
+    public void updatePoints(@PathVariable int id, @PathVariable int points) {
+        userImageService.updatePoints(id, points);
+    }
+
 
 }
