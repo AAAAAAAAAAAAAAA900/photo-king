@@ -76,10 +76,31 @@ export default function GroupScreen({navigation}){
 
     // FlatList element's view
     const Pic = ({ photo }) => {
+        // Checks if picture is first, second, or third
+        const winningBorder = {};
+        for(let i = 0; i < pictures.length && i < 3; ++i){
+            if(pictures[i].id == photo.id){
+                winningBorder['borderWidth'] = 4;
+                winningBorder['borderRadius'] = 4;
+                switch (i) {
+                    case 0:
+                        winningBorder['borderColor'] = '#FFD700'
+                        break;
+                    case 1:
+                        winningBorder['borderColor'] = '#C0C0C0'
+                        break;
+                    case 2:
+                        winningBorder['borderColor'] = '#CD7F32'
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
         return (
             <TouchableOpacity 
             onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
-            style={styles.picHolder}>
+            style={[styles.picHolder, winningBorder]}>
                 <Image
                     style={styles.pic}
                     source={{uri: photo.url}}
@@ -252,7 +273,7 @@ export default function GroupScreen({navigation}){
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
                     keyExtractor={(picture) => picture.url}
-                    data={[...pictures].sort((a,b)=> b.points-a.points)}
+                    data={pictures}
                 />
             </View>
             <View style={groupStyles.buttonHolder}>
@@ -281,7 +302,7 @@ const groupStyles = StyleSheet.create({
 export const loadPictures = async (setPictures, group) => {
     try {
         const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
-        setPictures(response.data);
+        setPictures(response.data.sort((a,b)=> b.points-a.points));
     } catch (error) {
         console.log(error);
     }
