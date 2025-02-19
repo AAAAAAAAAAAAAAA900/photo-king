@@ -249,7 +249,7 @@ export default function GroupScreen({navigation}){
                     numColumns={3}
                     renderItem={({ item }) => <Pic photo={item} />}
                     keyExtractor={(picture) => picture.url}
-                    data={pictures}
+                    data={[...pictures].sort((a,b)=> a.points-b.points)}
                 />
             </View>
             <View style={groupStyles.buttonHolder}>
