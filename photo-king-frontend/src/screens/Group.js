@@ -14,10 +14,11 @@ import { lookup } from 'react-native-mime-types';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
-    const user = route.params?.user;
+    const [user, setUser] = useState(route.params?.user);
     const group = route.params?.group;
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
+    const [isGroupDeleted, setIsGroupDeleted] = useState(false);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -162,19 +163,26 @@ export default function GroupScreen({navigation}){
     };
 
     const deleteGroup = async () => {
-        console.log("delete group");
+        try{
+            const response = await axios.delete(`${API_URL}/api/photo-group/delete/${group.id}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            setUser({...user, groups: user.groups.filter((thisGroup) => thisGroup.id != group.id)});
+            setIsGroupDeleted(true);
+        }
+        catch(error){
+            console.log(error);
+        }
     }
 
-    const deleteGroupAlert = () => {
-        Alert.alert(
-            `Delete ${group.name}?`,
-            "This will delete all photos stored here",
-            [
-                { text: "Cancel", style: "cancel"},
-                { text: "Confirm", onPress: () => {deleteGroup()} }
-            ]
-        );
-    }
+    // Ensures group is removed from user obj before navigation
+    useEffect(() => {
+        if(isGroupDeleted) navigation.navigate("Home", {user: user});
+    }, [isGroupDeleted]);
+
 
     // useEffect to get group pictures on load
     useEffect(() => {
@@ -222,7 +230,14 @@ export default function GroupScreen({navigation}){
                 </TouchableOpacity>
                 <TouchableOpacity
                 style={[styles.button, {backgroundColor:colors.secondary}]}
-                onPress={()=>{deleteGroupAlert();}}
+                onPress={()=>{Alert.alert(
+                    `Delete ${group.name}?`,
+                    "This will delete all photos stored here",
+                    [
+                        { text: "Cancel", style: "cancel"},
+                        { text: "Confirm", onPress: () => {deleteGroup()} }
+                    ]
+                );}}
                 >
                     <DefaultText>Delete Group</DefaultText>
                 </TouchableOpacity>
