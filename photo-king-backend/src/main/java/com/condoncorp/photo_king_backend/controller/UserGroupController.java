@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.service.UserGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class UserGroupController {
 
     // ADDS A USER TO ANY GROUP
     @PostMapping("/add-user/{userId}/{groupId}")
-    public User addUserToGroup(@PathVariable int userId, @PathVariable int groupId) {
+    public UserDTO addUserToGroup(@PathVariable int userId, @PathVariable int groupId) {
         return userGroupService.addUserToGroup(userId, groupId);
     }
 }
