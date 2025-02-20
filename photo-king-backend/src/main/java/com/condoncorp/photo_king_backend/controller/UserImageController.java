@@ -52,6 +52,22 @@ public class UserImageController {
         }
     }
 
+    @PostMapping(path = "/upload-profile")
+    public String uploadProfileImage(@RequestParam("file") MultipartFile file, @RequestParam("userId") int userId) {
+        try {
+            if (file == null || file.isEmpty()) {
+                return "NO FILE RECEIVED";
+            }
+            System.out.println("Files received: " + file.getSize());
+            System.out.println("User ID: " + userId);
+
+            return userImageService.uploadProfile(file, userId);
+        } catch (Exception e) {
+            System.out.println("Upload error: " + e.getMessage());
+            return "INTERNAL SERVER ERROR";
+        }
+    }
+
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     @GetMapping(path = "/get-group-images/{groupId}")
     public List<UserImage> getGroupImages(@PathVariable int groupId) {
@@ -62,6 +78,12 @@ public class UserImageController {
     @DeleteMapping(path = "/delete-image/{id}")
     public void deleteImage(@PathVariable int id) throws IOException {
         userImageService.deleteImage(id);
+    }
+
+    // DELETES USER'S PROFILE IMAGE FROM CLOUD AND RESETS TO DEFAULT
+    @PostMapping(path = "/delete-profile-image/{userId}")
+    public void deleteProfileImage(@PathVariable int userId) throws IOException {
+        userImageService.deleteProfileImage(userId);
     }
 
     // UPDATES AN IMAGE'S POINTS

@@ -2,6 +2,8 @@ package com.condoncorp.photo_king_backend.dto;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +26,8 @@ public class PhotoGroupDTO {
 
     // FOR CREATING A NEW PHOTO GROUP
     public PhotoGroupDTO(String name, int ownerId) {
-
+        this.name = name;
+        this.ownerId = ownerId;
     }
 
     public PhotoGroupDTO() {}

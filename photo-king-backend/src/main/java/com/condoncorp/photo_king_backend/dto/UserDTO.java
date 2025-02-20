@@ -15,6 +15,8 @@ public class UserDTO {
     private String phone;
     private String firstname;
     private String lastname;
+    private String profileUrl;
+    private String profilePublicId;
     private Set<FriendDTO> friends;
     private Set<PhotoGroupDTO> groups;
 
@@ -25,6 +27,8 @@ public class UserDTO {
         this.phone = user.getPhone();
         this.firstname = user.getFirstname();
         this.lastname = user.getLastname();
+        this.profileUrl = user.getProfileUrl();
+        this.profilePublicId = user.getProfilePublicId();
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
     }
@@ -48,6 +52,14 @@ public class UserDTO {
 
     public String getLastname() {
         return lastname;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public String getProfilePublicId() {
+        return profilePublicId;
     }
 
     public Set<FriendDTO> getFriends(){ return friends; }
