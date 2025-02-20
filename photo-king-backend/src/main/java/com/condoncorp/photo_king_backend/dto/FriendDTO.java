@@ -1,6 +1,9 @@
 package com.condoncorp.photo_king_backend.dto;
 
+import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
+
+import java.util.Set;
 
 public class FriendDTO {
     private int id;
@@ -25,5 +28,6 @@ public class FriendDTO {
 
     public String getUsername(){return username;}
     public String getPfp(){return pfp;}
+
 
 }

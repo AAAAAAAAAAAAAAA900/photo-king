@@ -16,7 +16,7 @@ public class UserDTO {
     private String firstname;
     private String lastname;
     private Set<FriendDTO> friends;
-    private Set<PhotoGroup> groups;
+    private Set<PhotoGroupDTO> groups;
 
     public UserDTO(User user){
         this.id = user.getId();
@@ -25,9 +25,8 @@ public class UserDTO {
         this.phone = user.getPhone();
         this.firstname = user.getFirstname();
         this.lastname = user.getLastname();
-        this.friends = user.getFriends().stream()
-                .map(FriendDTO::new).collect(Collectors.toSet());
-        this.groups = user.getPhotoGroups();
+        this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
+        this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
     }
 
     public int getId() { return id; }
@@ -52,5 +51,5 @@ public class UserDTO {
     }
 
     public Set<FriendDTO> getFriends(){ return friends; }
-    public Set<PhotoGroup> getGroups(){ return groups; }
+    public Set<PhotoGroupDTO> getGroups(){ return groups; }
 }
