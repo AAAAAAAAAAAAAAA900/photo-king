@@ -246,12 +246,20 @@ export default function GroupScreen({navigation}){
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
                 <Text style={styles.titleText}>{group.name}</Text>
-                <TouchableOpacity
-                style={styles.button}
-                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
-                >
-                    <DefaultText>Rank Images</DefaultText>
-                </TouchableOpacity>
+                {/* Disables ranking button if user already ranked this week */}
+                { !group.userRanked[user.id] ?
+                    <TouchableOpacity
+                    style={styles.button}
+                    onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                    >
+                        <DefaultText>Rank Images</DefaultText>
+                    </TouchableOpacity>
+                :
+                    <View
+                    style={[styles.button, {backgroundColor:'grey'}]}                >
+                        <DefaultText>Rank Images</DefaultText>
+                    </View>
+                }
                 <TouchableOpacity
                 style={[styles.button, {backgroundColor:colors.secondary}]}
                 onPress={()=>{Alert.alert(

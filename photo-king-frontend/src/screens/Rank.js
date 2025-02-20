@@ -10,8 +10,9 @@ import {API_URL} from "../api/utils";
 export default function RankScreen({navigation}){
     const route = useRoute();
     const user = route.params?.user;
-    const group = route.params?.group;
+    const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
+    const [isSubmitted, setSubmitted] = useState(false);
     const [ranks, setRanks] = useState({});  //tracks image rankings by url
 
     // useEffect to get group pictures on load
@@ -62,11 +63,22 @@ export default function RankScreen({navigation}){
         );
     };
 
+    useEffect(()=>{
+        if(isSubmitted) navigation.navigate('Group', {user:user, group:group});
+    }, [isSubmitted]);
+
     const submitRanks = async () => {
         try{
-            for(url in ranks){
-                pic = pictures.filter((picture) => picture.url == url);
-                const response = await axios.put(`${API_URL}/api/user-image/update-points/${pic[0].id}/${(ranks[url]+1)}`,
+            const updateRankResponse = await axios.put(`${API_URL}/api/photo-group/update-user-rank/${group.id}/${user.id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            for(let url in ranks){
+                const pic = pictures.filter((picture) => picture.url == url);
+                const updatePointsResponse = await axios.put(`${API_URL}/api/user-image/update-points/${pic[0].id}/${(ranks[url]+1)}`,
                     {
                         headers: {
                             'Content-Type': 'application/json'
@@ -74,7 +86,10 @@ export default function RankScreen({navigation}){
                     }
                 );
             }
-            navigation.navigate('Group', {user:user, group:group});
+            const newRankTracker = {...group.userRanked};
+            newRankTracker[user.id] = true;
+            setGroup({...group, userRanked:newRankTracker});
+            setSubmitted(true);
         } catch(error){
             console.log(error);
         }

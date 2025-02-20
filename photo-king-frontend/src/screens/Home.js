@@ -20,7 +20,7 @@ export default function HomeScreen ({navigation}){
   const addGroup = async () => {
 
     try {
-      const group_response = await axios.post(`${API_URL}/api/photo-group/add`, {name: groupTitle},
+      const group_response = await axios.post(`${API_URL}/api/photo-group/add`, {name: groupTitle, ownerId: user.id},
         {
           headers: {
             'Content-Type': 'application/json'
