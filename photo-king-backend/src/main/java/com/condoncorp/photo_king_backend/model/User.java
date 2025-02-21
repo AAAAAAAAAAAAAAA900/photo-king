@@ -30,6 +30,10 @@ public class User {
     private String firstname;
     @Column(nullable = false, length = 20, name = "lastname")
     private String lastname;
+    @Column(name = "profile_url")
+    private String profileUrl;
+    @Column(name = "profile_public_id")
+    private String profilePublicId;
 
     @JsonIgnore
     @ManyToMany
@@ -58,6 +62,8 @@ public class User {
         this.email = email;
         this.lastname = lastname;
         this.firstname = firstname;
+        this.profileUrl = "";
+        this.profilePublicId = "";
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
     }
@@ -120,6 +126,22 @@ public class User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
+    public String getProfilePublicId() {
+        return profilePublicId;
+    }
+
+    public void setProfilePublicId(String profilePublicId) {
+        this.profilePublicId = profilePublicId;
     }
 
     public Set<PhotoGroup> getPhotoGroups() {
