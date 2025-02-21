@@ -9,7 +9,7 @@ export default function NavBar({navigation, user, screen}){
             { screen != 'Profile' ? (
                 <TouchableOpacity
                     style={styles.button}
-                    onPressOut={() => {navigation.navigate("Profile", {user: user})}}
+                    onPressOut={() => {navigation.replace("Profile", {user: user})}}
                 >
                     <DefaultText>Profile</DefaultText>
                 </TouchableOpacity>
@@ -24,7 +24,7 @@ export default function NavBar({navigation, user, screen}){
             { screen != 'Friends' ? (
                 <TouchableOpacity
                     style={styles.button}
-                    onPressOut={() => {navigation.navigate("Friends", {user: user})}}
+                    onPressOut={() => {navigation.replace("Friends", {user: user})}}
                 >
                     <DefaultText>Friends</DefaultText>
                 </TouchableOpacity>
@@ -39,7 +39,7 @@ export default function NavBar({navigation, user, screen}){
             { screen != 'Home' ? (
                 <TouchableOpacity
                     style={styles.button}
-                    onPressOut={() => {navigation.navigate("Home", {user: user})}}
+                    onPressOut={() => {navigation.replace("Home", {user: user})}}
                 >
                     <DefaultText>Home</DefaultText>
                 </TouchableOpacity>
