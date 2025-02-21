@@ -2,6 +2,7 @@ import { useRoute } from "@react-navigation/native";
 import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
+import { CommonActions } from "@react-navigation/native";
 import { useState } from "react";
 import axios from "axios";
 import {API_URL} from "../api/utils";
@@ -23,7 +24,15 @@ export default function PhotoScreen ({navigation}){
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            navigation.navigate("Group", {user:user, group:group});
+            navigation.dispatch((state) => {
+                const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                return CommonActions.reset({
+                    ...state,
+                    index: routes.length - 1,
+                    routes
+                });
+            });
+            navigation.navigate('Group', route.params);
         } catch (error) {
             console.log(error);
         }

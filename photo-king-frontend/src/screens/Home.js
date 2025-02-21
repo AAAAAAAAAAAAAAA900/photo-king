@@ -46,7 +46,6 @@ export default function HomeScreen ({navigation}){
     }
   }
 
-  
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ padding: 20, flex:1 }}>
@@ -93,7 +92,7 @@ export default function HomeScreen ({navigation}){
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
-          // Render user info only if `user` is not null
+          // Render flatlist if user has groups
           user.groups && user.groups.length ? (
             // List groups if user has any
             <View style={{flex:1}}>

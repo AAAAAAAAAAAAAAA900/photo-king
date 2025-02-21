@@ -2,6 +2,7 @@ import { useRoute } from "@react-navigation/native";
 import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
+import { CommonActions } from "@react-navigation/native";
 import { loadPictures } from "./Group.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -64,7 +65,17 @@ export default function RankScreen({navigation}){
     };
 
     useEffect(()=>{
-        if(isSubmitted) navigation.navigate('Group', {user:user, group:group});
+        if(isSubmitted){
+            navigation.dispatch((state) => {
+                const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                return CommonActions.reset({
+                    ...state,
+                    index: routes.length - 1,
+                    routes
+                });
+            });
+            navigation.navigate('Group', {user:user, group:group});
+        } 
     }, [isSubmitted]);
 
     const submitRanks = async () => {
