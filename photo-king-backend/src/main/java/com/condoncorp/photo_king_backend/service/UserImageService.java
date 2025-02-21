@@ -55,6 +55,27 @@ public class UserImageService {
         return userImage.getUrl();
     }
 
+    public String uploadProfile(MultipartFile file, int userId) throws IOException {
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        BufferedImage bi = ImageIO.read(file.getInputStream());
+        if (bi == null) {
+            return null;
+        }
+
+        Map result = cloudinaryService.upload(file);
+        user.setProfileUrl((String) result.get("url"));
+        user.setProfilePublicId((String) result.get("public_id"));
+        userRepository.save(user);
+
+        return user.getProfileUrl();
+
+    }
+
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
     public void deleteImage(int id) throws IOException {
 
@@ -66,7 +87,20 @@ public class UserImageService {
 
         cloudinaryService.delete(userImage.get().getPublicId());
         userImageRepository.deleteById(id);
+    }
 
+    // DELETES USER'S PROFILE PICTURE
+    public void deleteProfileImage(int id) throws IOException {
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return;
+        }
+
+        cloudinaryService.delete(user.getProfilePublicId());
+        user.setProfileUrl(null);
+        user.setProfilePublicId(null);
+        userRepository.save(user);
     }
 
 
