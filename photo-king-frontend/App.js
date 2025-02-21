@@ -61,11 +61,11 @@ export default function App() {
               />
               <Stack.Screen
                 name='Home'
-                options={({ navigation }) => ({
-                  headerRight: () => (<TitleButtons navigation={navigation}/>),
+                options={({ navigation, route }) => ({
+                  headerRight: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
                   headerTitleStyle:styles.titleText,
                   headerBackVisible:false
-              })}
+                })}
                 component={HomeScreen}
               />
               <Stack.Screen

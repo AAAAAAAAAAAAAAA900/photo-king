@@ -17,6 +17,11 @@ export default function HomeScreen ({navigation}){
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
 
+
+  useEffect(() => {
+    navigation.setOptions({ user: user }); // pass user along to header
+  }, [user]);
+
   const addGroup = async () => {
 
     try {
