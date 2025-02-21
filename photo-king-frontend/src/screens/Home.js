@@ -57,7 +57,7 @@ export default function HomeScreen ({navigation}){
           visible={groupModalVisible}
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
-          <View style={ styles.containerCenterAll}>
+          <View style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <TextInput 
               style={styles.textIn}
               onChangeText={(text) => {setGroupTitle(text)}}

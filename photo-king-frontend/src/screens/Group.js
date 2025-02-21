@@ -235,7 +235,7 @@ export default function GroupScreen({navigation}){
                 onRequestClose={() => {setUserModalVisible(!userModalVisible);}}
                 style={{justifyContent:'center'}}
             >
-                <View style={styles.containerCenterAll}>
+                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
                         <View style={{flex:1}}>
                             <FriendSearch searchData={user.friends} onSelect={(friend) => {
@@ -249,6 +249,9 @@ export default function GroupScreen({navigation}){
                                 );
                                 setUserModalVisible(false);
                             }}/>
+                            <TouchableOpacity style={styles.button} onPress={()=>setUserModalVisible(false)}>
+                                <DefaultText>Close</DefaultText>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
