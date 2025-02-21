@@ -2,6 +2,7 @@ import { useRoute } from "@react-navigation/native";
 import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
+import { CommonActions } from "@react-navigation/native";
 import { loadPictures } from "./Group.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -10,8 +11,9 @@ import {API_URL} from "../api/utils";
 export default function RankScreen({navigation}){
     const route = useRoute();
     const user = route.params?.user;
-    const group = route.params?.group;
+    const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
+    const [isSubmitted, setSubmitted] = useState(false);
     const [ranks, setRanks] = useState({});  //tracks image rankings by url
 
     // useEffect to get group pictures on load
@@ -62,11 +64,32 @@ export default function RankScreen({navigation}){
         );
     };
 
+    useEffect(()=>{
+        if(isSubmitted){
+            navigation.dispatch((state) => {
+                const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                return CommonActions.reset({
+                    ...state,
+                    index: routes.length - 1,
+                    routes
+                });
+            });
+            navigation.navigate('Group', {user:user, group:group});
+        } 
+    }, [isSubmitted]);
+
     const submitRanks = async () => {
         try{
-            for(url in ranks){
-                pic = pictures.filter((picture) => picture.url == url);
-                const response = await axios.put(`${API_URL}/api/user-image/update-points/${pic[0].id}/${(ranks[url]+1)}`,
+            const updateRankResponse = await axios.put(`${API_URL}/api/photo-group/update-user-rank/${group.id}/${user.id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            for(let url in ranks){
+                const pic = pictures.filter((picture) => picture.url == url);
+                const updatePointsResponse = await axios.put(`${API_URL}/api/user-image/update-points/${pic[0].id}/${(ranks[url]+1)}`,
                     {
                         headers: {
                             'Content-Type': 'application/json'
@@ -74,7 +97,10 @@ export default function RankScreen({navigation}){
                     }
                 );
             }
-            navigation.navigate('Group', {user:user, group:group});
+            const newRankTracker = {...group.userRanked};
+            newRankTracker[user.id] = true;
+            setGroup({...group, userRanked:newRankTracker});
+            setSubmitted(true);
         } catch(error){
             console.log(error);
         }
