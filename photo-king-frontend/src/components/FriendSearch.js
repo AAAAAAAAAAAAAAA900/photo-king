@@ -2,7 +2,7 @@ import { View, FlatList, TouchableOpacity } from "react-native";
 import { SearchBar } from '@rneui/themed';
 import { useState, useEffect } from "react";
 import DefaultText from "./DefaultText";
-import styles from '../styles/ComponentStyles.js';
+import styles, { colors } from '../styles/ComponentStyles.js';
 import Pfp from "./Pfp.js";
 
 export default function FriendSearch({searchData, onSelect}){
@@ -35,9 +35,16 @@ export default function FriendSearch({searchData, onSelect}){
                 placeholder="Search Friends..."
                 onChangeText={(userSearch) => {setUserSearch(userSearch)}}
                 value={userSearch}
-                inputStyle={[styles.textIn, {width:'100%'}]}
-                inputContainerStyle={{backgroundColor:'white'}}
-                containerStyle={{alignItems:'center', backgroundColor:'white'}}
+                inputStyle={{
+                        borderColor: colors.secondary, 
+                        borderRadius:5,
+                        backgroundColor:colors.greyWhite,
+                        borderWidth: 1,
+                        fontFamily: 'DMSans-Regular', 
+                        fontSize: 16,
+                    }}
+                inputContainerStyle={{ backgroundColor:"transparent"}}
+                containerStyle={{alignItems:'center', backgroundColor:"transparent"}}
                 lightTheme={true}
             />
             <FlatList

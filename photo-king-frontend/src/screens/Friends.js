@@ -108,44 +108,44 @@ export default function FriendsScreen({navigation}){
     return( 
         <SafeAreaView style={{flex:1}}>
 
-        {/* friend modal */}  
-        { friendClicked && (    // prevents instant rendering and friendClicked null errors
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={friendModalVisible}
-                onRequestClose={() => {setFriendClicked(null); setFriendModalVisible(false);}}
-                style={{justifyContent:'center'}}
-            >
-                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <View style={styles.popupView}>
-                        <View style={{flexDirection:'row'}}>
-                            <Pfp url={friendClicked.pfp}/>
-                            <DefaultText>{friendClicked.username}</DefaultText>
+            {/* friend modal */}  
+            { friendClicked && (    // prevents instant rendering and friendClicked null errors
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={friendModalVisible}
+                    onRequestClose={() => {setFriendClicked(null); setFriendModalVisible(false);}}
+                    style={{justifyContent:'center'}}
+                >
+                    <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                        <View style={styles.popupView}>
+                            <View style={{flexDirection:'row'}}>
+                                <Pfp url={friendClicked.pfp}/>
+                                <DefaultText>{friendClicked.username}</DefaultText>
+                            </View>
+                            <TouchableOpacity 
+                            style={[styles.button, {backgroundColor:'red'}]}
+                            onPress={() => {Alert.alert(
+                                `Remove ${friendClicked.username} as friend?`,
+                                "You will be removed from their friends list aswell.",
+                                [
+                                    { text: "Confirm", onPress: ()=>removeFriend(friendClicked)},
+                                    { text: "Cancel", style: "cancel"}
+                                ]
+                            );}}
+                            >
+                                <DefaultText>Remove Friend</DefaultText>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                            style={styles.button}
+                            onPress={() => { setFriendClicked(null); setFriendModalVisible(false);}}
+                            >
+                                <DefaultText>Close</DefaultText>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity 
-                        style={[styles.button, {backgroundColor:'red'}]}
-                        onPress={() => {Alert.alert(
-                            `Remove ${friendClicked.username} as friend?`,
-                            "You will be removed from their friends list aswell.",
-                            [
-                                { text: "Confirm", onPress: ()=>removeFriend(friendClicked)},
-                                { text: "Cancel", style: "cancel"}
-                            ]
-                        );}}
-                        >
-                            <DefaultText>Remove Friend</DefaultText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                        style={styles.button}
-                        onPress={() => { setFriendClicked(null); setFriendModalVisible(false);}}
-                        >
-                            <DefaultText>Close</DefaultText>
-                        </TouchableOpacity>
                     </View>
-                </View>
-            </Modal>
-        )}
+                </Modal>
+            )}
         
             <View style={{flex:1}}>
                 <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 

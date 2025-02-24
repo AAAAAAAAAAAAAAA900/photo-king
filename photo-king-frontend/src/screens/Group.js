@@ -272,7 +272,11 @@ export default function GroupScreen({navigation}){
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members group={group} membersPopUpVisible={membersPopUpVisible} setMembersPopUpVisible={setMembersPopUpVisible}/>
+            <Members group={group}
+            membersPopUpVisible={membersPopUpVisible} 
+            setMembersPopUpVisible={setMembersPopUpVisible}
+            press={()=>{/* remove user from group */}}
+            />
             
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>

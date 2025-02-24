@@ -2,10 +2,10 @@ import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions } from "
 import { FriendPreview } from "./FriendSearch";
 import { useRef, useEffect } from "react";
 
-export default function Members({ membersPopUpVisible, setMembersPopUpVisible, group }){
+export default function Members({ membersPopUpVisible, setMembersPopUpVisible, group, press }){
     
-    const {width, height} = Dimensions.get("window");
-    const slideAnim = useRef(new Animated.Value(width)).current; // Start offscreen (right side)
+    const offScreen = Dimensions.get("window").width;
+    const slideAnim = useRef(new Animated.Value(offScreen)).current; // Start offscreen (right side)
 
     useEffect(() => {
         if (membersPopUpVisible) {
@@ -16,7 +16,7 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, g
             }).start();
         } else {
             Animated.timing(slideAnim, {
-                toValue: width, // Slide out of view
+                toValue: offScreen, // Slide out of view
                 duration: 300,
                 useNativeDriver: true,
             }).start();
@@ -30,7 +30,7 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, g
                         <FlatList
                             data={group.users}
                             keyExtractor={(item) => item.id}
-                            renderItem={(item) => <FriendPreview friend={item.item}/>}
+                            renderItem={(item) => <FriendPreview press={press} friend={item.item}/>}
                         />
                     </View>
                     <TouchableWithoutFeedback onPress={()=>setMembersPopUpVisible(false)}>
