@@ -7,6 +7,7 @@ import axios from "axios";
 import FriendSearch from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import {API_URL} from "../api/utils";
+import Pfp from "../components/Pfp.js";
 
 
 export default function FriendsScreen({navigation}){
@@ -115,8 +116,7 @@ export default function FriendsScreen({navigation}){
                 <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
                         <View style={{flexDirection:'row'}}>
-                            <Image style={{width:50, height:50, padding: 10}} 
-                            source={{uri: friendClicked.pfp}}/>
+                            <Pfp url={friendClicked.pfp}/>
                             <DefaultText>{friendClicked.username}</DefaultText>
                         </View>
                         <TouchableOpacity 

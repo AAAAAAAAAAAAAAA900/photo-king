@@ -3,6 +3,7 @@ import { SearchBar } from '@rneui/themed';
 import { useState, useEffect } from "react";
 import DefaultText from "./DefaultText";
 import styles from '../styles/ComponentStyles.js';
+import Pfp from "./Pfp.js";
 
 export default function FriendSearch({searchData, onSelect}){
     const [userSearch, setUserSearch] = useState('');
@@ -30,7 +31,8 @@ export default function FriendSearch({searchData, onSelect}){
     
     function FriendPreview({friend}){
         return(
-            <TouchableOpacity style={styles.group} onPress={() => {onSelect? onSelect(friend) : null}}>
+            <TouchableOpacity style={styles.listItem} onPress={() => {onSelect? onSelect(friend) : null}}>
+                <Pfp url={friend.pfp}/>
                 <DefaultText>{friend.username}</DefaultText>
             </TouchableOpacity>
         );
@@ -47,6 +49,7 @@ export default function FriendSearch({searchData, onSelect}){
                 lightTheme={true}
             />
             <FlatList
+                ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={filteredData}
                 keyExtractor={(item) => item.username}
                 renderItem={({item}) => <FriendPreview friend={item}/>}

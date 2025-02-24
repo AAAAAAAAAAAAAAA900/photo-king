@@ -9,12 +9,12 @@ import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
 
 
-export default function Pfp ({navigation, user, setUser, editable}){
+export default function Pfp ({navigation, user, setUser, url}){
 
     const [style, setStyle] = useState({});
     
     const press = () => {
-        if(editable){
+        if(user){
             onPressPhoto();
         } else{
             navigation.dispatch(StackActions.popToTop());
@@ -22,7 +22,7 @@ export default function Pfp ({navigation, user, setUser, editable}){
     };
 
     useEffect(()=>{
-        if(editable){
+        if(user){
             setStyle({height: 200, width:200, borderWidth:5, borderRadius:100});
         } else{
             setStyle({height: 50, width:50, borderWidth:2, borderRadius:25});
@@ -103,7 +103,6 @@ export default function Pfp ({navigation, user, setUser, editable}){
     const uploadPfp = async (pfp) => {
         const formData = new FormData();
 
-        console.log(pfp.uri);
         formData.append('file', {
             uri: pfp.uri,
             name: pfp.fileName || pfp.filename || 'image.jpg', // Ensure proper name field
@@ -129,13 +128,15 @@ export default function Pfp ({navigation, user, setUser, editable}){
 
     return(
         <View style={{marginRight: 10}}>
-            { user.profileUrl ?
+            {/* If passed user or navigation make it clickable, else just a view */}
+            {/* If passed a non empty url use it, else use default pfp icon */}
+            { user || navigation ? ( url ?
                 <TouchableOpacity
                 onPressOut={press}
                 >
                     <Image  
                     style={[style, {borderColor: colors.secondary}]}
-                    source={{uri: user.profileUrl}} 
+                    source={{uri: url}} 
                     />
                 </TouchableOpacity>
             : 
@@ -147,7 +148,21 @@ export default function Pfp ({navigation, user, setUser, editable}){
                     source={require('../../assets/icons/pfp.png')} 
                     />
                 </TouchableOpacity>
-            }
+            ) : ( url ?
+                <View>
+                    <Image  
+                    style={[style, {borderColor: colors.secondary}]}
+                    source={{uri: url}} 
+                    />
+                </View>
+            : 
+                <View>
+                    <Image  
+                    style={[style, {borderColor: colors.secondary}]}
+                    source={require('../../assets/icons/pfp.png')} 
+                    />
+                </View>
+            )}
         </View>
     );
 }

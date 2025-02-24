@@ -12,7 +12,7 @@ export default function ProfileScreen({navigation}){
     
     return(
         <SafeAreaView style={{flex:1}}>
-            <Pfp user={user} setUser={setUser} editable={true}/>
+            <Pfp user={user} setUser={setUser} url={user.profileUrl}/>
             <View style={styles.containerCenterAll}>
                 <DefaultText>Profile Screen</DefaultText>
             </View>

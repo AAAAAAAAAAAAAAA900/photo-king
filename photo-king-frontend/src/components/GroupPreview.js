@@ -3,7 +3,7 @@ import styles from '../styles/ComponentStyles.js';
 
 export default function GroupPreview ({groupTitle, navFunction}) {
     return(
-        <TouchableOpacity style={styles.group} onPress={navFunction}>
+        <TouchableOpacity style={styles.listItem} onPress={navFunction}>
                 <Text style={styles.titleText}>{groupTitle}</Text>
         </TouchableOpacity>
     );
