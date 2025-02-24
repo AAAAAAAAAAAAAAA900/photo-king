@@ -21,13 +21,18 @@ public class PhotoGroupController {
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
-    public PhotoGroup addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
+    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
         return photoGroupService.addGroup(photoGroupDTO);
     }
 
     @DeleteMapping(path = "/delete/{id}")
     public void deleteGroup(@PathVariable int id) throws IOException {
         photoGroupService.deleteGroup(id);
+    }
+
+    @PutMapping(path = "/update-user-rank/{groupId}/{userId}")
+    public void updateUserRank(@PathVariable int groupId, @PathVariable int userId) {
+        photoGroupService.updateUserRank(groupId, userId);
     }
 
 
