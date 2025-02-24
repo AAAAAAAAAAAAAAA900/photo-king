@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -21,17 +21,17 @@ export default function GroupScreen({navigation}){
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
-    const [membersModalVisible, setMembersModalVisible] = useState(false);
+    const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
     useEffect(() => {
         navigation.setOptions({ 
             title: group.name, 
             headerRight: () => (
                     <TouchableOpacity style={styles.button} 
-                    onPressOut={() => setMembersModalVisible(!membersModalVisible)} >
+                    onPressOut={() => setMembersPopUpVisible(!membersPopUpVisible)} >
                         <DefaultText>people</DefaultText>
                     </TouchableOpacity>) 
         });
-    }, [membersModalVisible]);
+    }, [membersPopUpVisible]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -269,25 +269,24 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
-            {/* Group members modal */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={membersModalVisible}
-                onRequestClose={() => {setMembersModalVisible(false);}}
-                style={{justifyContent:'center'}}
-            >
+            {/* Group members side bar popup */}
+            { membersPopUpVisible &&
+            <View style={{height:'100%', width:'100%', position:'absolute', zIndex:2}}>
                 <View style={{flex:1, flexDirection:'row-reverse', backgroundColor: 'rgba(0, 0, 0, 0.5)'}}>
-                    <View style={{width:'50%', height:'100%', backgroundColor:'white'}}>
+                    <View style={{flex:1, backgroundColor:'white'}}>
                         <FlatList
                             data={group.users}
                             keyExtractor={(item) => item.id}
                             renderItem={(item) => <FriendPreview friend={item.item}/>}
                         />
                     </View>
+                    <TouchableWithoutFeedback onPress={()=>setMembersPopUpVisible(false)}>
+                        <View style={{flex:1}}/>
+                    </TouchableWithoutFeedback>
                 </View>
-            </Modal>
-
+            </View>
+            }
+            
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}

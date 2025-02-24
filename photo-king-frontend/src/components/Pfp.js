@@ -11,7 +11,7 @@ import { StackActions } from '@react-navigation/native';
 
 export default function Pfp ({navigation, user, setUser, url}){
 
-    const [style, setStyle] = useState({});
+    const [style, setStyle] = useState({height: 50, width:50, borderWidth:2, borderRadius:25});
     
     const press = () => {
         if(user){
@@ -24,8 +24,6 @@ export default function Pfp ({navigation, user, setUser, url}){
     useEffect(()=>{
         if(user){
             setStyle({height: 200, width:200, borderWidth:5, borderRadius:100});
-        } else{
-            setStyle({height: 50, width:50, borderWidth:2, borderRadius:25});
         }
     },[]);
 
