@@ -9,6 +9,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserImageService userImageService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     // SAVES USER TO DATABASE
@@ -82,7 +85,10 @@ public class UserService {
         }
 
         User newUser = UserRegisterDTO.toUser(user);
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(newUser);
+
         return new UserDTO(newUser);
     }
 
