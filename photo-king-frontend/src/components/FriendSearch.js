@@ -28,15 +28,6 @@ export default function FriendSearch({searchData, onSelect}){
     useEffect(() => {
         search(userSearch);
     }, [userSearch]);
-    
-    function FriendPreview({friend}){
-        return(
-            <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={() => {onSelect? onSelect(friend) : null}}>
-                <Pfp url={friend.pfp}/>
-                <DefaultText>{friend.username}</DefaultText>
-            </TouchableOpacity>
-        );
-    }
 
     return(
         <View style={{flex:1}}>
@@ -53,8 +44,17 @@ export default function FriendSearch({searchData, onSelect}){
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={filteredData}
                 keyExtractor={(item) => item.username}
-                renderItem={({item}) => <FriendPreview friend={item}/>}
+                renderItem={({item}) => <FriendPreview friend={item} press={() => {onSelect? onSelect(item) : null}}/>}
             />
         </View>
+    );
+}
+
+export function FriendPreview({friend, press}){
+    return(
+        <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={press}>
+            <Pfp url={friend.pfp}/>
+            <DefaultText>{friend.username}</DefaultText>
+        </TouchableOpacity>
     );
 }

@@ -23,6 +23,10 @@ export default function FriendsScreen({navigation}){
         return(<DefaultText>ERROR CASE: user lost</DefaultText>)
     }
 
+    useEffect(() => {
+        navigation.setOptions({ user: user }); // pass user along to header
+    }, [user]);
+
     const addFriend = async () => {
         // Check for user matching search
         let friend;

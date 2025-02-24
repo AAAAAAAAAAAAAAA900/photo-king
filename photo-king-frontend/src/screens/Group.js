@@ -8,10 +8,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import FriendSearch from '../components/FriendSearch.js';
+import FriendSearch, { FriendPreview } from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
+import Pfp from '../components/Pfp.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -20,6 +21,17 @@ export default function GroupScreen({navigation}){
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
+    const [membersModalVisible, setMembersModalVisible] = useState(false);
+    useEffect(() => {
+        navigation.setOptions({ 
+            title: group.name, 
+            headerRight: () => (
+                    <TouchableOpacity style={styles.button} 
+                    onPressOut={() => setMembersModalVisible(!membersModalVisible)} >
+                        <DefaultText>people</DefaultText>
+                    </TouchableOpacity>) 
+        });
+    }, [membersModalVisible]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -232,7 +244,7 @@ export default function GroupScreen({navigation}){
                 animationType="fade"
                 transparent={true}
                 visible={userModalVisible}
-                onRequestClose={() => {setUserModalVisible(!userModalVisible);}}
+                onRequestClose={() => {setUserModalVisible(false);}}
                 style={{justifyContent:'center'}}
             >
                 <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
@@ -257,9 +269,27 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
+            {/* Group members modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={membersModalVisible}
+                onRequestClose={() => {setMembersModalVisible(false);}}
+                style={{justifyContent:'center'}}
+            >
+                <View style={{flex:1, flexDirection:'row-reverse', backgroundColor: 'rgba(0, 0, 0, 0.5)'}}>
+                    <View style={{width:'50%', height:'100%', backgroundColor:'white'}}>
+                        <FlatList
+                            data={group.users}
+                            keyExtractor={(item) => item.id}
+                            renderItem={(item) => <FriendPreview friend={item.item}/>}
+                        />
+                    </View>
+                </View>
+            </Modal>
+
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
-                <Text style={styles.titleText}>{group.name}</Text>
                 {/* Disables ranking button if user already ranked this week */}
                 { !group.userRanked[user.id] ?
                     <TouchableOpacity
