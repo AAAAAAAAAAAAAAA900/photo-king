@@ -13,6 +13,7 @@ import axios from "axios";
 import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
 import Pfp from '../components/Pfp.js';
+import Members from '../components/Members.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -22,6 +23,7 @@ export default function GroupScreen({navigation}){
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
     const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
+
     useEffect(() => {
         navigation.setOptions({ 
             title: group.name, 
@@ -31,7 +33,7 @@ export default function GroupScreen({navigation}){
                         <DefaultText>people</DefaultText>
                     </TouchableOpacity>) 
         });
-    }, [membersPopUpVisible]);
+    }, [membersPopUpVisible, group]);    // for when name is edited
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -270,22 +272,7 @@ export default function GroupScreen({navigation}){
             </Modal>
 
             {/* Group members side bar popup */}
-            { membersPopUpVisible &&
-            <View style={{height:'100%', width:'100%', position:'absolute', zIndex:2}}>
-                <View style={{flex:1, flexDirection:'row-reverse', backgroundColor: 'rgba(0, 0, 0, 0.5)'}}>
-                    <View style={{flex:1, backgroundColor:'white'}}>
-                        <FlatList
-                            data={group.users}
-                            keyExtractor={(item) => item.id}
-                            renderItem={(item) => <FriendPreview friend={item.item}/>}
-                        />
-                    </View>
-                    <TouchableWithoutFeedback onPress={()=>setMembersPopUpVisible(false)}>
-                        <View style={{flex:1}}/>
-                    </TouchableWithoutFeedback>
-                </View>
-            </View>
-            }
+            <Members group={group} membersPopUpVisible={membersPopUpVisible} setMembersPopUpVisible={setMembersPopUpVisible}/>
             
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
