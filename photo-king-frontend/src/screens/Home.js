@@ -17,10 +17,15 @@ export default function HomeScreen ({navigation}){
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
 
+
+  useEffect(() => {
+    navigation.setOptions({ user: user }); // pass user along to header
+  }, [user]);
+
   const addGroup = async () => {
 
     try {
-      const group_response = await axios.post(`${API_URL}/api/photo-group/add`, {name: groupTitle},
+      const group_response = await axios.post(`${API_URL}/api/photo-group/add`, {name: groupTitle, ownerId: user.id},
         {
           headers: {
             'Content-Type': 'application/json'
@@ -46,10 +51,9 @@ export default function HomeScreen ({navigation}){
     }
   }
 
-  
   // Home screen view: scrollable list of groups
   return (
-      <SafeAreaView style={{ padding: 20, flex:1 }}>
+      <SafeAreaView style={{ flex:1 }}>
 
         {/* Create group popup */}
         <Modal
@@ -58,7 +62,7 @@ export default function HomeScreen ({navigation}){
           visible={groupModalVisible}
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
-          <View style={ styles.containerCenterAll}>
+          <View style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <TextInput 
               style={styles.textIn}
               onChangeText={(text) => {setGroupTitle(text)}}
@@ -93,13 +97,13 @@ export default function HomeScreen ({navigation}){
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
-          // Render user info only if `user` is not null
+          // Render flatlist if user has groups
           user.groups && user.groups.length ? (
             // List groups if user has any
             <View style={{flex:1}}>
               <FlatList
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                  data={user.groups}
+                  data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
                     <GroupPreview groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})
