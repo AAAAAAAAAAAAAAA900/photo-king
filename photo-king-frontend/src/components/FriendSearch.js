@@ -31,7 +31,7 @@ export default function FriendSearch({searchData, onSelect}){
     
     function FriendPreview({friend}){
         return(
-            <TouchableOpacity style={styles.listItem} onPress={() => {onSelect? onSelect(friend) : null}}>
+            <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={() => {onSelect? onSelect(friend) : null}}>
                 <Pfp url={friend.pfp}/>
                 <DefaultText>{friend.username}</DefaultText>
             </TouchableOpacity>
@@ -44,8 +44,9 @@ export default function FriendSearch({searchData, onSelect}){
                 placeholder="Search Friends..."
                 onChangeText={(userSearch) => {setUserSearch(userSearch)}}
                 value={userSearch}
-                inputContainerStyle={[styles.textIn, {width:'100%'}]}
-                containerStyle={{alignItems:'center'}}
+                inputStyle={[styles.textIn, {width:'100%'}]}
+                inputContainerStyle={{backgroundColor:'white'}}
+                containerStyle={{alignItems:'center', backgroundColor:'white'}}
                 lightTheme={true}
             />
             <FlatList

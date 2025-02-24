@@ -237,7 +237,7 @@ export default function GroupScreen({navigation}){
             >
                 <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
-                        <View style={{flex:1}}>
+                        <View style={{width:'100%', height:'100%'}}>
                             <FriendSearch searchData={user.friends} onSelect={(friend) => {
                                 Alert.alert(
                                     `Add ${friend.username} to group?`,

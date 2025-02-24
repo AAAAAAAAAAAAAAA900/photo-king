@@ -62,7 +62,7 @@ export default styles = StyleSheet.create({
     },
     listItem: {
         padding: 20, 
-        margin: 10, 
+        margin: 10,
         backgroundColor: colors.greyWhite, 
         borderRadius: 10,
         alignItems:'center',
@@ -76,8 +76,8 @@ export default styles = StyleSheet.create({
     popupView: {
         justifyContent: 'center',
         alignItems: 'center',
-        width:300,
-        height:300,
+        width:'75%',
+        height:'60%',
         backgroundColor: colors.greyWhite
     },
     picHolder: {

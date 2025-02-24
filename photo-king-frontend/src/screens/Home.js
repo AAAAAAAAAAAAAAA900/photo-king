@@ -53,7 +53,7 @@ export default function HomeScreen ({navigation}){
 
   // Home screen view: scrollable list of groups
   return (
-      <SafeAreaView style={{ padding: 20, flex:1 }}>
+      <SafeAreaView style={{ flex:1 }}>
 
         {/* Create group popup */}
         <Modal
