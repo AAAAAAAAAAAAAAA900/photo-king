@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
@@ -14,7 +15,7 @@ public class UserGroupService {
     @Autowired
     private PhotoGroupService photoGroupService;
 
-    public UserDTO addUserToGroup(int userId, int groupId) {
+    public PhotoGroupDTO addUserToGroup(int userId, int groupId) {
         User user = userService.getUserById(userId);
         PhotoGroup photoGroup = photoGroupService.getGroupById(groupId);
 
@@ -25,8 +26,21 @@ public class UserGroupService {
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
 
-        return new UserDTO(user);
+        return new PhotoGroupDTO(photoGroup);
     }
 
+    public PhotoGroupDTO removeUserFromGroup(int userId, int groupId) {
+        User user = userService.getUserById(userId);
+        PhotoGroup photoGroup = photoGroupService.getGroupById(groupId);
+
+        user.getPhotoGroups().remove(photoGroup);
+        photoGroup.getUsers().remove(user);
+        photoGroup.getUserRanked().remove(user.getId());
+
+        userService.saveUser(user);
+        photoGroupService.saveGroup(photoGroup);
+
+        return new PhotoGroupDTO(photoGroup);
+    }
 
 }

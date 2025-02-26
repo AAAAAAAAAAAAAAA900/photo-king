@@ -8,6 +8,7 @@ import FriendSearch from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import {API_URL} from "../api/utils";
 import Pfp from "../components/Pfp.js";
+import FriendModal from "../components/FriendModal.js";
 
 
 export default function FriendsScreen({navigation}){
@@ -16,8 +17,8 @@ export default function FriendsScreen({navigation}){
     const [loading, setLoading] = useState(false);
     const [friendsList, setFriendsList] = useState(route.params?.user.friends);
     const [userSearch, setUserSearch] = useState("");
-    const [friendModalVisible, setFriendModalVisible] = useState(false); //stores friend clicked
-    const [friendClicked, setFriendClicked] = useState(null);
+    const [friendModalVisible, setFriendModalVisible] = useState(false); 
+    const [friendClicked, setFriendClicked] = useState(null);   
 
     if (!user){
         return(<DefaultText>ERROR CASE: user lost</DefaultText>)
@@ -78,9 +79,9 @@ export default function FriendsScreen({navigation}){
         }
     };
 
-    const removeFriend = async (friend) => {
+    const removeFriend = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user/remove-friend/${user.id}/${friend.id}`,
+            const response = await axios.post(`${API_URL}/api/user/remove-friend/${user.id}/${id}`,
                 {
                     headers: {
                         'Content-Type': 'application/json'
@@ -109,43 +110,13 @@ export default function FriendsScreen({navigation}){
         <SafeAreaView style={{flex:1}}>
 
             {/* friend modal */}  
-            { friendClicked && (    // prevents instant rendering and friendClicked null errors
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={friendModalVisible}
-                    onRequestClose={() => {setFriendClicked(null); setFriendModalVisible(false);}}
-                    style={{justifyContent:'center'}}
-                >
-                    <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                        <View style={styles.popupView}>
-                            <View style={{flexDirection:'row'}}>
-                                <Pfp url={friendClicked.pfp}/>
-                                <DefaultText>{friendClicked.username}</DefaultText>
-                            </View>
-                            <TouchableOpacity 
-                            style={[styles.button, {backgroundColor:'red'}]}
-                            onPress={() => {Alert.alert(
-                                `Remove ${friendClicked.username} as friend?`,
-                                "You will be removed from their friends list aswell.",
-                                [
-                                    { text: "Confirm", onPress: ()=>removeFriend(friendClicked)},
-                                    { text: "Cancel", style: "cancel"}
-                                ]
-                            );}}
-                            >
-                                <DefaultText>Remove Friend</DefaultText>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                            style={styles.button}
-                            onPress={() => { setFriendClicked(null); setFriendModalVisible(false);}}
-                            >
-                                <DefaultText>Close</DefaultText>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
-            )}
+            <FriendModal 
+            friendClicked={friendClicked} 
+            setFriendClicked={setFriendClicked}
+            friendModalVisible={friendModalVisible} 
+            setFriendModalVisible={setFriendModalVisible}
+            removeFriend={removeFriend}
+            />
         
             <View style={{flex:1}}>
                 <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 
