@@ -4,12 +4,16 @@ import { SafeAreaView, TouchableOpacity, View } from "react-native";
 import styles from "../styles/ComponentStyles";
 import NavBar from "../components/NavBar";
 import Pfp from "../components/Pfp";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ProfileScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
     
+    useEffect(() => {
+        navigation.setOptions({ user: user }); // pass user along to header
+    }, [user]);
+
     return(
         <SafeAreaView style={{flex:1}}>
             <Pfp user={user} setUser={setUser} url={user.profileUrl}/>

@@ -2,7 +2,7 @@ import { View, FlatList, TouchableOpacity } from "react-native";
 import { SearchBar } from '@rneui/themed';
 import { useState, useEffect } from "react";
 import DefaultText from "./DefaultText";
-import styles from '../styles/ComponentStyles.js';
+import styles, { colors } from '../styles/ComponentStyles.js';
 import Pfp from "./Pfp.js";
 
 export default function FriendSearch({searchData, onSelect}){
@@ -28,15 +28,6 @@ export default function FriendSearch({searchData, onSelect}){
     useEffect(() => {
         search(userSearch);
     }, [userSearch]);
-    
-    function FriendPreview({friend}){
-        return(
-            <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={() => {onSelect? onSelect(friend) : null}}>
-                <Pfp url={friend.pfp}/>
-                <DefaultText>{friend.username}</DefaultText>
-            </TouchableOpacity>
-        );
-    }
 
     return(
         <View style={{flex:1}}>
@@ -44,17 +35,33 @@ export default function FriendSearch({searchData, onSelect}){
                 placeholder="Search Friends..."
                 onChangeText={(userSearch) => {setUserSearch(userSearch)}}
                 value={userSearch}
-                inputStyle={[styles.textIn, {width:'100%'}]}
-                inputContainerStyle={{backgroundColor:'white'}}
-                containerStyle={{alignItems:'center', backgroundColor:'white'}}
+                inputStyle={{
+                        borderColor: colors.secondary, 
+                        borderRadius:5,
+                        backgroundColor:colors.greyWhite,
+                        borderWidth: 1,
+                        fontFamily: 'DMSans-Regular', 
+                        fontSize: 16,
+                    }}
+                inputContainerStyle={{ backgroundColor:"transparent"}}
+                containerStyle={{alignItems:'center', backgroundColor:"transparent"}}
                 lightTheme={true}
             />
             <FlatList
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                data={filteredData}
+                data={[...filteredData].sort((a,b)=>a.username.localeCompare(b.username))}
                 keyExtractor={(item) => item.username}
-                renderItem={({item}) => <FriendPreview friend={item}/>}
+                renderItem={({item}) => <FriendPreview friend={item} press={() => {onSelect? onSelect(item) : null}}/>}
             />
         </View>
+    );
+}
+
+export function FriendPreview({friend, press}){
+    return(
+        <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={press}>
+            <Pfp url={friend.pfp}/>
+            <DefaultText>{friend.username}</DefaultText>
+        </TouchableOpacity>
     );
 }

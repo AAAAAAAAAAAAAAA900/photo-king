@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -8,18 +8,36 @@ import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import FriendSearch from '../components/FriendSearch.js';
+import FriendSearch, { FriendPreview } from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
+import Pfp from '../components/Pfp.js';
+import Members from '../components/Members.js';
+import FriendModal from '../components/FriendModal.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
-    const group = route.params?.group;
+    const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
+    const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
+    const [friendModalVisible, setFriendModalVisible] = useState(false); 
+    const [friendClicked, setFriendClicked] = useState(null);   
+
+    useEffect(() => {
+        setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
+        navigation.setOptions({ 
+            title: group.name, 
+            headerRight: () => (
+                    <TouchableOpacity style={styles.button} 
+                    onPressOut={() => setMembersPopUpVisible(!membersPopUpVisible)} >
+                        <DefaultText>people</DefaultText>
+                    </TouchableOpacity>) 
+        });
+    }, [membersPopUpVisible, user]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -181,6 +199,28 @@ export default function GroupScreen({navigation}){
                     'Content-Type': 'application/json'
                 }
             });
+            // remove current group then add back updated version
+            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            groupsCopy.push(response.data);
+            setUser({...user, groups: groupsCopy});   
+        }
+        catch (error) {
+            console.log(error);
+        }
+    };
+
+    const removeUserFromGroup = async (id) => {
+        try {
+            const response = await axios.post(`${API_URL}/api/user-groups/remove-user/${id}/${group.id}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            // remove current group then add back updated version
+            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            groupsCopy.push(response.data);
+            setUser({...user, groups: groupsCopy});   
         }
         catch (error) {
             console.log(error);
@@ -232,13 +272,15 @@ export default function GroupScreen({navigation}){
                 animationType="fade"
                 transparent={true}
                 visible={userModalVisible}
-                onRequestClose={() => {setUserModalVisible(!userModalVisible);}}
+                onRequestClose={() => {setUserModalVisible(false);}}
                 style={{justifyContent:'center'}}
             >
                 <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
                         <View style={{width:'100%', height:'100%'}}>
-                            <FriendSearch searchData={user.friends} onSelect={(friend) => {
+                            <FriendSearch 
+                            searchData={user.friends.filter((f)=>!group.users.some((member)=>member.id==f.id))} 
+                            onSelect={(friend) => {
                                 Alert.alert(
                                     `Add ${friend.username} to group?`,
                                     "They will have access to all photos in this group.",
@@ -257,9 +299,15 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
+            {/* Group members side bar popup */}
+            <Members group={group}
+            membersPopUpVisible={membersPopUpVisible} 
+            setMembersPopUpVisible={setMembersPopUpVisible}
+            press={(friend)=>{setFriendClicked(friend); setFriendModalVisible(true);}}
+            />
+            
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
-                <Text style={styles.titleText}>{group.name}</Text>
                 {/* Disables ranking button if user already ranked this week */}
                 { !group.userRanked[user.id] ?
                     <TouchableOpacity
@@ -290,6 +338,15 @@ export default function GroupScreen({navigation}){
                     </TouchableOpacity>
                 }
             </View>
+
+            {/* group member preview */}
+            <FriendModal 
+            friendClicked={friendClicked}
+            setFriendClicked={setFriendClicked}
+            friendModalVisible={friendModalVisible}
+            setFriendModalVisible={setFriendModalVisible}
+            removeFriendFromGroup={removeUserFromGroup}
+            />
 
             {/* Photo list */}
             <View style={groupStyles.picList}>
