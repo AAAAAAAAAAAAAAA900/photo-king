@@ -5,14 +5,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
 @Entity
 @Table(name = "user")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +31,14 @@ public class User {
     private String email;
     @Column(unique = true, nullable = false, length = 20, name = "phone")
     private String phone;
-    @Column(nullable = false, length = 20, name = "firstname")
-    private String firstname;
-    @Column(nullable = false, length = 20, name = "lastname")
-    private String lastname;
+    @Column(nullable = false, length = 30, name = "name")
+    private String name;
     @Column(name = "profile_url")
     private String profileUrl;
     @Column(name = "profile_public_id")
     private String profilePublicId;
+    @Column(name = "role")
+    private String role;
 
     @JsonIgnore
     @ManyToMany
@@ -55,15 +60,15 @@ public class User {
     @Cascade(CascadeType.ALL)
     private Set<User> friends = new HashSet<>();
 
-    public User(String username, String password, String phone, String email, String lastname, String firstname) {
+    public User(String username, String password, String phone, String email, String name) {
         this.username = username;
         this.password = password;
         this.phone = phone;
         this.email = email;
-        this.lastname = lastname;
-        this.firstname = firstname;
+        this.name = name;
         this.profileUrl = "";
         this.profilePublicId = "";
+        this.role = "user";
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
     }
@@ -80,13 +85,40 @@ public class User {
         this.id = id;
     }
 
+    @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role));
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
+
 
     public String getPassword() {
         return password;
@@ -112,20 +144,20 @@ public class User {
         this.phone = phone;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getRole() {
+        return role;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getProfileUrl() {

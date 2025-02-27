@@ -13,10 +13,10 @@ public class UserDTO {
     private String username;
     private String email;
     private String phone;
-    private String firstname;
-    private String lastname;
+    private String name;
     private String profileUrl;
     private String profilePublicId;
+    private String role;
     private Set<FriendDTO> friends;
     private Set<PhotoGroupDTO> groups;
 
@@ -25,10 +25,10 @@ public class UserDTO {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.phone = user.getPhone();
-        this.firstname = user.getFirstname();
-        this.lastname = user.getLastname();
+        this.name = user.getName();
         this.profileUrl = user.getProfileUrl();
         this.profilePublicId = user.getProfilePublicId();
+        this.role = user.getRole();
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
     }
@@ -46,12 +46,12 @@ public class UserDTO {
         return phone;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getName() {
+        return name;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getRole() {
+        return role;
     }
 
     public String getProfileUrl() {

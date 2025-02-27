@@ -6,6 +6,7 @@ import { CommonActions } from "@react-navigation/native";
 import { useState } from "react";
 import axios from "axios";
 import {API_URL} from "../api/utils";
+import imageApi from "../api/imageApi";
 
 
 
@@ -19,11 +20,8 @@ export default function PhotoScreen ({navigation}){
 
     const deletePhoto = async () => {
         try {
-            const response = await axios.delete(`${API_URL}/api/user-image/delete-image/${photo.id}`, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await imageApi.deleteImage(photo.id);
+
             navigation.dispatch((state) => {
                 const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
                 return CommonActions.reset({

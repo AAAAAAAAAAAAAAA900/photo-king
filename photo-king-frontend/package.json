@@ -23,7 +23,8 @@
     "react-hook-form": "^7.54.2",
     "react-native": "0.76.7",
     "react-native-action-sheet": "^2.2.0",
-    "react-native-mime-types": "^2.5.0"
+    "react-native-mime-types": "^2.5.0",
+    "expo-secure-store": "~14.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

@@ -7,6 +7,8 @@ import { loadPictures } from "./Group.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {API_URL} from "../api/utils";
+import imageApi from "../api/imageApi";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
@@ -80,22 +82,10 @@ export default function RankScreen({navigation}){
 
     const submitRanks = async () => {
         try{
-            const updateRankResponse = await axios.put(`${API_URL}/api/photo-group/update-user-rank/${group.id}/${user.id}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const updateRankResponse = await photoGroupApi.updateUserRank(group, user);
             for(let url in ranks){
                 const pic = pictures.filter((picture) => picture.url == url);
-                const updatePointsResponse = await axios.put(`${API_URL}/api/user-image/update-points/${pic[0].id}/${(ranks[url]+1)}`,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
+                const updatePointsResponse = await imageApi.updatePoints(pic[0].id, ranks[url] + 1);
             }
             const newRankTracker = {...group.userRanked};
             newRankTracker[user.id] = true;

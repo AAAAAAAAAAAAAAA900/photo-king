@@ -8,8 +8,7 @@ public class UserRegisterDTO {
     private String password;
     private String email;
     private String phone;
-    private String firstname;
-    private String lastname;
+    private String name;
 
     public String getUsername() {
         return username;
@@ -27,23 +26,18 @@ public class UserRegisterDTO {
         return phone;
     }
 
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
+    public String getName() {
+        return name;
     }
 
     public static User toUser(UserRegisterDTO userRegisterDTO) {
         User user = new User();
-
         user.setUsername(userRegisterDTO.getUsername());
         user.setPassword(userRegisterDTO.getPassword());
         user.setEmail(userRegisterDTO.getEmail());
         user.setPhone(userRegisterDTO.getPhone());
-        user.setFirstname(userRegisterDTO.getFirstname());
-        user.setLastname(userRegisterDTO.getLastname());
+        user.setName(userRegisterDTO.getName());
+        user.setRole("user");
         return user;
     }
 }
