@@ -14,6 +14,8 @@ import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
 import Pfp from '../components/Pfp.js';
 import Members from '../components/Members.js';
+import imageApi from "../api/imageApi";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -75,6 +77,15 @@ export default function GroupScreen({navigation}){
         console.log(formData._parts);
 
         try {
+            const response2 = await imageApi.uploadImages(formData);
+            console.log('Upload Success');
+        }
+        catch (error) {
+            console.log('Upload Error:', error.response?.data || error.message);
+        }
+
+        /*
+        try {
             const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -85,6 +96,8 @@ export default function GroupScreen({navigation}){
         } catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
+
+         */
 
         loadPictures(setPictures, group);
     }
@@ -189,12 +202,7 @@ export default function GroupScreen({navigation}){
 
     const addUserToGroup = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user-groups/add-user/${id}/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await photoGroupApi.addUserToGroup(id, group.id);
         }
         catch (error) {
             console.log(error);
@@ -203,12 +211,7 @@ export default function GroupScreen({navigation}){
 
     const deleteGroup = async () => {
         try{
-            const response = await axios.delete(`${API_URL}/api/photo-group/delete/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response2 = await photoGroupApi.deleteGroup(group.id);
             setUser({...user, groups: user.groups.filter((thisGroup) => thisGroup.id != group.id)});
             setIsGroupDeleted(true);
         }
@@ -344,10 +347,21 @@ const groupStyles = StyleSheet.create({
 });
 
 export const loadPictures = async (setPictures, group) => {
+
     try {
-        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        const response = await imageApi.getGroupImages(group.id);
         setPictures(response.data.sort((a,b)=> b.points-a.points));
     } catch (error) {
         console.log(error);
     }
+
+
+    /*
+    try {
+        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        setPictures(response.data.sort((a,b)=> b.points-a.points));
+    } catch (error) {
+        console
+
+     */
 }
