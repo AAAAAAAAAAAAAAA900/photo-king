@@ -9,6 +9,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,12 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserImageService userImageService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
 
     // SAVES USER TO DATABASE
@@ -82,7 +89,10 @@ public class UserService {
         }
 
         User newUser = UserRegisterDTO.toUser(user);
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(newUser);
+
         return new UserDTO(newUser);
     }
 
@@ -123,6 +133,35 @@ public class UserService {
         saveUser(user);
         saveUser(friend);
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
+    }
+
+    public String generateToken(String refreshToken) {
+
+        if (refreshToken == null) {
+            throw new RuntimeException("Refresh token is null");
+        }
+
+        if (!jwtService.isTokenNonExpired(refreshToken)) {
+            throw new RuntimeException("Refresh token is expired");
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
+        return jwtService.generateToken(userDetailsService.loadUserByUsername(username));
+    }
+
+    public boolean isTokenNonExpired(String token) {
+        return jwtService.isTokenNonExpired(token);
+    }
+
+    public UserDTO getUserInfo(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        return getUserByUsername(username);
+
     }
 
 

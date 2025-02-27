@@ -8,7 +8,9 @@ import FriendSearch from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import {API_URL} from "../api/utils";
 import Pfp from "../components/Pfp.js";
+import userApi from "../api/userApi";
 import FriendModal from "../components/FriendModal.js";
+
 
 
 export default function FriendsScreen({navigation}){
@@ -32,13 +34,7 @@ export default function FriendsScreen({navigation}){
         // Check for user matching search
         let friend;
         try {
-            const response = await axios.get(`${API_URL}/api/user/get-user/${userSearch}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.getUser(userSearch)
             friend = response.data; // UserDTO
         }
         catch (error) {
@@ -53,13 +49,7 @@ export default function FriendsScreen({navigation}){
         }
         // Add Friend
         try {
-            const response = await axios.post(`${API_URL}/api/user/add-friend/${user.id}/${friend.id}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.addFriend(user.id, friend.id);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({
@@ -81,13 +71,7 @@ export default function FriendsScreen({navigation}){
 
     const removeFriend = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user/remove-friend/${user.id}/${id}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.removeFriend(user.id, friend.id);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({

@@ -18,17 +18,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // HANDLES USER LOGIN. ACCEPTS A USERNAME AND PASSWORD
-    @PostMapping(path = "/login")
-    public UserDTO login(@RequestBody AuthRegReq authRegReq) {
-        return userService.loginUser(authRegReq);
-    }
-
-    // HANDLES USER REGISTRATION
-    @PostMapping(path = "/register", consumes = {"application/json"})
-    public UserDTO register(@RequestBody UserRegisterDTO user) {
-        return userService.registerUser(user);
-    }
 
     // RETURNS USER OBJECT BY USERNAME
     @GetMapping(path = "/get-user/{username}")
@@ -53,5 +42,14 @@ public class UserController {
     public void deleteUser(@PathVariable int id) throws IOException {
         userService.deleteUser(id);
     }
+
+    @GetMapping(path = "/get-user-info")
+    public UserDTO getUserInfo(@RequestHeader("Authorization") String authHeader) {
+        return userService.getUserInfo(authHeader);
+    }
+
+
+
+
 
 }
