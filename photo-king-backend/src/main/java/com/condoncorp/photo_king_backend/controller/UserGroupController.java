@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.service.UserGroupService;
@@ -19,7 +20,13 @@ public class UserGroupController {
 
     // ADDS A USER TO ANY GROUP
     @PostMapping("/add-user/{userId}/{groupId}")
-    public UserDTO addUserToGroup(@PathVariable int userId, @PathVariable int groupId) {
+    public PhotoGroupDTO addUserToGroup(@PathVariable int userId, @PathVariable int groupId) {
         return userGroupService.addUserToGroup(userId, groupId);
+    }
+
+    // REMOVES USER FROM GROUP
+    @PostMapping("/remove-user/{userId}/{groupId}")
+    public PhotoGroupDTO removeUserFromGroup(@PathVariable int userId, @PathVariable int groupId) {
+        return userGroupService.removeUserFromGroup(userId, groupId);
     }
 }

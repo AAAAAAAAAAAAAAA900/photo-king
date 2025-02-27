@@ -111,18 +111,8 @@ const headerStyles = StyleSheet.create({
   },
   profileAndSettings:
     ({ navigation, route }) => ({
-      headerRight: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
+      headerTitle: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
       headerTitleStyle:styles.titleText,
-      headerBackVisible:false
+      headerBackVisible:false,
     }),
-  // groupHeader:
-  //   ({ route }) => ({
-  //     headerTitleStyle:styles.titleText,
-  //     title: route.params.name,
-  //     headerRight: () => (<TouchableOpacity style={styles.button} 
-  //     onPressOut={route.params.function} >
-  //       <DefaultText>people</DefaultText>
-  //     </TouchableOpacity>)
-  //   })
-  
 });

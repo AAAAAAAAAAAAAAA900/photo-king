@@ -28,9 +28,9 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, g
             <Animated.View style={{height:'100%', width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
                     <View style={{ width:'60%', height:'100%', backgroundColor:'white' }}>
                         <FlatList
-                            data={group.users}
+                            data={[...group.users].sort((a,b)=>a.username.localeCompare(b.username))}
                             keyExtractor={(item) => item.id}
-                            renderItem={(item) => <FriendPreview press={press} friend={item.item}/>}
+                            renderItem={(item) => <FriendPreview press={() => {press(item.item)}} friend={item.item}/>}
                         />
                     </View>
                     <TouchableWithoutFeedback onPress={()=>setMembersPopUpVisible(false)}>

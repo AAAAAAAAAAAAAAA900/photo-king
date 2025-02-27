@@ -49,7 +49,7 @@ export default function FriendSearch({searchData, onSelect}){
             />
             <FlatList
                 ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                data={filteredData}
+                data={[...filteredData].sort((a,b)=>a.username.localeCompare(b.username))}
                 keyExtractor={(item) => item.username}
                 renderItem={({item}) => <FriendPreview friend={item} press={() => {onSelect? onSelect(item) : null}}/>}
             />
