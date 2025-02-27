@@ -12,12 +12,6 @@ export default function TitleButtons({navigation, user}){
             { user &&
                 <Pfp url={user.profileUrl} navigation={navigation}/>
             }
-            <TouchableOpacity 
-                style={styles.button}
-                onPressOut={() => {navigation.navigate("Settings")}}
-            >
-                <DefaultText>Settings</DefaultText>
-            </TouchableOpacity>
         </View>
     );
 }

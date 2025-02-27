@@ -49,6 +49,7 @@ export default function App() {
         <SafeAreaProvider>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
+              {/* Headers replaced with custom component because of expo go bug on android */}
               <Stack.Screen
                 name='Login'
                 options={{ headerShown: false }}
@@ -56,42 +57,42 @@ export default function App() {
               />
               <Stack.Screen
                 name='Register'
-                options={headerStyles.default}
+                options={{ headerShown: false }}
                 component={RegisterScreen}
               />
               <Stack.Screen
                 name='Home'
-                options={headerStyles.profileAndSettings}
+                options={{ headerShown: false }}
                 component={HomeScreen}
               />
               <Stack.Screen
                 name='Group'
-                options={headerStyles.default}
+                options={{ headerShown: false }}
                 component={GroupScreen}
               />
               <Stack.Screen
                 name='Profile'
-                options={headerStyles.profileAndSettings}
+                options={{ headerShown: false }}
                 component={ProfileScreen}
               />
               <Stack.Screen
                 name='Settings'
-                options={headerStyles.default}
+                options={{ headerShown: false }}
                 component={SettingsScreen}
               />
               <Stack.Screen
                 name='Friends'
-                options={headerStyles.profileAndSettings}
+                options={{ headerShown: false }}
                 component={FriendsScreen}
               />
               <Stack.Screen
                 name='Photo'
-                options={headerStyles.default}
+                options={{ headerShown: false }}
                 component={PhotoScreen}
               />
               <Stack.Screen
                 name='Rank'
-                options={headerStyles.default}
+                options={{ headerShown: false }}
                 component={RankScreen}
               />
             </Stack.Navigator>

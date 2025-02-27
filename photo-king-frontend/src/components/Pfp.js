@@ -130,7 +130,7 @@ export default function Pfp ({navigation, user, setUser, url}){
             {/* If passed a non empty url use it, else use default pfp icon */}
             { user || navigation ? ( url ?
                 <TouchableOpacity
-                onPressOut={press}
+                onPress={press}
                 >
                     <Image  
                     style={[style, {borderColor: colors.secondary}]}
@@ -139,7 +139,7 @@ export default function Pfp ({navigation, user, setUser, url}){
                 </TouchableOpacity>
             : 
                 <TouchableOpacity
-                onPressOut={press}
+                onPress={press}
                 >
                     <Image  
                     style={[style, {borderColor: colors.secondary}]}

@@ -17,6 +17,8 @@ import Members from '../components/Members.js';
 import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
+import Header from '../components/Header.js';
+import TitleButtons from '../components/TitleButtons.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -31,15 +33,7 @@ export default function GroupScreen({navigation}){
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
-        navigation.setOptions({ 
-            title: group.name, 
-            headerRight: () => (
-                    <TouchableOpacity style={styles.button} 
-                    onPressOut={() => setMembersPopUpVisible(!membersPopUpVisible)} >
-                        <DefaultText>people</DefaultText>
-                    </TouchableOpacity>) 
-        });
-    }, [membersPopUpVisible, user]);
+    }, [user]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -269,7 +263,28 @@ export default function GroupScreen({navigation}){
 
     return(
         <SafeAreaView style={{flex:1}}>
-            
+            <Header 
+            backFunction={()=> {
+                navigation.dispatch((state) => {
+                    const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                    return CommonActions.reset({
+                        ...state,
+                        index: routes.length - 1,
+                        routes
+                    });
+                });
+                navigation.navigate('Home', {user:user});
+            }} 
+            title={group.name} 
+            buttons={
+                <TouchableOpacity style={styles.button} 
+                    onPress={() => setMembersPopUpVisible(!membersPopUpVisible)}
+                >
+                    <DefaultText>people</DefaultText>
+                </TouchableOpacity>
+            }/>
+
+
             {/* add user pop-up */}
             <Modal
                 animationType="fade"

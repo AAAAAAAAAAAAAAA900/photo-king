@@ -10,6 +10,8 @@ import {API_URL} from "../api/utils";
 import Pfp from "../components/Pfp.js";
 import userApi from "../api/userApi";
 import FriendModal from "../components/FriendModal.js";
+import Header from "../components/Header.js";
+import TitleButtons from "../components/TitleButtons.js";
 
 
 
@@ -21,14 +23,6 @@ export default function FriendsScreen({navigation}){
     const [userSearch, setUserSearch] = useState("");
     const [friendModalVisible, setFriendModalVisible] = useState(false); 
     const [friendClicked, setFriendClicked] = useState(null);   
-
-    if (!user){
-        return(<DefaultText>ERROR CASE: user lost</DefaultText>)
-    }
-
-    useEffect(() => {
-        navigation.setOptions({ user: user }); // pass user along to header
-    }, [user]);
 
     const addFriend = async () => {
         // Check for user matching search
@@ -92,6 +86,8 @@ export default function FriendsScreen({navigation}){
 
     return( 
         <SafeAreaView style={{flex:1}}>
+            <Header title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+            
 
             {/* friend modal */}  
             <FriendModal 
