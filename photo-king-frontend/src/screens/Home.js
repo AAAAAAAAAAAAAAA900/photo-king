@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import {API_URL} from "../api/utils";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function HomeScreen ({navigation}){
 
@@ -17,39 +18,31 @@ export default function HomeScreen ({navigation}){
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
 
+  useEffect(() => {
+    navigation.setOptions({ user: user }); // pass user along to header
+  }, [user]);
+
   const addGroup = async () => {
-
-    try {
-      const group_response = await axios.post(`${API_URL}/api/photo-group/add`, {name: groupTitle},
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-
-      const group_data = group_response.data
-
       try {
-        const user_group_response = await axios.post(`${API_URL}/api/user-groups/add-user/${user.id}/${group_data.id}`)
-        setUser({
-          ...user,
-          groups: [...user.groups, group_data]
-        });
+          const group_response = await photoGroupApi.addGroup(groupTitle, user.id); // CREATES A GROUP
+          const group_data = group_response.data;
+          try {
+              const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
+              setUser({
+                  ...user,
+                  groups: [...user.groups, group_data]
+              });
+          } catch (error) {
+              console.log(error);
+          }
+      } catch (error) {
+          console.log(error);
       }
-      catch (error) {
-        console.log(error);
-      }
-    }
-    catch (error) {
-      console.log(error);
-    }
   }
 
-  
   // Home screen view: scrollable list of groups
   return (
-      <SafeAreaView style={{ padding: 20, flex:1 }}>
+      <SafeAreaView style={{ flex:1 }}>
 
         {/* Create group popup */}
         <Modal
@@ -58,7 +51,7 @@ export default function HomeScreen ({navigation}){
           visible={groupModalVisible}
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
-          <View style={ styles.containerCenterAll}>
+          <View style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <TextInput 
               style={styles.textIn}
               onChangeText={(text) => {setGroupTitle(text)}}
@@ -93,13 +86,13 @@ export default function HomeScreen ({navigation}){
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
-          // Render user info only if `user` is not null
+          // Render flatlist if user has groups
           user.groups && user.groups.length ? (
             // List groups if user has any
             <View style={{flex:1}}>
               <FlatList
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                  data={user.groups}
+                  data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
                     <GroupPreview groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})

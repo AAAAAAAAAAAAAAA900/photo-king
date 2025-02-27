@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -6,11 +6,16 @@ import {useEffect, useState} from "react";
 import GroupPreview from '../components/GroupPreview.js';
 import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
+import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import FriendSearch from '../components/FriendSearch.js';
+import FriendSearch, { FriendPreview } from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
+import Pfp from '../components/Pfp.js';
+import Members from '../components/Members.js';
+import imageApi from "../api/imageApi";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -19,6 +24,18 @@ export default function GroupScreen({navigation}){
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
+    const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
+
+    useEffect(() => {
+        navigation.setOptions({ 
+            title: group.name, 
+            headerRight: () => (
+                    <TouchableOpacity style={styles.button} 
+                    onPressOut={() => setMembersPopUpVisible(!membersPopUpVisible)} >
+                        <DefaultText>people</DefaultText>
+                    </TouchableOpacity>) 
+        });
+    }, [membersPopUpVisible, group]);    // for when name is edited
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -60,6 +77,15 @@ export default function GroupScreen({navigation}){
         console.log(formData._parts);
 
         try {
+            const response2 = await imageApi.uploadImages(formData);
+            console.log('Upload Success');
+        }
+        catch (error) {
+            console.log('Upload Error:', error.response?.data || error.message);
+        }
+
+        /*
+        try {
             const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -71,20 +97,46 @@ export default function GroupScreen({navigation}){
             console.log('Upload Error:', error.response?.data || error.message);
         }
 
+         */
+
         loadPictures(setPictures, group);
     }
 
     // FlatList element's view
     const Pic = ({ photo }) => {
+        // Checks if picture is first, second, or third
+        const winningBorder = {};
+        for(let i = 0; i < pictures.length && i < 3; ++i){
+            if(pictures[i].id == photo.id){
+                winningBorder['borderWidth'] = 4;
+                winningBorder['borderRadius'] = 4;
+                switch (i) {
+                    case 0:
+                        winningBorder['borderColor'] = '#FFD700'
+                        break;
+                    case 1:
+                        winningBorder['borderColor'] = '#C0C0C0'
+                        break;
+                    case 2:
+                        winningBorder['borderColor'] = '#CD7F32'
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
         return (
             <TouchableOpacity 
             onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
-            style={styles.picHolder}>
+            style={[styles.picHolder, winningBorder]}>
                 <Image
                     style={styles.pic}
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
+                <View style={{width:30, height:30, borderRadius:15, position:'absolute', bottom:5, left:5, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                    <DefaultText>{photo.points}</DefaultText>
+                </View>
             </TouchableOpacity>
         );
     };
@@ -150,12 +202,7 @@ export default function GroupScreen({navigation}){
 
     const addUserToGroup = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user-groups/add-user/${id}/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await photoGroupApi.addUserToGroup(id, group.id);
         }
         catch (error) {
             console.log(error);
@@ -164,12 +211,7 @@ export default function GroupScreen({navigation}){
 
     const deleteGroup = async () => {
         try{
-            const response = await axios.delete(`${API_URL}/api/photo-group/delete/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response2 = await photoGroupApi.deleteGroup(group.id);
             setUser({...user, groups: user.groups.filter((thisGroup) => thisGroup.id != group.id)});
             setIsGroupDeleted(true);
         }
@@ -180,7 +222,17 @@ export default function GroupScreen({navigation}){
 
     // Ensures group is removed from user obj before navigation
     useEffect(() => {
-        if(isGroupDeleted) navigation.navigate("Home", {user: user});
+        if(isGroupDeleted){
+            navigation.dispatch((state) => {
+                const routes = state.routes.slice(0, -2); // Pop 1 screen from stack
+                return CommonActions.reset({
+                    ...state,
+                    index: routes.length - 1,
+                    routes
+                });
+            });
+            navigation.navigate('Home', {user:{...user, groups:user.groups.filter((g)=> g.id != group.id)}});
+        }
     }, [isGroupDeleted]);
 
 
@@ -197,12 +249,12 @@ export default function GroupScreen({navigation}){
                 animationType="fade"
                 transparent={true}
                 visible={userModalVisible}
-                onRequestClose={() => {setUserModalVisible(!userModalVisible);}}
+                onRequestClose={() => {setUserModalVisible(false);}}
                 style={{justifyContent:'center'}}
             >
-                <View style={styles.containerCenterAll}>
+                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
-                        <View style={{flex:1}}>
+                        <View style={{width:'100%', height:'100%'}}>
                             <FriendSearch searchData={user.friends} onSelect={(friend) => {
                                 Alert.alert(
                                     `Add ${friend.username} to group?`,
@@ -214,33 +266,52 @@ export default function GroupScreen({navigation}){
                                 );
                                 setUserModalVisible(false);
                             }}/>
+                            <TouchableOpacity style={styles.button} onPress={()=>setUserModalVisible(false)}>
+                                <DefaultText>Close</DefaultText>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
             </Modal>
 
+            {/* Group members side bar popup */}
+            <Members group={group}
+            membersPopUpVisible={membersPopUpVisible} 
+            setMembersPopUpVisible={setMembersPopUpVisible}
+            press={()=>{/* remove user from group */}}
+            />
+            
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
-                <Text style={styles.titleText}>{group.name}</Text>
-                <TouchableOpacity
-                style={styles.button}
-                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
-                >
-                    <DefaultText>Rank Images</DefaultText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                style={[styles.button, {backgroundColor:colors.secondary}]}
-                onPress={()=>{Alert.alert(
-                    `Delete ${group.name}?`,
-                    "This will delete all photos stored here",
-                    [
-                        { text: "Cancel", style: "cancel"},
-                        { text: "Confirm", onPress: () => {deleteGroup()} }
-                    ]
-                );}}
-                >
-                    <DefaultText>Delete Group</DefaultText>
-                </TouchableOpacity>
+                {/* Disables ranking button if user already ranked this week */}
+                { !group.userRanked[user.id] ?
+                    <TouchableOpacity
+                    style={styles.button}
+                    onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                    >
+                        <DefaultText>Rank Images</DefaultText>
+                    </TouchableOpacity>
+                :
+                    <View
+                    style={[styles.button, {backgroundColor:'grey'}]}                >
+                        <DefaultText>Rank Images</DefaultText>
+                    </View>
+                }
+                { group.ownerId == user.id &&
+                    <TouchableOpacity
+                    style={[styles.button, {backgroundColor:colors.secondary}]}
+                    onPress={()=>{Alert.alert(
+                        `Delete ${group.name}?`,
+                        "This will delete all photos stored here",
+                        [
+                            { text: "Cancel", style: "cancel"},
+                            { text: "Confirm", onPress: () => {deleteGroup()} }
+                        ]
+                    );}}
+                    >
+                        <DefaultText>Delete Group</DefaultText>
+                    </TouchableOpacity>
+                }
             </View>
 
             {/* Photo list */}
@@ -276,10 +347,21 @@ const groupStyles = StyleSheet.create({
 });
 
 export const loadPictures = async (setPictures, group) => {
+
     try {
-        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
-        setPictures(response.data);
+        const response = await imageApi.getGroupImages(group.id);
+        setPictures(response.data.sort((a,b)=> b.points-a.points));
     } catch (error) {
         console.log(error);
     }
+
+
+    /*
+    try {
+        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        setPictures(response.data.sort((a,b)=> b.points-a.points));
+    } catch (error) {
+        console
+
+     */
 }

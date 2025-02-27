@@ -1,15 +1,21 @@
 import { useRoute } from "@react-navigation/native";
-import { Image, SafeAreaView, TouchableOpacity, View, FlatList } from "react-native";
+import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
+import { CommonActions } from "@react-navigation/native";
 import { loadPictures } from "./Group.js";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import {API_URL} from "../api/utils";
+import imageApi from "../api/imageApi";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
     const user = route.params?.user;
-    const group = route.params?.group;
+    const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
+    const [isSubmitted, setSubmitted] = useState(false);
     const [ranks, setRanks] = useState({});  //tracks image rankings by url
 
     // useEffect to get group pictures on load
@@ -60,6 +66,58 @@ export default function RankScreen({navigation}){
         );
     };
 
+    useEffect(()=>{
+        if(isSubmitted){
+            navigation.dispatch((state) => {
+                const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                return CommonActions.reset({
+                    ...state,
+                    index: routes.length - 1,
+                    routes
+                });
+            });
+            navigation.navigate('Group', {user:user, group:group});
+        } 
+    }, [isSubmitted]);
+
+    const submitRanks = async () => {
+        try{
+            const updateRankResponse = await photoGroupApi.updateUserRank(group, user);
+            for(let url in ranks){
+                const pic = pictures.filter((picture) => picture.url == url);
+                const updatePointsResponse = await imageApi.updatePoints(pic[0].id, ranks[url] + 1);
+            }
+            const newRankTracker = {...group.userRanked};
+            newRankTracker[user.id] = true;
+            setGroup({...group, userRanked:newRankTracker});
+            setSubmitted(true);
+        } catch(error){
+            console.log(error);
+        }
+    };
+
+    const submitRanksPressed = () => {
+        const rankings = Object.keys(ranks).length;
+        if(rankings < 3){
+            Alert.alert(
+                "Please rank 3 images.",
+                `You have only ranked ${rankings} images.`,
+                [
+                    { text: "Confirm", style: "cancel"}
+                ]
+            );
+        } else{
+            Alert.alert(
+                "Submit rankings?",
+                `Your rankings will be final.`,
+                [
+                    { text: "Cancel", style: "cancel"},
+                    { text: "Continue", onPress: () => submitRanks() }
+                ]
+            );
+        }
+    };
+
     return(
         <SafeAreaView style={{flex:1}}>
             <View style={{padding:10, height:50, backgroundColor:colors.secondary, flexDirection:'row', alignItems:'center'}}>
@@ -78,13 +136,19 @@ export default function RankScreen({navigation}){
                         <DefaultText>3</DefaultText>
                     </View>
                 }
+                <TouchableOpacity
+                style={styles.button}
+                onPress={()=>{submitRanksPressed();}}
+                >
+                    <DefaultText>Submit Ranking</DefaultText>
+                </TouchableOpacity>
             </View>
             <View style={{flex:1}}>
                 <FlatList 
                     numColumns={3}
                     renderItem={({ item }) => <RankablePic photo={item}/>}
                     keyExtractor={(picture) => picture.url}
-                    data={pictures}
+                    data={[...pictures].sort((a,b)=> b.points-a.points)}
                 />
             </View>
         </SafeAreaView>

@@ -1,0 +1,16 @@
+import {apiClient} from "./apiClient";
+
+const authApi = {
+
+    // LOGIN API
+    login: async (username, password) => {
+        return apiClient.post("/auth/login", {username: username, password: password});
+    },
+
+    // REGISTER API
+    register: async (data) => {
+        return apiClient.post("/auth/register", data);
+    }
+}
+
+export default authApi;
