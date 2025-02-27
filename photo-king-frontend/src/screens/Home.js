@@ -8,6 +8,8 @@ import {API_URL} from "../api/utils";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
 import photoGroupApi from "../api/photoGroupApi";
+import Header from '../components/Header.js';
+import TitleButtons from '../components/TitleButtons.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -17,10 +19,6 @@ export default function HomeScreen ({navigation}){
   const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-
-  useEffect(() => {
-    navigation.setOptions({ user: user }); // pass user along to header
-  }, [user]);
 
   const addGroup = async () => {
       try {
@@ -43,6 +41,8 @@ export default function HomeScreen ({navigation}){
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ flex:1 }}>
+
+        <Header title={'Home'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
 
         {/* Create group popup */}
         <Modal
