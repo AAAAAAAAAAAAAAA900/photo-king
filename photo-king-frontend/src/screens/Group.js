@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -8,18 +8,38 @@ import * as ImagePicker from 'expo-image-picker';
 import { Controller } from 'react-hook-form';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import FriendSearch from '../components/FriendSearch.js';
+import FriendSearch, { FriendPreview } from '../components/FriendSearch.js';
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import { lookup } from 'react-native-mime-types';
+import Pfp from '../components/Pfp.js';
+import Members from '../components/Members.js';
+import imageApi from "../api/imageApi";
+import photoGroupApi from "../api/photoGroupApi";
+import FriendModal from '../components/FriendModal.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
-    const group = route.params?.group;
+    const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [isGroupDeleted, setIsGroupDeleted] = useState(false);
+    const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
+    const [friendModalVisible, setFriendModalVisible] = useState(false); 
+    const [friendClicked, setFriendClicked] = useState(null);   
+
+    useEffect(() => {
+        setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
+        navigation.setOptions({ 
+            title: group.name, 
+            headerRight: () => (
+                    <TouchableOpacity style={styles.button} 
+                    onPressOut={() => setMembersPopUpVisible(!membersPopUpVisible)} >
+                        <DefaultText>people</DefaultText>
+                    </TouchableOpacity>) 
+        });
+    }, [membersPopUpVisible, user]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -61,6 +81,15 @@ export default function GroupScreen({navigation}){
         console.log(formData._parts);
 
         try {
+            const response2 = await imageApi.uploadImages(formData);
+            console.log('Upload Success');
+        }
+        catch (error) {
+            console.log('Upload Error:', error.response?.data || error.message);
+        }
+
+        /*
+        try {
             const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -71,6 +100,8 @@ export default function GroupScreen({navigation}){
         } catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
+
+         */
 
         loadPictures(setPictures, group);
     }
@@ -175,12 +206,29 @@ export default function GroupScreen({navigation}){
 
     const addUserToGroup = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user-groups/add-user/${id}/${group.id}`,
+            const response = await photoGroupApi.addUserToGroup(id, group.id);
+            // remove current group then add back updated version
+            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            groupsCopy.push(response.data);
+            setUser({...user, groups: groupsCopy});   
+        }
+        catch (error) {
+            console.log(error);
+        }
+    };
+
+    const removeUserFromGroup = async (id) => {
+        try {
+            const response = await axios.post(`${API_URL}/api/user-groups/remove-user/${id}/${group.id}`,
             {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
+            // remove current group then add back updated version
+            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            groupsCopy.push(response.data);
+            setUser({...user, groups: groupsCopy});   
         }
         catch (error) {
             console.log(error);
@@ -189,12 +237,7 @@ export default function GroupScreen({navigation}){
 
     const deleteGroup = async () => {
         try{
-            const response = await axios.delete(`${API_URL}/api/photo-group/delete/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response2 = await photoGroupApi.deleteGroup(group.id);
             setUser({...user, groups: user.groups.filter((thisGroup) => thisGroup.id != group.id)});
             setIsGroupDeleted(true);
         }
@@ -232,13 +275,15 @@ export default function GroupScreen({navigation}){
                 animationType="fade"
                 transparent={true}
                 visible={userModalVisible}
-                onRequestClose={() => {setUserModalVisible(!userModalVisible);}}
+                onRequestClose={() => {setUserModalVisible(false);}}
                 style={{justifyContent:'center'}}
             >
                 <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={styles.popupView}>
-                        <View style={{flex:1}}>
-                            <FriendSearch searchData={user.friends} onSelect={(friend) => {
+                        <View style={{width:'100%', height:'100%'}}>
+                            <FriendSearch 
+                            searchData={user.friends.filter((f)=>!group.users.some((member)=>member.id==f.id))} 
+                            onSelect={(friend) => {
                                 Alert.alert(
                                     `Add ${friend.username} to group?`,
                                     "They will have access to all photos in this group.",
@@ -257,9 +302,15 @@ export default function GroupScreen({navigation}){
                 </View>
             </Modal>
 
+            {/* Group members side bar popup */}
+            <Members group={group}
+            membersPopUpVisible={membersPopUpVisible} 
+            setMembersPopUpVisible={setMembersPopUpVisible}
+            press={(friend)=>{setFriendClicked(friend); setFriendModalVisible(true);}}
+            />
+            
             {/* Group title bar */}
             <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
-                <Text style={styles.titleText}>{group.name}</Text>
                 {/* Disables ranking button if user already ranked this week */}
                 { !group.userRanked[user.id] ?
                     <TouchableOpacity
@@ -290,6 +341,15 @@ export default function GroupScreen({navigation}){
                     </TouchableOpacity>
                 }
             </View>
+
+            {/* group member preview */}
+            <FriendModal 
+            friendClicked={friendClicked}
+            setFriendClicked={setFriendClicked}
+            friendModalVisible={friendModalVisible}
+            setFriendModalVisible={setFriendModalVisible}
+            removeFriendFromGroup={removeUserFromGroup}
+            />
 
             {/* Photo list */}
             <View style={groupStyles.picList}>
@@ -324,8 +384,9 @@ const groupStyles = StyleSheet.create({
 });
 
 export const loadPictures = async (setPictures, group) => {
+
     try {
-        const response = await axios.get(`${API_URL}/api/user-image/get-group-images/${group.id}`);
+        const response = await imageApi.getGroupImages(group.id);
         setPictures(response.data.sort((a,b)=> b.points-a.points));
     } catch (error) {
         console.log(error);

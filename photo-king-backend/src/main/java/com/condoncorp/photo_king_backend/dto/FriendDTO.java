@@ -13,13 +13,13 @@ public class FriendDTO {
     public FriendDTO(User user){
         this.id = user.getId();
         this.username = user.getUsername();
-        this.pfp = null;    // For when we implement pfps
+        this.pfp = user.getProfileUrl();
     }
 
     public FriendDTO(UserDTO user){
         this.id = user.getId();
         this.username = user.getUsername();
-        this.pfp = null;    // For when we implement pfps
+        this.pfp = user.getProfileUrl();
     }
 
     public int getId() {

@@ -7,6 +7,10 @@ import axios from "axios";
 import FriendSearch from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import {API_URL} from "../api/utils";
+import Pfp from "../components/Pfp.js";
+import userApi from "../api/userApi";
+import FriendModal from "../components/FriendModal.js";
+
 
 
 export default function FriendsScreen({navigation}){
@@ -15,24 +19,22 @@ export default function FriendsScreen({navigation}){
     const [loading, setLoading] = useState(false);
     const [friendsList, setFriendsList] = useState(route.params?.user.friends);
     const [userSearch, setUserSearch] = useState("");
-    const [friendModalVisible, setFriendModalVisible] = useState(false); //stores friend clicked
-    const [friendClicked, setFriendClicked] = useState(null);
+    const [friendModalVisible, setFriendModalVisible] = useState(false); 
+    const [friendClicked, setFriendClicked] = useState(null);   
 
     if (!user){
         return(<DefaultText>ERROR CASE: user lost</DefaultText>)
     }
 
+    useEffect(() => {
+        navigation.setOptions({ user: user }); // pass user along to header
+    }, [user]);
+
     const addFriend = async () => {
         // Check for user matching search
         let friend;
         try {
-            const response = await axios.get(`${API_URL}/api/user/get-user/${userSearch}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.getUser(userSearch)
             friend = response.data; // UserDTO
         }
         catch (error) {
@@ -47,13 +49,7 @@ export default function FriendsScreen({navigation}){
         }
         // Add Friend
         try {
-            const response = await axios.post(`${API_URL}/api/user/add-friend/${user.id}/${friend.id}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.addFriend(user.id, friend.id);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({
@@ -73,15 +69,9 @@ export default function FriendsScreen({navigation}){
         }
     };
 
-    const removeFriend = async (friend) => {
+    const removeFriend = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user/remove-friend/${user.id}/${friend.id}`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await userApi.removeFriend(user.id, friend.id);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({
@@ -103,45 +93,14 @@ export default function FriendsScreen({navigation}){
     return( 
         <SafeAreaView style={{flex:1}}>
 
-        {/* friend modal */}  
-        { friendClicked && (    // prevents instant rendering and friendClicked null errors
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={friendModalVisible}
-                onRequestClose={() => {setFriendClicked(null); setFriendModalVisible(false);}}
-                style={{justifyContent:'center'}}
-            >
-                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <View style={styles.popupView}>
-                        <View style={{flexDirection:'row'}}>
-                            <Image style={{width:50, height:50, padding: 10}} 
-                            source={{uri: friendClicked.pfp}}/>
-                            <DefaultText>{friendClicked.username}</DefaultText>
-                        </View>
-                        <TouchableOpacity 
-                        style={[styles.button, {backgroundColor:'red'}]}
-                        onPress={() => {Alert.alert(
-                            `Remove ${friendClicked.username} as friend?`,
-                            "You will be removed from their friends list aswell.",
-                            [
-                                { text: "Confirm", onPress: ()=>removeFriend(friendClicked)},
-                                { text: "Cancel", style: "cancel"}
-                            ]
-                        );}}
-                        >
-                            <DefaultText>Remove Friend</DefaultText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                        style={styles.button}
-                        onPress={() => { setFriendClicked(null); setFriendModalVisible(false);}}
-                        >
-                            <DefaultText>Close</DefaultText>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-        )}
+            {/* friend modal */}  
+            <FriendModal 
+            friendClicked={friendClicked} 
+            setFriendClicked={setFriendClicked}
+            friendModalVisible={friendModalVisible} 
+            setFriendModalVisible={setFriendModalVisible}
+            removeFriend={removeFriend}
+            />
         
             <View style={{flex:1}}>
                 <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useForm, Controller } from 'react-hook-form';
 import { API_URL } from '../api/utils.js';
+import authApi from "../api/authApi";
 
 
 export default function RegisterScreen ({navigation}){  
@@ -17,25 +18,9 @@ export default function RegisterScreen ({navigation}){
   } = useForm();
 
   const onSubmit = data => {
-    Register(data);
+    authApi.register(data).then(r => navigation.navigate("Login"));
   }
 
-  // Send Register attempt to backend
-  const Register = async (data) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/user/register`, data,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      navigation.navigate("Home", {user : response.data});
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
 
   // Login screen view
   return(
@@ -97,32 +82,14 @@ export default function RegisterScreen ({navigation}){
         </View>
 
         <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>First Name</Text>
+          <Text style={registerStyles.label}>Name</Text>
           <Controller
-            name="firstname"
+            name="name"
             control={control}
             rules={{ required: "This field is required" }}
             render={({ field : { onChange, value} }) => (
               <TextInput
-                placeholder="Enter First Name"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
-
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Last Name</Text>
-          <Controller
-            name="lastname"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Last name"
+                placeholder="Enter Name"
                 placeholderTextColor={'#616161'}
                 value={value}
                 onChangeText={onChange}

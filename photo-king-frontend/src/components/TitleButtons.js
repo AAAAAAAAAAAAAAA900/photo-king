@@ -1,19 +1,17 @@
 import { View, Alert, TouchableOpacity } from 'react-native';
 import DefaultText from './DefaultText';
-import { StackActions } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
+import Pfp from './Pfp.js';
+import { useEffect } from 'react';
 
 
-export default function TitleButtons({navigation}){
+export default function TitleButtons({navigation, user}){
 
     return(
-        <View style={{flexDirection:"row", justifyContent: "space-between", padding:10 }}>
-            <TouchableOpacity 
-                style={styles.button}
-                onPressOut={() => {navigation.dispatch(StackActions.popToTop());}}
-            >
-                <DefaultText>Logout</DefaultText>
-            </TouchableOpacity>
+        <View style={{ flexDirection:"row", justifyContent: "flex-end", alignItems:'center', padding:10 }}>
+            { user &&
+                <Pfp url={user.profileUrl} navigation={navigation}/>
+            }
             <TouchableOpacity 
                 style={styles.button}
                 onPressOut={() => {navigation.navigate("Settings")}}

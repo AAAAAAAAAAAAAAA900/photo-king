@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import Input from '../components/Input.js';
-import axios from 'axios';
 import DefaultText from '../components/DefaultText.js';
-import { API_URL } from '../api/utils.js';
+import * as SecureStore from "expo-secure-store";
+import authApi from "../api/authApi";
+import userApi from "../api/userApi";
 
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
@@ -14,19 +15,15 @@ export default function LoginScreen ({navigation}){
 
   // Login attempt
   const Login = async () => {
-    // Send login attempt to backend
     try {
-      const response = await axios.post(`${API_URL}/api/user/login`, {username: username, password: password},
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      navigation.navigate("Home", {user : response.data});
+      const response = await authApi.login(username, password);
+      await SecureStore.setItemAsync("accessToken", response.data.accessToken);
+      await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
 
-    }
-    catch (error) {
+      const user_info = await userApi.getUserInfo();
+
+      navigation.navigate("Home", {user: user_info.data});
+    } catch (error) {
       console.log(error);
     }
   }
