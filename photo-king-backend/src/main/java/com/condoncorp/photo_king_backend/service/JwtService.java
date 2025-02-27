@@ -23,13 +23,29 @@ public class JwtService {
     @Value("${JWT_EXPIRATION}")
     private long EXPIRATION_TIME;
 
+    @Value("${JWT_REFRESH_EXPIRATION}")
+    private long REFRESH_EXPIRATION_TIME;
+
     public String generateToken(UserDetails userDetails) {
         Map<String, String> claim = new HashMap<>();
+        claim.put("typeToken", "accessToken");
         return Jwts.builder()
                 .claims(claim)
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(EXPIRATION_TIME)))
+                .signWith(generateKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        Map<String, String> claim = new HashMap<>();
+        claim.put("typeToken", "refreshToken");
+        return Jwts.builder()
+                .claims(claim)
+                .subject(username)
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusMillis(REFRESH_EXPIRATION_TIME)))
                 .signWith(generateKey())
                 .compact();
     }
@@ -40,6 +56,12 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
+        Claims claims = extractAllClaims(token);
+        if (claims.get("typeToken").equals("refreshToken")) return false;
+        return claims.getExpiration().after(Date.from(Instant.now()));
+    }
+
+    public boolean isTokenNonExpired(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getExpiration().after(Date.from(Instant.now()));
     }
