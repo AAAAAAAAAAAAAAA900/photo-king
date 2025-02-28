@@ -133,7 +133,7 @@ export default function Pfp ({navigation, user, setUser, url}){
                 onPress={press}
                 >
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={[style, {borderColor: 'black', backgroundColor:'white'}]}
                     source={{uri: url}} 
                     />
                 </TouchableOpacity>
@@ -142,21 +142,21 @@ export default function Pfp ({navigation, user, setUser, url}){
                 onPress={press}
                 >
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={[style, {borderColor: 'black', backgroundColor:'white'}]}
                     source={require('../../assets/icons/pfp.png')} 
                     />
                 </TouchableOpacity>
             ) : ( url ?
                 <View>
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={[style, {borderColor: 'black', backgroundColor:'white'}]}
                     source={{uri: url}} 
                     />
                 </View>
             : 
                 <View>
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={[style, {borderColor: 'black', backgroundColor:'white'}]}
                     source={require('../../assets/icons/pfp.png')} 
                     />
                 </View>

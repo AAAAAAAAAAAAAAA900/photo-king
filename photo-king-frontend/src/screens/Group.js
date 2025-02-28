@@ -81,22 +81,6 @@ export default function GroupScreen({navigation}){
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
-
-        /*
-        try {
-            const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload Success');
-            console.log(response.data);
-        } catch (error) {
-            console.log('Upload Error:', error.response?.data || error.message);
-        }
-
-         */
-
         loadPictures(setPictures, group);
     }
 
@@ -277,10 +261,8 @@ export default function GroupScreen({navigation}){
             }} 
             title={group.name} 
             buttons={
-                <TouchableOpacity style={styles.button} 
-                    onPress={() => setMembersPopUpVisible(!membersPopUpVisible)}
-                >
-                    <DefaultText>people</DefaultText>
+                <TouchableOpacity style={{height:'100%', width:70}} onPress={() => setMembersPopUpVisible(!membersPopUpVisible)}>
+                    <Image style={[styles.iconStyle, {backgroundColor:'white', borderRadius:25}]} source={require('../../assets/icons/people.png')}/>
                 </TouchableOpacity>
             }/>
 
@@ -318,7 +300,7 @@ export default function GroupScreen({navigation}){
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members group={group}
+            <Members users={[...group.users].filter((u) => u.id != user.id)}
             membersPopUpVisible={membersPopUpVisible} 
             setMembersPopUpVisible={setMembersPopUpVisible}
             press={(friend)=>{setFriendClicked(friend); setFriendModalVisible(true);}}
@@ -332,12 +314,12 @@ export default function GroupScreen({navigation}){
                     style={styles.button}
                     onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
                     >
-                        <DefaultText>Rank Images</DefaultText>
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
                     </TouchableOpacity>
                 :
                     <View
                     style={[styles.button, {backgroundColor:'grey'}]}                >
-                        <DefaultText>Rank Images</DefaultText>
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
                     </View>
                 }
                 { group.ownerId == user.id &&
@@ -363,7 +345,7 @@ export default function GroupScreen({navigation}){
             setFriendClicked={setFriendClicked}
             friendModalVisible={friendModalVisible}
             setFriendModalVisible={setFriendModalVisible}
-            removeFriendFromGroup={removeUserFromGroup}
+            removeFriendFromGroup={ user.id == group.ownerId ? removeUserFromGroup : null}
             />
 
             {/* Photo list */}
@@ -378,11 +360,11 @@ export default function GroupScreen({navigation}){
             <View style={groupStyles.buttonHolder}>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                     onPress={() => {onPressPhoto()}}>
-                    <DefaultText>Add Photo</DefaultText>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/image.png')}/>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
-                    <DefaultText>Add User</DefaultText>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
