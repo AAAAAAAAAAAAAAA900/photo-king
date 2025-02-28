@@ -16,7 +16,7 @@ export default styles = StyleSheet.create({
         fontSize:16
     },
     titleText:{
-        fontFamily: 'DMSans-Regular',
+        fontFamily: 'DMSans-Bold',
         fontSize: 25
     },
     urlText:{
@@ -55,7 +55,8 @@ export default styles = StyleSheet.create({
     button: {
         height:40, 
         width:90, 
-        backgroundColor: colors.lightBlue,
+        backgroundColor: colors.secondary,
+        borderWidth:1,
         borderRadius:5,
         alignItems: 'center',
         justifyContent: 'center',
@@ -92,6 +93,10 @@ export default styles = StyleSheet.create({
         height:'100%', 
         width:'100%', 
         resizeMode:'cover' 
+    },
+    iconStyle : {height:'90%', 
+        width:'90%', 
+        resizeMode:'contain' 
     },
 });
 

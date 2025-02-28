@@ -30,6 +30,7 @@ export default function GroupScreen({navigation}){
     const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
     const [friendModalVisible, setFriendModalVisible] = useState(false); 
     const [friendClicked, setFriendClicked] = useState(null);   
+    const [optionsModalVisible, setOptionsModalVisible] = useState(false);
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -81,22 +82,6 @@ export default function GroupScreen({navigation}){
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
-
-        /*
-        try {
-            const response = await axios.post(`${API_URL}/api/user-image/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload Success');
-            console.log(response.data);
-        } catch (error) {
-            console.log('Upload Error:', error.response?.data || error.message);
-        }
-
-         */
-
         loadPictures(setPictures, group);
     }
 
@@ -277,10 +262,8 @@ export default function GroupScreen({navigation}){
             }} 
             title={group.name} 
             buttons={
-                <TouchableOpacity style={styles.button} 
-                    onPress={() => setMembersPopUpVisible(!membersPopUpVisible)}
-                >
-                    <DefaultText>people</DefaultText>
+                <TouchableOpacity style={{height:'100%', width:70}} onPress={() => setMembersPopUpVisible(!membersPopUpVisible)}>
+                    <Image style={[styles.iconStyle, {backgroundColor:'white', borderRadius:25}]} source={require('../../assets/icons/people.png')}/>
                 </TouchableOpacity>
             }/>
 
@@ -318,43 +301,84 @@ export default function GroupScreen({navigation}){
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members group={group}
+            <Members users={[...group.users].filter((u) => u.id != user.id)}
             membersPopUpVisible={membersPopUpVisible} 
             setMembersPopUpVisible={setMembersPopUpVisible}
             press={(friend)=>{setFriendClicked(friend); setFriendModalVisible(true);}}
             />
             
-            {/* Group title bar */}
-            <View style={{padding:5, backgroundColor:colors.primary, flexDirection:'row'}}>
+            {/* Group options bar */}
+            <View style={{padding:5, backgroundColor:colors.primary,justifyContent:'space-between', flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}
                 { !group.userRanked[user.id] ?
                     <TouchableOpacity
                     style={styles.button}
                     onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
                     >
-                        <DefaultText>Rank Images</DefaultText>
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
                     </TouchableOpacity>
                 :
                     <View
                     style={[styles.button, {backgroundColor:'grey'}]}                >
-                        <DefaultText>Rank Images</DefaultText>
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
                     </View>
                 }
-                { group.ownerId == user.id &&
-                    <TouchableOpacity
-                    style={[styles.button, {backgroundColor:colors.secondary}]}
-                    onPress={()=>{Alert.alert(
-                        `Delete ${group.name}?`,
-                        "This will delete all photos stored here",
-                        [
-                            { text: "Cancel", style: "cancel"},
-                            { text: "Confirm", onPress: () => {deleteGroup()} }
-                        ]
-                    );}}
-                    >
-                        <DefaultText>Delete Group</DefaultText>
+
+                <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
+                </TouchableOpacity>
+
+                {/* Options modal */}
+                {/* owner: delete group & change title | member: leave group */}
+                <Modal
+                animationType="fade"
+                transparent={true}
+                visible={optionsModalVisible}
+                onRequestClose={() => {setOptionsModalVisible(false);}}
+                style={{justifyContent:'center'}}
+                >
+                    <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
+                        <View style={{backgroundColor:colors.primary, borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                            { group.ownerId == user.id ?
+                                <View style={{gap:5}}>
+                                    <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={()=>{Alert.alert(
+                                        `Delete ${group.name}?`,
+                                        "This will delete all photos stored here",
+                                        [
+                                            { text: "Cancel", style: "cancel"},
+                                            { text: "Confirm", onPress: () => {deleteGroup()} }
+                                        ]
+                                    );}}
+                                    >
+                                        <DefaultText>Delete Group</DefaultText>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={()=>{}}
+                                    >
+                                        <DefaultText>Rename Group</DefaultText>
+                                    </TouchableOpacity>
+                                </View>
+                            :
+                                <TouchableOpacity
+                                style={styles.button}
+                                onPress={()=>{Alert.alert(
+                                    `Leave ${group.name}?`,
+                                    "You will have to be invited back to rejoin.",
+                                    [
+                                        { text: "Cancel", style: "cancel"},
+                                        { text: "Confirm", onPress: () => {removeUserFromGroup(user.id); setIsGroupDeleted(true);} }
+                                    ]
+                                );}}
+                                >
+                                    <DefaultText>Leave Group</DefaultText>
+                                </TouchableOpacity>
+                            }
+                        </View>
                     </TouchableOpacity>
-                }
+                </Modal>
             </View>
 
             {/* group member preview */}
@@ -363,35 +387,38 @@ export default function GroupScreen({navigation}){
             setFriendClicked={setFriendClicked}
             friendModalVisible={friendModalVisible}
             setFriendModalVisible={setFriendModalVisible}
-            removeFriendFromGroup={removeUserFromGroup}
+            removeFriendFromGroup={ user.id == group.ownerId ? removeUserFromGroup : null}
             />
 
             {/* Photo list */}
-            <View style={groupStyles.picList}>
-                <FlatList 
-                    numColumns={3}
-                    renderItem={({ item }) => <Pic photo={item} />}
-                    keyExtractor={(picture) => picture.url}
-                    data={pictures}
-                />
+            <View style={{flex:1}}>
+                { pictures.length ?
+                    <FlatList 
+                        numColumns={3}
+                        renderItem={({ item }) => <Pic photo={item} />}
+                        keyExtractor={(picture) => picture.url}
+                        data={pictures}
+                    />
+                :
+                    <View style={{alignItems:'center', justifyContent:'center', flex:1, padding:20}}>
+                        <DefaultText>Upload some pictures to get started!</DefaultText>
+                    </View>
+                }
             </View>
             <View style={groupStyles.buttonHolder}>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                     onPress={() => {onPressPhoto()}}>
-                    <DefaultText>Add Photo</DefaultText>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/image.png')}/>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.button, {width:'50%'}]}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
-                    <DefaultText>Add User</DefaultText>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
 }
 const groupStyles = StyleSheet.create({
-    picList: {
-        flex: 1
-    },
     buttonHolder: {
         alignSelf: 'baseline',
         flexDirection:"row"

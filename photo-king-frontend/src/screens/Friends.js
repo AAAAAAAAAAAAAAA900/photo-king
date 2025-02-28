@@ -102,9 +102,9 @@ export default function FriendsScreen({navigation}){
                 <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 
                 searchData={friendsList}/>
             </View>
-            <View style={{flexDirection:'row'}}>
+            <View style={{flexDirection:'row', padding:5, justifyContent:'center'}}>
                 <TextInput 
-                    style={styles.textIn}
+                    style={[styles.textIn, {width:'60%', marginRight:5}]}
                     onChangeText={(text) => setUserSearch(text)}
                     autoCapitalize ='none'
                     autoCorrect ={false}
@@ -112,7 +112,7 @@ export default function FriendsScreen({navigation}){
                     value={userSearch}
                 />
                 <TouchableOpacity style={styles.button} onPress={()=>{addFriend();}}>
-                    <DefaultText>Add Friend</DefaultText>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>
             </View>
             <NavBar navigation={navigation} user={user} screen='Friends'/>

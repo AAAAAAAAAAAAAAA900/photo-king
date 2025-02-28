@@ -1,6 +1,6 @@
-import {SafeAreaView, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
-import styles from "../styles/ComponentStyles";
+import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
 import axios from "axios";
 import {useEffect, useState} from "react";
@@ -114,8 +114,18 @@ export default function HomeScreen ({navigation}){
               <Text style={{ color: 'red' }}>User not found</Text>
             </View>
         )}
-        <TouchableOpacity style={styles.button} onPress={() => setGroupModalVisible(true)}>
-            <DefaultText>+</DefaultText>
+        <TouchableOpacity style={{
+                alignSelf:'center',
+                width:70, 
+                height:70,
+                backgroundColor: colors.primary, 
+                alignItems:'center', 
+                justifyContent:'center', 
+                borderRadius:50,
+                margin: 5  
+              }} 
+              onPress={() => setGroupModalVisible(true)}>
+            <Image style={{height:'90%', width:'90%', resizeMode:'contain' }} source={require('../../assets/icons/plus.png')}/>
         </TouchableOpacity> 
         <NavBar navigation={navigation} user={user} screen='Home'/>
       </SafeAreaView>
