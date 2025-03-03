@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -92,7 +92,6 @@ export default function GroupScreen({navigation}){
         for(let i = 0; i < pictures.length && i < 3; ++i){
             if(pictures[i].id == photo.id){
                 winningBorder['borderWidth'] = 4;
-                winningBorder['borderRadius'] = 4;
                 switch (i) {
                     case 0:
                         winningBorder['borderColor'] = '#FFD700'
@@ -111,9 +110,9 @@ export default function GroupScreen({navigation}){
         return (
             <TouchableOpacity 
             onPress={()=>navigation.navigate("Photo", {user: user, group: group, photo: photo})}
-            style={[styles.picHolder, winningBorder]}>
+            style={styles.picHolder}>
                 <Image
-                    style={styles.pic}
+                    style={[styles.pic, winningBorder]}
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
@@ -276,8 +275,8 @@ export default function GroupScreen({navigation}){
                 onRequestClose={() => {setUserModalVisible(false);}}
                 style={{justifyContent:'center'}}
             >
-                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <View style={styles.popupView}>
+                <TouchableOpacity activeOpacity={1} onPress={()=>setUserModalVisible(false)} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                    <TouchableOpacity activeOpacity={1} style={styles.popupView}>
                         <View style={{width:'100%', height:'100%'}}>
                             <FriendSearch 
                             searchData={user.friends.filter((f)=>!group.users.some((member)=>member.id==f.id))} 
@@ -296,8 +295,8 @@ export default function GroupScreen({navigation}){
                                 <DefaultText>Close</DefaultText>
                             </TouchableOpacity>
                         </View>
-                    </View>
-                </View>
+                    </TouchableOpacity>
+                </TouchableOpacity>
             </Modal>
 
             {/* Group members side bar popup */}
@@ -308,7 +307,7 @@ export default function GroupScreen({navigation}){
             />
             
             {/* Group options bar */}
-            <View style={{padding:5, backgroundColor:colors.primary,justifyContent:'space-between', flexDirection:'row'}}>
+            <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}
                 { !group.userRanked[user.id] ?
                     <TouchableOpacity
@@ -338,7 +337,7 @@ export default function GroupScreen({navigation}){
                 style={{justifyContent:'center'}}
                 >
                     <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                        <View style={{backgroundColor:colors.primary, borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                        <TouchableOpacity activeOpacity={1} style={{backgroundColor:colors.primary, borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
                             { group.ownerId == user.id ?
                                 <View style={{gap:5}}>
                                     <TouchableOpacity
@@ -376,7 +375,7 @@ export default function GroupScreen({navigation}){
                                     <DefaultText>Leave Group</DefaultText>
                                 </TouchableOpacity>
                             }
-                        </View>
+                        </TouchableOpacity>
                     </TouchableOpacity>
                 </Modal>
             </View>
@@ -391,26 +390,29 @@ export default function GroupScreen({navigation}){
             />
 
             {/* Photo list */}
-            <View style={{flex:1}}>
-                { pictures.length ?
-                    <FlatList 
-                        numColumns={3}
-                        renderItem={({ item }) => <Pic photo={item} />}
-                        keyExtractor={(picture) => picture.url}
-                        data={pictures}
-                    />
-                :
-                    <View style={{alignItems:'center', justifyContent:'center', flex:1, padding:20}}>
-                        <DefaultText>Upload some pictures to get started!</DefaultText>
-                    </View>
-                }
-            </View>
-            <View style={groupStyles.buttonHolder}>
-                <TouchableOpacity style={[styles.button, {width:'50%'}]}
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
+                <View style={{flex:1, padding:5}}>
+                    { pictures.length ?
+                        <FlatList 
+                            numColumns={2}
+                            renderItem={({ item }) => <Pic photo={item} />}
+                            keyExtractor={(picture) => picture.url}
+                            data={pictures}
+                        />
+                    :
+                        <View style={{alignItems:'center', justifyContent:'center', flex:1, padding:20}}>
+                            <DefaultText>Upload some pictures to get started!</DefaultText>
+                        </View>
+                    }
+                </View>
+            </ImageBackground>
+            <View style={{flexDirection:'row', height:'8%',alignContent:'space-between',paddingHorizontal:0, backgroundColor:colors.secondary}}>
+                <TouchableOpacity style={{flex:1}}
                     onPress={() => {onPressPhoto()}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/image.png')}/>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, {width:'50%'}]}
+                <View style={{width:1, backgroundColor:'white', marginVertical:9}}/>
+                <TouchableOpacity style={{flex:1}}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>
@@ -418,12 +420,6 @@ export default function GroupScreen({navigation}){
         </SafeAreaView>
     );
 }
-const groupStyles = StyleSheet.create({
-    buttonHolder: {
-        alignSelf: 'baseline',
-        flexDirection:"row"
-    },
-});
 
 export const loadPictures = async (setPictures, group) => {
 

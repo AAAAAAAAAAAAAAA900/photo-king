@@ -86,7 +86,7 @@ export default function FriendsScreen({navigation}){
 
     return( 
         <SafeAreaView style={{flex:1}}>
-            <Header title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+            <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
             
 
             {/* friend modal */}  
