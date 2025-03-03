@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert } from "react-native";
+import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert, ImageBackground } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { CommonActions } from "@react-navigation/native";
@@ -138,37 +138,44 @@ export default function RankScreen({navigation}){
                 title={group.name} 
             />
 
-            <View style={{padding:10, height:50, backgroundColor:colors.secondary, flexDirection:'row', alignItems:'center'}}>
-                {!Object.values(ranks).includes(0) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>1</DefaultText>
-                    </View>
-                }
-                {!Object.values(ranks).includes(1) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>2</DefaultText>
-                    </View>
-                }
-                {!Object.values(ranks).includes(2) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>3</DefaultText>
-                    </View>
-                }
-                <TouchableOpacity
-                style={styles.button}
-                onPress={()=>{submitRanksPressed();}}
-                >
-                    <DefaultText>Submit Ranking</DefaultText>
-                </TouchableOpacity>
+            <View style={{padding:10, borderBottomWidth:.5, height:50, backgroundColor:'white', flexDirection:'row', alignItems:'center'}}>
+                <View style={{flex:1, gap:5, flexDirection:'row'}}>
+                    {!Object.values(ranks).includes(0) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>1</DefaultText>
+                        </View>
+                    }
+                    {!Object.values(ranks).includes(1) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>2</DefaultText>
+                        </View>
+                    }
+                    {!Object.values(ranks).includes(2) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>3</DefaultText>
+                        </View>
+                    }
+                </View>
+                <View style={{flex:1, flexDirection:'row-reverse'}}>
+                    <TouchableOpacity
+                    style={styles.button}
+                    onPress={()=>{submitRanksPressed();}}
+                    >
+                        <DefaultText>Submit Ranking</DefaultText>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={{flex:1}}>
-                <FlatList 
-                    numColumns={3}
-                    renderItem={({ item }) => <RankablePic photo={item}/>}
-                    keyExtractor={(picture) => picture.url}
-                    data={[...pictures].sort((a,b)=> b.points-a.points)}
-                />
-            </View>
+
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
+                <View style={{flex:1, padding:5}}>
+                    <FlatList 
+                        numColumns={2}
+                        renderItem={({ item }) => <RankablePic photo={item}/>}
+                        keyExtractor={(picture) => picture.url}
+                        data={[...pictures].sort((a,b)=> b.points-a.points)}
+                    />
+                </View>
+            </ImageBackground>
         </SafeAreaView>
     );
 }

@@ -14,7 +14,7 @@ export default function ProfileScreen({navigation}){
 
     return(
         <SafeAreaView style={{flex:1}}>
-            <Header title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+            <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
             
             <Pfp user={user} setUser={setUser} url={user.profileUrl}/>
             <View style={styles.containerCenterAll}>
