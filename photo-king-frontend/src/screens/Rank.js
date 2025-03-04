@@ -59,7 +59,7 @@ export default function RankScreen({navigation}){
                     // defaultSource= default image to display while loading images.
                 />
                 { imageRank !== null &&
-                    <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:5, left:5, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                    <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                         <DefaultText>{imageRank+1}</DefaultText>
                     </View>
                 }

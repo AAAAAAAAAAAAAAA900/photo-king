@@ -121,7 +121,7 @@ export default function Pfp ({navigation, user, setUser, url}){
     };
 
     return(
-        <View style={{marginRight: 10}}>
+        <View>
             {/* If passed user or navigation make it clickable, else just a view */}
             {/* If passed a non empty url use it, else use default pfp icon */}
             { user || navigation ? ( url ?
