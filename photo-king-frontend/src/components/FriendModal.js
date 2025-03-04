@@ -13,8 +13,8 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                 onRequestClose={() => {setFriendModalVisible(false); setFriendClicked(null);}}
                 style={{justifyContent:'center'}}
             >
-                <View style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <View style={styles.popupView}>
+                <TouchableOpacity activeOpacity={1} onPress={()=>{setFriendModalVisible(false); setFriendClicked(null);}} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                    <TouchableOpacity activeOpacity={1} style={styles.popupView}>
                         <View style={{flexDirection:'row'}}>
                             <Pfp url={friendClicked.pfp}/>
                             <DefaultText>{friendClicked.username}</DefaultText>
@@ -55,8 +55,8 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                         >
                             <DefaultText>Close</DefaultText>
                         </TouchableOpacity>
-                    </View>
-                </View>
+                    </TouchableOpacity>
+                </TouchableOpacity>
             </Modal>
         )
     );

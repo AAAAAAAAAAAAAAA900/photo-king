@@ -16,7 +16,7 @@ export default styles = StyleSheet.create({
         fontSize:16
     },
     titleText:{
-        fontFamily: 'DMSans-Regular',
+        fontFamily: 'DMSans-Bold',
         fontSize: 25
     },
     urlText:{
@@ -55,7 +55,8 @@ export default styles = StyleSheet.create({
     button: {
         height:40, 
         width:90, 
-        backgroundColor: colors.lightBlue,
+        backgroundColor: colors.secondary,
+        borderWidth:1,
         borderRadius:5,
         alignItems: 'center',
         justifyContent: 'center',
@@ -82,16 +83,21 @@ export default styles = StyleSheet.create({
     },
     picHolder: {
         flex:1,
-        maxWidth: "33%",
+        maxWidth: "49%",
         aspectRatio:1,
         alignItems:'center',
-        margin: 1.5
+        margin: 5
     },
     pic: { 
         flex:1, 
         height:'100%', 
         width:'100%', 
-        resizeMode:'cover' 
+        resizeMode:'cover',
+        borderRadius:20
+    },
+    iconStyle : {height:'90%', 
+        width:'90%', 
+        resizeMode:'contain' 
     },
 });
 
