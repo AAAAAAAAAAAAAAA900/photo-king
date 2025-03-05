@@ -7,6 +7,7 @@ import DefaultText from '../components/DefaultText.js';
 import * as SecureStore from "expo-secure-store";
 import authApi from "../api/authApi";
 import userApi from "../api/userApi";
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
@@ -50,6 +51,27 @@ export default function LoginScreen ({navigation}){
           <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
             <Text style={styles.urlText}>create an account</Text>
           </TouchableOpacity>
+          <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={5}
+              style={styles.button}
+              onPress={async () => {
+                try {
+                  const credential = await AppleAuthentication.signInAsync();
+                  const { identityToken } = credential;
+                  console.log(identityToken);
+
+                  // signed in
+                } catch (e) {
+                  if (e.code === 'ERR_REQUEST_CANCELED') {
+                    // handle that the user canceled the sign-in flow
+                  } else {
+                    // handle other errors
+                  }
+                }
+              }}
+          />
         </View>
       </LinearGradient>
     </SafeAreaView>

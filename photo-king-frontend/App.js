@@ -19,6 +19,7 @@ import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import PhotoScreen from './src/screens/Photo.js';
 import RankScreen from './src/screens/Rank.js';
 
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -112,7 +113,7 @@ const headerStyles = StyleSheet.create({
   },
   profileAndSettings:
     ({ navigation, route }) => ({
-      headerTitle: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
+      headerRight: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
       headerTitleStyle:styles.titleText,
       headerBackVisible:false,
     }),

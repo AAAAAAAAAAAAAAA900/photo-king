@@ -202,12 +202,7 @@ export default function GroupScreen({navigation}){
 
     const removeUserFromGroup = async (id) => {
         try {
-            const response = await axios.post(`${API_URL}/api/user-groups/remove-user/${id}/${group.id}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await photoGroupApi.removeUserFromGroup(id, group.id);
             // remove current group then add back updated version
             const groupsCopy = user.groups.filter((g) => {g.id != group.id});
             groupsCopy.push(response.data);
