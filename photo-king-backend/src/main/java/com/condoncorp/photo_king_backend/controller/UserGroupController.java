@@ -5,10 +5,9 @@ import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.service.UserGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user-groups")
@@ -28,5 +27,10 @@ public class UserGroupController {
     @PostMapping("/remove-user/{userId}/{groupId}")
     public PhotoGroupDTO removeUserFromGroup(@PathVariable int userId, @PathVariable int groupId) {
         return userGroupService.removeUserFromGroup(userId, groupId);
+    }
+
+    @GetMapping(path = "/get-groups/{id}")
+    public List<PhotoGroupDTO> getGroupsByUserId(@PathVariable int id) {
+        return userGroupService.getGroupsByUserId(id);
     }
 }

@@ -30,6 +30,7 @@ public class PhotoGroupUserRanking {
         this.firstRankId = firstRankId;
         this.secondRankId = secondRankId;
         this.thirdRankId = thirdRankId;
+
     }
 
     public PhotoGroupUserRanking(int groupId, int userId) {
