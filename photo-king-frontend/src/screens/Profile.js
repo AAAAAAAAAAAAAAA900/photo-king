@@ -7,10 +7,25 @@ import Pfp from "../components/Pfp";
 import { useState, useEffect } from "react";
 import TitleButtons from "../components/TitleButtons";
 import Header from "../components/Header";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function ProfileScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
+
+    const getGroups = async () => {
+        try {
+            let groups = await photoGroupApi.getGroupsByUserId(user.id);
+            return groups.data;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+
+    useEffect(() => {
+        setUser({...user, groups: getGroups()});
+    }, [user]);
 
     return(
         <SafeAreaView style={{flex:1}}>

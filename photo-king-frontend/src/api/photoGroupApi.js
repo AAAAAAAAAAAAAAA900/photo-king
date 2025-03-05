@@ -1,4 +1,4 @@
-import {apiClient, apiFormClient} from "./apiClient";
+import {apiClient} from "./apiClient";
 
 const photoGroupApi = {
     addGroup: async(groupTitle, userId) => {
@@ -17,8 +17,12 @@ const photoGroupApi = {
         return apiClient.post(`/user-groups/remove-user/${userId}/${groupId}`)
     },
 
-    updateUserRank: async (formData) => {
-        return apiFormClient.post("/photo-group/update-user-rank", formData);
+    updateUserRank: async (data) => {
+        return apiClient.post("/photo-group/update-user-rank", data);
+    },
+
+    getGroupsByUserId: async (userId) => {
+        return apiClient.get(`/user-groups/get-groups/${userId}`);
     }
 }
 

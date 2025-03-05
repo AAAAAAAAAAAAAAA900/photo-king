@@ -76,16 +76,13 @@ export default function RankScreen({navigation}){
 
     const submitRanks = async () => {
         try{
-            const formData = new FormData();
-            formData.append('userId', user.id);
-            formData.append('groupId', group.id);
-            // Append each image ID separately
-            ranks.forEach(image => {
-                formData.append("images", image); 
-            });
-            console.log(formData);
+            const data = {
+                userId: user.id,
+                groupId: group.id,
+                images: ranks.filter((element) => element !== null)
+            };
 
-            const updateRankResponse = await photoGroupApi.updateUserRank(formData);
+            const updateRankResponse = await photoGroupApi.updateUserRank(data);
             setSubmitted(true);
         } catch(error){
             console.log(error);

@@ -7,6 +7,8 @@ import com.condoncorp.photo_king_backend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserGroupService {
 
@@ -42,6 +44,11 @@ public class UserGroupService {
         photoGroupService.saveGroup(photoGroup);
 
         return new PhotoGroupDTO(photoGroup);
+    }
+
+    public List<PhotoGroupDTO> getGroupsByUserId(int userId) {
+        User user = userService.getUserById(userId);
+        return user.getPhotoGroups().stream().map(PhotoGroupDTO::new).toList();
     }
 
 }
