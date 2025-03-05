@@ -87,6 +87,8 @@ export default function GroupScreen({navigation}){
 
     // FlatList element's view
     const Pic = ({ photo }) => {
+        // Gets pfp of poster
+        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;}).pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         for(let i = 0; i < pictures.length && i < 3; ++i){
@@ -116,8 +118,11 @@ export default function GroupScreen({navigation}){
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
-                <View style={{width:30, height:30, borderRadius:15, position:'absolute', bottom:5, left:5, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                     <DefaultText>{photo.points}</DefaultText>
+                </View>
+                <View style={{width:50, height:50, borderRadius:25, position:'absolute', bottom:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                    <Pfp url={pfp}/>
                 </View>
             </TouchableOpacity>
         );

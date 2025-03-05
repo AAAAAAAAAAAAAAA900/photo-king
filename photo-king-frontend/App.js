@@ -102,19 +102,3 @@ export default function App() {
       </ActionSheetProvider>
   );
 }
-
-const headerStyles = StyleSheet.create({
-  default:{
-    headerTitleStyle:styles.titleText,
-  },
-  noBack: {
-    headerTitleStyle:styles.titleText,
-    headerBackVisible:false
-  },
-  profileAndSettings:
-    ({ navigation, route }) => ({
-      headerRight: () => (<TitleButtons user={route.params?.user} navigation={navigation}/>),
-      headerTitleStyle:styles.titleText,
-      headerBackVisible:false,
-    }),
-});

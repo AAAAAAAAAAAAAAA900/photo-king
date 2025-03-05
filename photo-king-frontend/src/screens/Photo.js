@@ -57,18 +57,21 @@ export default function PhotoScreen ({navigation}){
             visible={photoModalVisible}
             onRequestClose={() => {setPhotoModalVisible(false);}}
             >
-                <View style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <Image
-                    source={{uri: photo.url}}
-                    style={{height:'90%', width:'90%', resizeMode:'contain'}}
-                    />
-                    <TouchableOpacity
-                    onPress={()=>{setPhotoModalVisible(false);}}
-                    style={[styles.button, {position:'absolute', top:height*0.1, right:width*0.1}]}
-                    >
-                        <DefaultText>close icon</DefaultText>
+                <TouchableOpacity activeOpacity={1} onPress={()=>setPhotoModalVisible(false)}
+                style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                    <TouchableOpacity style={{height:'90%', width:'90%'}} activeOpacity={1}>
+                        <Image
+                        source={{uri: photo.url}}
+                        style={{height:'100%', width:'100%', resizeMode:'contain'}}
+                        />
+                        <TouchableOpacity
+                        onPress={()=>{setPhotoModalVisible(false);}}
+                        style={{position:'absolute', top:height*0.1, right:width*0.1, height:60, width:60}}
+                        >
+                            <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
+                        </TouchableOpacity>
                     </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
             </Modal>
 
             <TouchableOpacity 

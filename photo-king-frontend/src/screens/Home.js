@@ -15,7 +15,6 @@ export default function HomeScreen ({navigation}){
 
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
-  // const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
