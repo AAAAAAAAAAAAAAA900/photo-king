@@ -67,7 +67,8 @@ export default styles = StyleSheet.create({
         backgroundColor: colors.greyWhite, 
         borderRadius: 10,
         alignItems:'center',
-        flexDirection:'row'
+        flexDirection:'row',
+        gap:10
     },
     separator:{
         height: 1,

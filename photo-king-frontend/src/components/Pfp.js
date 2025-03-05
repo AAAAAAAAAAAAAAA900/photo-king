@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
 
 
-export default function Pfp ({navigation, user, setUser, url}){
+export default function Pfp ({navigation, user, setUser, setUserUpdated, url}){
 
     const [style, setStyle] = useState({height: 50, width:50, borderRadius:25, backgroundColor:'white', borderColor:'white'});
     
@@ -113,6 +113,7 @@ export default function Pfp ({navigation, user, setUser, url}){
         try {
             const response = await imageApi.uploadProfile(formData);
             setUser({...user, profileUrl:response.data});
+            setUserUpdated(true);
             console.log('Upload Success');
             console.log(response.data);
         } catch (error) {

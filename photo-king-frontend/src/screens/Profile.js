@@ -12,6 +12,7 @@ import photoGroupApi from "../api/photoGroupApi";
 export default function ProfileScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
+    const [userUpdated, setUserUpdated] = useState(false);
 
     const getGroups = async () => {
         try {
@@ -22,16 +23,18 @@ export default function ProfileScreen({navigation}){
         }
     }
 
-
     useEffect(() => {
-        setUser({...user, groups: getGroups()});
-    }, [user]);
+        if(userUpdated){
+            setUserUpdated(false);
+            getGroups().then((groups) => setUser({...user, groups: groups}));
+        }
+    }, [userUpdated]);
 
     return(
         <SafeAreaView style={{flex:1}}>
             <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
             
-            <Pfp user={user} setUser={setUser} url={user.profileUrl}/>
+            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl}/>
             <View style={styles.containerCenterAll}>
                 <DefaultText>Profile Screen</DefaultText>
             </View>

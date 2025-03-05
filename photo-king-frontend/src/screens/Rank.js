@@ -18,12 +18,17 @@ export default function RankScreen({navigation}){
     const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
     const [isSubmitted, setSubmitted] = useState(false);
-    const [ranks, setRanks] = useState([null,null,null]);  //tracks image rankings by url
-
-    // useEffect to get group pictures on load
+    const [ranks, setRanks] =  useState([]);  // image ids ordered by ranking
+    
+    // get group pictures on load
     useEffect(() => {
         loadPictures(setPictures, group).then(r => {});
     }, []);
+
+    // Determine number of ranking slots
+    useEffect(()=>{
+        setRanks(pictures.length == 2 ? [null,null] : [null,null,null]);
+    }, [pictures]);
 
     const rankPhoto = (photo, rank) =>{
         if(rank != -1){
@@ -90,24 +95,16 @@ export default function RankScreen({navigation}){
     };
 
     const submitRanksPressed = () => {
-        const rankings = Object.keys(ranks).length;
-        if(rankings < 3){
+        if(ranks.findIndex((element)=> element===null) != -1){
             Alert.alert(
-                "Please rank 3 images.",
-                `You have only ranked ${rankings} images.`,
+                `Please rank ${ranks.length} images.`,
+                'Make sure no placings remain at the top.',
                 [
                     { text: "Confirm", style: "cancel"}
                 ]
             );
         } else{
-            Alert.alert(
-                "Submit rankings?",
-                `Your rankings will be final.`,
-                [
-                    { text: "Cancel", style: "cancel"},
-                    { text: "Continue", onPress: () => submitRanks() }
-                ]
-            );
+            submitRanks();
         }
     };
 
@@ -140,7 +137,7 @@ export default function RankScreen({navigation}){
                             <DefaultText>2</DefaultText>
                         </View>
                     }
-                    {!ranks[2] &&
+                    {ranks.length > 2 && !ranks[2] &&
                         <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                             <DefaultText>3</DefaultText>
                         </View>

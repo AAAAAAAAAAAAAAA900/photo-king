@@ -120,6 +120,7 @@ public class UserImageService {
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImage getTopImage(int groupId) {
         List<UserImage> images = getImagesByGroup(groupId);
+        if(images.isEmpty()) return null;
         images.sort((o1, o2) -> o2.getPoints() - o1.getPoints());
         return images.get(0);
     }

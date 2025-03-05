@@ -45,10 +45,14 @@ export default function HomeScreen ({navigation}){
   const getGroupThumbnails = async () => {
     const images = {};
     try{
-      user.groups.forEach(element => {
-        const response  = imageApi.getTopImage(element.id);
-        images[element.id] = response.data;
+      // get response promises
+      const promises = user.groups.map(async (element) => {
+        images[element.id] = await imageApi.getTopImage(element.id);
       });
+      // await all responses
+      await Promise.all(promises);
+      // get data from responses
+      Object.keys(images).forEach((key) => images[key]=images[key].data);
       setThumbnails(images);
     } catch(error){
       console.log(error);
@@ -114,7 +118,7 @@ export default function HomeScreen ({navigation}){
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                   data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
-                    <GroupPreview thumbnail={thumbnails[item.id]} groupTitle={item.name} navFunction={() => {
+                    <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})
                     }}
                     />

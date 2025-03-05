@@ -72,9 +72,6 @@ export default function GroupScreen({navigation}){
 
         formData.append('userId', user.id);
         formData.append('groupId', group.id);
-
-        console.log(formData._parts);
-
         try {
             const response = await imageApi.uploadImages(formData);
             console.log('Upload Success');
@@ -88,7 +85,6 @@ export default function GroupScreen({navigation}){
     // FlatList element's view
     const Pic = ({ photo }) => {
         // Gets pfp of poster
-        console.log(group.users);
         const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
@@ -310,12 +306,25 @@ export default function GroupScreen({navigation}){
             {/* Group options bar */}
             <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}
+
                 <TouchableOpacity
                 style={styles.button}
-                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
-                >
+                onPress={()=>{
+                    if(pictures.length < 2){
+                        Alert.alert(
+                            'You need at least 2 images to rank!',
+                            `Upload at least ${2-pictures.length} more to get started.`,
+                            [
+                                { text: "Confirm", style: "cancel"}
+                            ]
+                        );
+                    } else {
+                        navigation.navigate("Rank", {user: user, group: group});
+                    }
+                }}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
                 </TouchableOpacity>
