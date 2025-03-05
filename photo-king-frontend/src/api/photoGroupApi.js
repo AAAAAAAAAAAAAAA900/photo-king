@@ -17,10 +17,6 @@ const photoGroupApi = {
         return apiClient.post(`/user-groups/remove-user/${userId}/${groupId}`)
     },
 
-    updateUserRankOld: async (group, user) => {
-        return apiClient.put(`/photo-group/update-user-rank/${group.id}/${user.id}`);
-    },
-
     updateUserRank: async (formData) => {
         return apiFormClient.post("/photo-group/update-user-rank", formData);
     }

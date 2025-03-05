@@ -309,20 +309,12 @@ export default function GroupScreen({navigation}){
             {/* Group options bar */}
             <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}
-                { !group.userRanked[user.id] ?
-                    <TouchableOpacity
-                    style={styles.button}
-                    onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
-                    >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
-                    </TouchableOpacity>
-                :
-                    <View
-                    style={[styles.button, {backgroundColor:'grey'}]}                >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
-                    </View>
-                }
-
+                <TouchableOpacity
+                style={styles.button}
+                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                >
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
                 </TouchableOpacity>

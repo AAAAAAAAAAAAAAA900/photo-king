@@ -10,6 +10,7 @@ import {API_URL} from "../api/utils";
 import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import Header from "../components/Header.js";
+import { ImageStore } from "react-native";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
@@ -17,48 +18,40 @@ export default function RankScreen({navigation}){
     const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
     const [isSubmitted, setSubmitted] = useState(false);
-    const [ranks, setRanks] = useState({});  //tracks image rankings by url
+    const [ranks, setRanks] = useState([null,null,null]);  //tracks image rankings by url
 
     // useEffect to get group pictures on load
     useEffect(() => {
         loadPictures(setPictures, group).then(r => {});
     }, []);
 
-    const rankPhoto = (url) =>{
-        if(ranks[url] != undefined){
+    const rankPhoto = (photo, rank) =>{
+        if(rank != -1){
             // If already ranked, undo rank
-            const {[url]:_, ...copy} = ranks;
+            const copy = [...ranks];
+            copy[rank] = null;
             setRanks(copy);
-        } else if (Object.keys(ranks).length < 3 ){
+        } else if (ranks.findIndex((element)=> element===null) != -1){
             // If there are available rankings, find them
-            const openings = [true, true, true];
-            for(const url in ranks){
-                openings[ranks[url]] = false;
-            }
-            // Take the lowest available ranking
-            for(let i = 0; i < 3; ++i){
-                if(openings[i]){
-                    const copy = {...ranks, [url]:i};
-                    setRanks(copy);
-                    break;
-                }
-            }
+            const copy = [...ranks];
+            copy[ranks.findIndex((element)=> element===null)] = photo.id;
+            setRanks(copy);
         }
     };
 
     // FlatList element's view
     const RankablePic = ({ photo }) => {
-        const imageRank = ranks[photo.url] ?? null;
+        const imageRank = ranks.findIndex((element) => element==photo.id);
         return (
             <TouchableOpacity 
-            onPress={()=>{rankPhoto(photo.url);}}
+            onPress={()=>{rankPhoto(photo, imageRank);}}
             style={styles.picHolder}>
                 <Image
                     style={styles.pic}
                     source={{uri: photo.url}}
                     // defaultSource= default image to display while loading images.
                 />
-                { imageRank !== null &&
+                { imageRank != -1 &&
                     <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                         <DefaultText>{imageRank+1}</DefaultText>
                     </View>
@@ -69,8 +62,6 @@ export default function RankScreen({navigation}){
 
     useEffect(()=>{
         if(isSubmitted){
-            const newGroups = [...user.groups].filter((g)=> g.id != group.id);
-            newGroups.push(group);
             navigation.dispatch((state) => {
                 const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
                 return CommonActions.reset({
@@ -79,20 +70,21 @@ export default function RankScreen({navigation}){
                     routes
                 });
             });
-            navigation.navigate('Group', {user:{...user, groups: newGroups}, group:group});
+            navigation.navigate('Group', {user:user, group:group});
         } 
-    }, [group]);
+    }, [isSubmitted]);
 
     const submitRanks = async () => {
         try{
-            const updateRankResponse = await photoGroupApi.updateUserRank(group, user);
-            for(let url in ranks){
-                const pic = pictures.filter((picture) => picture.url == url);
-                const updatePointsResponse = await imageApi.updatePoints(pic[0].id, 3-ranks[url]);
-            }
-            const newRankTracker = {...group.userRanked};
-            newRankTracker[user.id] = true;
-            setGroup({...group, userRanked:newRankTracker});
+            const formData = new FormData();
+            formData.append('userId', user.id);
+            formData.append('groupId', group.id);
+            // Append each image ID separately
+            ranks.forEach(image => {
+                formData.append("images", image); 
+            });
+            console.log(formData);
+            const updateRankResponse = await photoGroupApi.updateUserRank(formData);
             setSubmitted(true);
         } catch(error){
             console.log(error);
@@ -140,17 +132,17 @@ export default function RankScreen({navigation}){
 
             <View style={{padding:10, borderBottomWidth:.5, height:50, backgroundColor:'white', flexDirection:'row', alignItems:'center'}}>
                 <View style={{flex:1, gap:5, flexDirection:'row'}}>
-                    {!Object.values(ranks).includes(0) &&
+                    {!ranks[0] &&
                         <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                             <DefaultText>1</DefaultText>
                         </View>
                     }
-                    {!Object.values(ranks).includes(1) &&
+                    {!ranks[1] &&
                         <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                             <DefaultText>2</DefaultText>
                         </View>
                     }
-                    {!Object.values(ranks).includes(2) &&
+                    {!ranks[2] &&
                         <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                             <DefaultText>3</DefaultText>
                         </View>

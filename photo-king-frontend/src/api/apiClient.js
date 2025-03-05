@@ -100,7 +100,6 @@ apiFormClient.interceptors.request.use(async (config) => {
     }
 
     config.headers['Content-Type'] = 'multipart/form-data';
-    console.log("API IMAGE INTERCEPTOR HEADERS:", config.headers);
     return config;
 }, (error) => {
     console.log("INTERCEPTOR ERROR:", error);
