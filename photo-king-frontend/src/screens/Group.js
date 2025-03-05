@@ -76,7 +76,7 @@ export default function GroupScreen({navigation}){
         console.log(formData._parts);
 
         try {
-            const response2 = await imageApi.uploadImages(formData);
+            const response = await imageApi.uploadImages(formData);
             console.log('Upload Success');
         }
         catch (error) {
@@ -88,7 +88,8 @@ export default function GroupScreen({navigation}){
     // FlatList element's view
     const Pic = ({ photo }) => {
         // Gets pfp of poster
-        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;}).pfp;
+        console.log(group.users);
+        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         for(let i = 0; i < pictures.length && i < 3; ++i){
