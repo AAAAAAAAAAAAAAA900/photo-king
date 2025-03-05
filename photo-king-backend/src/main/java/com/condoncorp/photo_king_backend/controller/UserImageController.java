@@ -92,5 +92,11 @@ public class UserImageController {
         userImageService.updatePoints(id, points);
     }
 
+    // RETURNS IMAGES WITH HIGHEST POINTS
+    @GetMapping(path = "/get-top-image/{groupId}")
+    public UserImage getTopImage(@PathVariable int groupId) {
+        return userImageService.getTopImage(groupId);
+    }
+
 
 }

@@ -43,6 +43,7 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    // RETURNS USER DETAILS BY TOKEN
     @GetMapping(path = "/get-user-info")
     public UserDTO getUserInfo(@RequestHeader("Authorization") String authHeader) {
         return userService.getUserInfo(authHeader);
