@@ -1,12 +1,14 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -30,23 +32,31 @@ public class PhotoGroupController {
         photoGroupService.deleteGroup(id);
     }
 
+
+
     @PostMapping(path = "/update-user-rank")
-    public void updateUserRank(@RequestParam("images") List<Integer> images, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) {
+    public void updateUserRank(@RequestBody RankUpdateReq rankUpdateReq) {
+        List<Integer> images = rankUpdateReq.getImages();
+        int userId = rankUpdateReq.getUserId();
+        int groupId = rankUpdateReq.getGroupId();
+
         if ( images.size() == 1 ) {
-            photoGroupService.updateFirstRank(images.get(0), userId, groupId);
+            photoGroupService.updateFirstRank(userId, groupId, images.get(0));
         }
         else if ( images.size() == 2 ) {
-            photoGroupService.updateFirstRank(images.get(0), userId, groupId);
-            photoGroupService.updateSecondRank(images.get(1), userId, groupId);
+            photoGroupService.updateFirstRank(userId, groupId, images.get(0));
+            photoGroupService.updateSecondRank(userId, groupId, images.get(1));
         }
         else if ( images.size() == 3 ) {
-            photoGroupService.updateFirstRank(images.get(0), userId, groupId);
-            photoGroupService.updateSecondRank(images.get(1), userId, groupId);
-            photoGroupService.updateThirdRank(images.get(2), userId, groupId);
+            photoGroupService.updateFirstRank(userId, groupId, images.get(0));
+            photoGroupService.updateSecondRank(userId, groupId, images.get(1));
+            photoGroupService.updateThirdRank(userId, groupId, images.get(2));
         }
         else {
             throw new RuntimeException("Invalid number of images");
         }
+
+
 
     }
 

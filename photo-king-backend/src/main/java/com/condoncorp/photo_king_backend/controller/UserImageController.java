@@ -1,7 +1,5 @@
 package com.condoncorp.photo_king_backend.controller;
 
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
