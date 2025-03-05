@@ -25,18 +25,12 @@ public class PhotoGroup {
     @ManyToMany(mappedBy = "photoGroups")
     private Set<User> users = new HashSet<>();
 
-    @ElementCollection
-    @MapKeyColumn(name = "user_id")
-    @Column(name = "has_ranked")
-    @CollectionTable(name = "photo_group_user_ranked", joinColumns = @JoinColumn(name = "photo_group_id"))
-    private Map<Integer, Boolean> userRanked = new HashMap<>();
 
 
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
         this.users = new HashSet<>();
-        this.userRanked = new HashMap<>();
     }
 
     public PhotoGroup() {
@@ -75,11 +69,4 @@ public class PhotoGroup {
         this.ownerId = ownerId;
     }
 
-    public Map<Integer, Boolean> getUserRanked() {
-        return userRanked;
-    }
-
-    public void setUserRanked(Map<Integer, Boolean> userRanked) {
-        this.userRanked = userRanked;
-    }
 }
