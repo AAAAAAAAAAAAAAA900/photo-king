@@ -1,13 +1,13 @@
-import {apiClient, apiImageClient} from "./apiClient";
+import {apiClient, apiFormClient} from "./apiClient";
 
 const imageApi = {
 
     uploadImages: async (formData) => {
-        return apiImageClient.post("/upload", formData);
+        return apiFormClient.post("/user-image/upload", formData);
     },
 
     uploadProfile: async (formData) => {
-        return apiImageClient.post("/upload-profile", formData);
+        return apiFormClient.post("/user-image/upload-profile", formData);
     },
 
     deleteImage: async (imageId) => {

@@ -10,9 +10,8 @@ const apiClient = axios.create({
     }
 });
 
-const apiImageClient = axios.create({
-    baseURL: `${API_URL}/api/user-image`,
-
+const apiFormClient = axios.create({
+    baseURL: `${API_URL}/api`,
 });
 
 // GET TOKENS
@@ -84,7 +83,7 @@ apiClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-apiImageClient.interceptors.request.use(async (config) => {
+apiFormClient.interceptors.request.use(async (config) => {
 
     if (!config.url.startsWith("/auth/")) {
         let accessToken = await getAccessToken();
@@ -109,4 +108,4 @@ apiImageClient.interceptors.request.use(async (config) => {
 })
 
 
-export { apiClient, apiImageClient };
+export { apiClient, apiFormClient };
