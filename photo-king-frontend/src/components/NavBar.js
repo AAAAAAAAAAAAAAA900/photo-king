@@ -9,10 +9,9 @@ export default function NavBar({navigation, user, screen}){
         width:'90%', 
         resizeMode:'contain' 
     };
-    const iconViewStyle = {height:50, 
+    const iconViewStyle = {height:'90%', 
         width:'30%', 
-        backgroundColor: 
-        colors.primary, 
+        backgroundColor: 'white', 
         alignItems:'center', 
         justifyContent:'center', 
         borderRadius:5
@@ -25,7 +24,7 @@ export default function NavBar({navigation, user, screen}){
 
 
     return(
-        <View style={{flexDirection:"row", justifyContent: "space-between", backgroundColor:colors.primary, padding: 10 }}>
+        <View style={{flexDirection:"row", height:'10%', justifyContent: "space-between", backgroundColor:'white', padding: 10 }}>
             { screen != 'Profile' ? (
                 <TouchableOpacity
                     style={iconViewStyle}
@@ -35,7 +34,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.secondary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/profile.png')}/>
                 </View>
@@ -52,7 +51,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.secondary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/home.png')}/>
                 </View>
@@ -69,7 +68,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.secondary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/friends.png')}/>
                 </View>

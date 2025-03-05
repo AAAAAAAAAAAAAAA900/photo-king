@@ -1,6 +1,6 @@
-import {SafeAreaView, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
-import styles from "../styles/ComponentStyles";
+import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
 import axios from "axios";
 import {useEffect, useState} from "react";
@@ -8,19 +8,16 @@ import {API_URL} from "../api/utils";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
 import photoGroupApi from "../api/photoGroupApi";
+import Header from '../components/Header.js';
+import TitleButtons from '../components/TitleButtons.js';
 
 export default function HomeScreen ({navigation}){
 
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
-  // const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-
-  useEffect(() => {
-    navigation.setOptions({ user: user }); // pass user along to header
-  }, [user]);
 
   const addGroup = async () => {
       try {
@@ -44,6 +41,8 @@ export default function HomeScreen ({navigation}){
   return (
       <SafeAreaView style={{ flex:1 }}>
 
+        <Header border={true} title={'Home'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+
         {/* Create group popup */}
         <Modal
           animationType="fade"
@@ -51,34 +50,37 @@ export default function HomeScreen ({navigation}){
           visible={groupModalVisible}
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
-          <View style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-            <TextInput 
-              style={styles.textIn}
-              onChangeText={(text) => {setGroupTitle(text)}}
-              autoCapitalize ='none'
-              autoCorrect ={false}
-              placeholder="Enter Group Name..."
-            />
-            <View style={{flexDirection:'row'}}>
-              <TouchableOpacity style={styles.button}
-                onPress={() => {
-                  addGroup();
-                  setGroupTitle('');
-                  setGroupModalVisible(false);
-                }}
-              >
-                <DefaultText>Submit</DefaultText>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button}
-                onPress={() => {
-                  setGroupTitle(''); 
-                  setGroupModalVisible(false);
-                }}
-              >
-                <DefaultText>Cancel</DefaultText>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+            <TouchableOpacity activeOpacity={1} style={styles.popupView}>
+              <TextInput 
+                style={[styles.textIn, {width: '80%'}]}
+                onChangeText={(text) => {setGroupTitle(text)}}
+                autoCapitalize ='none'
+                maxLength={20}
+                autoCorrect ={false}
+                placeholder="Enter Group Name..."
+              />
+              <View style={{flexDirection:'row'}}>
+                <TouchableOpacity style={styles.button}
+                  onPress={() => {
+                    addGroup();
+                    setGroupTitle('');
+                    setGroupModalVisible(false);
+                  }}
+                >
+                  <DefaultText>Submit</DefaultText>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button}
+                  onPress={() => {
+                    setGroupTitle(''); 
+                    setGroupModalVisible(false);
+                  }}
+                >
+                  <DefaultText>Cancel</DefaultText>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </TouchableOpacity>
         </Modal>
 
 
@@ -114,8 +116,21 @@ export default function HomeScreen ({navigation}){
               <Text style={{ color: 'red' }}>User not found</Text>
             </View>
         )}
-        <TouchableOpacity style={styles.button} onPress={() => setGroupModalVisible(true)}>
-            <DefaultText>+</DefaultText>
+        <TouchableOpacity style={{
+                position:'absolute',
+                right:'8%',
+                bottom:'15%',
+                width:70, 
+                height:70,
+                backgroundColor: colors.secondary,
+                boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)', 
+                alignItems:'center', 
+                justifyContent:'center', 
+                borderRadius:50,
+                margin: 5  
+              }} 
+              onPress={() => setGroupModalVisible(true)}>
+            <Image style={{height:'90%', width:'90%', resizeMode:'contain' }} source={require('../../assets/icons/plus.png')}/>
         </TouchableOpacity> 
         <NavBar navigation={navigation} user={user} screen='Home'/>
       </SafeAreaView>

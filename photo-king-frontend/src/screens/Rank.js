@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert } from "react-native";
+import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert, ImageBackground } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { CommonActions } from "@react-navigation/native";
@@ -9,6 +9,7 @@ import axios from "axios";
 import {API_URL} from "../api/utils";
 import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
+import Header from "../components/Header.js";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
@@ -58,7 +59,7 @@ export default function RankScreen({navigation}){
                     // defaultSource= default image to display while loading images.
                 />
                 { imageRank !== null &&
-                    <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:5, left:5, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                    <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                         <DefaultText>{imageRank+1}</DefaultText>
                     </View>
                 }
@@ -68,6 +69,8 @@ export default function RankScreen({navigation}){
 
     useEffect(()=>{
         if(isSubmitted){
+            const newGroups = [...user.groups].filter((g)=> g.id != group.id);
+            newGroups.push(group);
             navigation.dispatch((state) => {
                 const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
                 return CommonActions.reset({
@@ -76,16 +79,16 @@ export default function RankScreen({navigation}){
                     routes
                 });
             });
-            navigation.navigate('Group', {user:user, group:group});
+            navigation.navigate('Group', {user:{...user, groups: newGroups}, group:group});
         } 
-    }, [isSubmitted]);
+    }, [group]);
 
     const submitRanks = async () => {
         try{
             const updateRankResponse = await photoGroupApi.updateUserRank(group, user);
             for(let url in ranks){
                 const pic = pictures.filter((picture) => picture.url == url);
-                const updatePointsResponse = await imageApi.updatePoints(pic[0].id, ranks[url] + 1);
+                const updatePointsResponse = await imageApi.updatePoints(pic[0].id, 3-ranks[url]);
             }
             const newRankTracker = {...group.userRanked};
             newRankTracker[user.id] = true;
@@ -120,37 +123,59 @@ export default function RankScreen({navigation}){
 
     return(
         <SafeAreaView style={{flex:1}}>
-            <View style={{padding:10, height:50, backgroundColor:colors.secondary, flexDirection:'row', alignItems:'center'}}>
-                {!Object.values(ranks).includes(0) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>1</DefaultText>
-                    </View>
-                }
-                {!Object.values(ranks).includes(1) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>2</DefaultText>
-                    </View>
-                }
-                {!Object.values(ranks).includes(2) &&
-                    <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
-                        <DefaultText>3</DefaultText>
-                    </View>
-                }
-                <TouchableOpacity
-                style={styles.button}
-                onPress={()=>{submitRanksPressed();}}
-                >
-                    <DefaultText>Submit Ranking</DefaultText>
-                </TouchableOpacity>
+            <Header 
+                backFunction={()=> {
+                    navigation.dispatch((state) => {
+                        const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                        return CommonActions.reset({
+                            ...state,
+                            index: routes.length - 1,
+                            routes
+                        });
+                    });
+                    navigation.navigate('Group', {user:user, group:group});
+                }} 
+                title={group.name} 
+            />
+
+            <View style={{padding:10, borderBottomWidth:.5, height:50, backgroundColor:'white', flexDirection:'row', alignItems:'center'}}>
+                <View style={{flex:1, gap:5, flexDirection:'row'}}>
+                    {!Object.values(ranks).includes(0) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>1</DefaultText>
+                        </View>
+                    }
+                    {!Object.values(ranks).includes(1) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>2</DefaultText>
+                        </View>
+                    }
+                    {!Object.values(ranks).includes(2) &&
+                        <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
+                            <DefaultText>3</DefaultText>
+                        </View>
+                    }
+                </View>
+                <View style={{flex:1, flexDirection:'row-reverse'}}>
+                    <TouchableOpacity
+                    style={styles.button}
+                    onPress={()=>{submitRanksPressed();}}
+                    >
+                        <DefaultText>Submit Ranking</DefaultText>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={{flex:1}}>
-                <FlatList 
-                    numColumns={3}
-                    renderItem={({ item }) => <RankablePic photo={item}/>}
-                    keyExtractor={(picture) => picture.url}
-                    data={[...pictures].sort((a,b)=> b.points-a.points)}
-                />
-            </View>
+
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
+                <View style={{flex:1, padding:5}}>
+                    <FlatList 
+                        numColumns={2}
+                        renderItem={({ item }) => <RankablePic photo={item}/>}
+                        keyExtractor={(picture) => picture.url}
+                        data={[...pictures].sort((a,b)=> b.points-a.points)}
+                    />
+                </View>
+            </ImageBackground>
         </SafeAreaView>
     );
 }

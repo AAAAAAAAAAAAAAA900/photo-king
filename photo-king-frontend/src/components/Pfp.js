@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import {useActionSheet} from "@expo/react-native-action-sheet";
+import imageApi from "../api/imageApi";
 import { lookup } from 'react-native-mime-types';
 import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
@@ -11,7 +12,7 @@ import { StackActions } from '@react-navigation/native';
 
 export default function Pfp ({navigation, user, setUser, url}){
 
-    const [style, setStyle] = useState({height: 50, width:50, borderWidth:2, borderRadius:25});
+    const [style, setStyle] = useState({height: 50, width:50, borderRadius:25, backgroundColor:'white', borderColor:'white'});
     
     const press = () => {
         if(user){
@@ -23,7 +24,7 @@ export default function Pfp ({navigation, user, setUser, url}){
 
     useEffect(()=>{
         if(user){
-            setStyle({height: 200, width:200, borderWidth:5, borderRadius:100});
+            setStyle({height: 200, width:200, borderWidth:5, borderRadius:100,backgroundColor:'white', borderColor:'black'});
         }
     },[]);
 
@@ -110,12 +111,7 @@ export default function Pfp ({navigation, user, setUser, url}){
         formData.append('userId', user.id);
 
         try {
-            const response = await axios.post(`${API_URL}/api/user-image/upload-profile`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
+            const response = await imageApi.uploadProfile(formData);
             setUser({...user, profileUrl:response.data});
             console.log('Upload Success');
             console.log(response.data);
@@ -125,38 +121,38 @@ export default function Pfp ({navigation, user, setUser, url}){
     };
 
     return(
-        <View style={{marginRight: 10}}>
+        <View>
             {/* If passed user or navigation make it clickable, else just a view */}
             {/* If passed a non empty url use it, else use default pfp icon */}
             { user || navigation ? ( url ?
                 <TouchableOpacity
-                onPressOut={press}
+                onPress={press}
                 >
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={style}
                     source={{uri: url}} 
                     />
                 </TouchableOpacity>
             : 
                 <TouchableOpacity
-                onPressOut={press}
+                onPress={press}
                 >
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={style}
                     source={require('../../assets/icons/pfp.png')} 
                     />
                 </TouchableOpacity>
             ) : ( url ?
                 <View>
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={style}
                     source={{uri: url}} 
                     />
                 </View>
             : 
                 <View>
                     <Image  
-                    style={[style, {borderColor: colors.secondary}]}
+                    style={style}
                     source={require('../../assets/icons/pfp.png')} 
                     />
                 </View>

@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import Input from '../components/Input.js';
@@ -13,6 +13,7 @@ export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
   const [password, setPassword] = useState(""); // State for password
+  const [errorText, setErrorText] = useState("");
 
   // Login attempt
   const Login = async () => {
@@ -25,6 +26,7 @@ export default function LoginScreen ({navigation}){
 
       navigation.navigate("Home", {user: user_info.data});
     } catch (error) {
+      setErrorText("Username or password does not exist.");
       console.log(error);
     }
   }
@@ -40,8 +42,11 @@ export default function LoginScreen ({navigation}){
       >
         <View padding={20} borderWidth={5} style={[styles.inputContainer, {alignSelf:'center'}]} >
           <Input userUpdate={setUsername} passUpdate={setPassword}/>
+          { errorText &&
+            <Text style={[{color:'red'},styles.baseText]}>{errorText}</Text>
+          }
           <TouchableOpacity style={styles.button} onPress={Login}>
-            <DefaultText>Log in</DefaultText>
+            <DefaultText>Sign In</DefaultText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
             <Text style={styles.urlText}>create an account</Text>
