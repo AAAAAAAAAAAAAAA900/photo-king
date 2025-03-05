@@ -116,12 +116,21 @@ public class UserImageService {
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER
     public List<UserImage> getImagesByUser(int userId) { return userImageRepository.findByUser(userId); }
 
+    // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
+    public UserImage getTopImage(int groupId) {
+        Optional<UserImage> userImage = userImageRepository.findByMostPointsInGroup(groupId);
+        if (userImage.isEmpty()) {
+            throw new RuntimeException("Image not found");
+        }
+        return userImage.get();
+    }
+
     // UPDATES AN IMAGE'S POINTS
     public void updatePoints(int id, int points) {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
         if (userImage.isEmpty()) {
-            return;
+            throw new RuntimeException("Image not found");
         }
 
         int currentPoints = userImage.get().getPoints();

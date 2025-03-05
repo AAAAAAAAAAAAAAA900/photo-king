@@ -2,9 +2,11 @@ package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
+import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
+import com.condoncorp.photo_king_backend.repository.PhotoGroupUserRankingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +19,13 @@ public class PhotoGroupService {
     @Autowired
     private PhotoGroupRepository photoGroupRepository;
     @Autowired
+    private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
+    @Autowired
     private UserImageService userImageService;
 
 
     public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
         PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO.getName(), photoGroupDTO.getOwnerId());
-        photoGroup.getUserRanked().put(photoGroupDTO.getOwnerId(), false);
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }
@@ -63,11 +66,53 @@ public class PhotoGroupService {
         photoGroupRepository.deleteById(groupId);
     }
 
-    public void updateUserRank(int groupId, int userId) {
-        PhotoGroup photoGroup = getGroupById(groupId);
-        photoGroup.getUserRanked().put(userId, true);
-        photoGroupRepository.save(photoGroup);
+
+    // ALL IMAGE RANKING FUNCTIONS
+    public void setUserRank(int userId, int groupId) {
+        PhotoGroupUserRanking photoGroupUserRanking = new PhotoGroupUserRanking(groupId, userId);
+        photoGroupUserRankingRepository.save(photoGroupUserRanking);
     }
+
+    public void updateFirstRank(int userId, int groupId, int firstRankId) {
+        Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+        if (photoGroupUserRanking.isEmpty()) {
+            throw new RuntimeException("PhotoGroupUserRanking not found");
+        }
+        if (photoGroupUserRanking.get().getFirstRankId() != 0) {
+            userImageService.updatePoints(photoGroupUserRanking.get().getFirstRankId(), -3);
+        }
+        photoGroupUserRanking.get().setFirstRankId(firstRankId);
+        userImageService.updatePoints(firstRankId, 3);
+        photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
+    }
+
+    public void updateSecondRank(int userId, int groupId, int secondRankId) {
+        Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+        if (photoGroupUserRanking.isEmpty()) {
+            throw new RuntimeException("PhotoGroupUserRanking not found");
+        }
+        if (photoGroupUserRanking.get().getSecondRankId() != 0) {
+            userImageService.updatePoints(photoGroupUserRanking.get().getSecondRankId(), -2);
+        }
+        photoGroupUserRanking.get().setSecondRankId(secondRankId);
+        userImageService.updatePoints(secondRankId, 2);
+        photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
+    }
+
+    public void updateThirdRank(int userId, int groupId, int thirdRankId) {
+        Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+        if (photoGroupUserRanking.isEmpty()) {
+            throw new RuntimeException("PhotoGroupUserRanking not found");
+        }
+        if (photoGroupUserRanking.get().getThirdRankId() != 0) {
+            userImageService.updatePoints(photoGroupUserRanking.get().getThirdRankId(), -1);
+        }
+        photoGroupUserRanking.get().setThirdRankId(thirdRankId);
+        userImageService.updatePoints(thirdRankId, 1);
+        photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
+    }
+
+
 
 
 

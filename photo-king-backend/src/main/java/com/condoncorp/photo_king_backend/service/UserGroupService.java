@@ -21,7 +21,9 @@ public class UserGroupService {
 
         user.getPhotoGroups().add(photoGroup);
         photoGroup.getUsers().add(user);
-        photoGroup.getUserRanked().put(user.getId(), false);
+
+        // UPDATE RANKINGS
+        photoGroupService.setUserRank(user.getId(), photoGroup.getId());
 
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
@@ -35,7 +37,6 @@ public class UserGroupService {
 
         user.getPhotoGroups().remove(photoGroup);
         photoGroup.getUsers().remove(user);
-        photoGroup.getUserRanked().remove(user.getId());
 
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
