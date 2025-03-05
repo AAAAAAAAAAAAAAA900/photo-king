@@ -84,6 +84,7 @@ export default function RankScreen({navigation}){
                 formData.append("images", image); 
             });
             console.log(formData);
+
             const updateRankResponse = await photoGroupApi.updateUserRank(formData);
             setSubmitted(true);
         } catch(error){
