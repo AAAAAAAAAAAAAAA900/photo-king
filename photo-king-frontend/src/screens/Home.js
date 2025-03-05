@@ -10,14 +10,19 @@ import NavBar from '../components/NavBar.js';
 import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
+import imageApi from '../api/imageApi.js';
 
 export default function HomeScreen ({navigation}){
 
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
-  const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
+  const [thumbnails, setThumbnails] = useState({});
+
+  useEffect(()=>{
+    getGroupThumbnails();
+  }, []);
 
   const addGroup = async () => {
       try {
@@ -35,6 +40,19 @@ export default function HomeScreen ({navigation}){
       } catch (error) {
           console.log(error);
       }
+  }
+
+  const getGroupThumbnails = async () => {
+    const images = {};
+    try{
+      user.groups.forEach(element => {
+        const response  = imageApi.getTopImage(element.id);
+        images[element.id] = response.data;
+      });
+      setThumbnails(images);
+    } catch(error){
+      console.log(error);
+    }
   }
 
   // Home screen view: scrollable list of groups
@@ -85,7 +103,7 @@ export default function HomeScreen ({navigation}){
 
 
         {/* Show loading indicator while fetching data */}
-        {loading ? (
+        {!thumbnails ? (
             <ActivityIndicator size="large" color="#0000ff" />
         ) : user ? (
           // Render flatlist if user has groups
@@ -96,7 +114,7 @@ export default function HomeScreen ({navigation}){
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                   data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
-                    <GroupPreview groupTitle={item.name} navFunction={() => {
+                    <GroupPreview thumbnail={thumbnails[item.id]} groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})
                     }}
                     />
