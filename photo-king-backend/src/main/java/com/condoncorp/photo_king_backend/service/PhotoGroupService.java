@@ -80,16 +80,20 @@ public class PhotoGroupService {
         if (photoGroupUserRanking.isEmpty()) {
             throw new RuntimeException("PhotoGroupUserRanking not found");
         }
+
         if (photoGroupUserRanking.get().getFirstRankId() != 0) {
             userImageService.updatePoints(photoGroupUserRanking.get().getFirstRankId(), -3);
         }
         photoGroupUserRanking.get().setFirstRankId(firstRankId);
         userImageService.updatePoints(firstRankId, 3);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
+
+
     }
 
     public void updateSecondRank(int userId, int groupId, int secondRankId) {
         Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+
         if (photoGroupUserRanking.isEmpty()) {
             throw new RuntimeException("PhotoGroupUserRanking not found");
         }
@@ -99,6 +103,7 @@ public class PhotoGroupService {
         photoGroupUserRanking.get().setSecondRankId(secondRankId);
         userImageService.updatePoints(secondRankId, 2);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
+
     }
 
     public void updateThirdRank(int userId, int groupId, int thirdRankId) {

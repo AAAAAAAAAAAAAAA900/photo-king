@@ -1,9 +1,11 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
+import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
+import com.condoncorp.photo_king_backend.repository.PhotoGroupUserRankingRepository;
 import com.condoncorp.photo_king_backend.repository.UserImageRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class UserImageService {
     private UserRepository userRepository;
     @Autowired
     private PhotoGroupRepository photoGroupRepository;
+    @Autowired
+    private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
 
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
@@ -81,6 +85,23 @@ public class UserImageService {
     public void deleteImage(int id) throws IOException {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
+        Optional<PhotoGroupUserRanking> firstRank =  photoGroupUserRankingRepository.findByFirstRank(id);
+
+        if (firstRank.isPresent()) {
+            firstRank.get().setFirstRankId(0);
+        }
+        else {
+            Optional<PhotoGroupUserRanking> secondRank =  photoGroupUserRankingRepository.findBySecondRank(id);
+            if (secondRank.isPresent()) {
+                secondRank.get().setSecondRankId(0);
+            }
+            else {
+                Optional<PhotoGroupUserRanking> thirdRank =  photoGroupUserRankingRepository.findByThirdRank(id);
+                if (thirdRank.isPresent()) {
+                    thirdRank.get().setThirdRankId(0);
+                }
+            }
+        }
 
         if (userImage.isEmpty()) {
             return;
@@ -120,6 +141,9 @@ public class UserImageService {
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImage getTopImage(int groupId) {
         List<UserImage> images = getImagesByGroup(groupId);
+        if (images.isEmpty()) {
+            return null;
+        }
         images.sort((o1, o2) -> o2.getPoints() - o1.getPoints());
         return images.get(0);
     }
