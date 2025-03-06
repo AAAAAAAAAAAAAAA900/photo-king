@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_URL = "https://mole-select-sadly.ngrok-free.app";
+const API_URL = "https://worthy-present-ladybug.ngrok-free.app";
 
 const apiClient = axios.create({
     baseURL: `${API_URL}/api`,
@@ -11,6 +11,10 @@ const apiClient = axios.create({
 });
 
 const apiFormClient = axios.create({
+    baseURL: `${API_URL}/api`,
+});
+
+const apiGroupClient = axios.create ({
     baseURL: `${API_URL}/api`,
 });
 
@@ -100,12 +104,10 @@ apiFormClient.interceptors.request.use(async (config) => {
     }
 
     config.headers['Content-Type'] = 'multipart/form-data';
-    console.log("API IMAGE INTERCEPTOR HEADERS:", config.headers);
     return config;
 }, (error) => {
     console.log("INTERCEPTOR ERROR:", error);
     return Promise.reject(error);
 })
-
 
 export { apiClient, apiFormClient };

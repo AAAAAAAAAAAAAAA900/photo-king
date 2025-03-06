@@ -76,7 +76,7 @@ export default function GroupScreen({navigation}){
         console.log(formData._parts);
 
         try {
-            const response2 = await imageApi.uploadImages(formData);
+            const response = await imageApi.uploadImages(formData);
             console.log('Upload Success');
         }
         catch (error) {
@@ -88,7 +88,8 @@ export default function GroupScreen({navigation}){
     // FlatList element's view
     const Pic = ({ photo }) => {
         // Gets pfp of poster
-        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;}).pfp;
+        console.log(group.users);
+        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         for(let i = 0; i < pictures.length && i < 3; ++i){
@@ -309,20 +310,12 @@ export default function GroupScreen({navigation}){
             {/* Group options bar */}
             <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
                 {/* Disables ranking button if user already ranked this week */}
-                { !group.userRanked[user.id] ?
-                    <TouchableOpacity
-                    style={styles.button}
-                    onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
-                    >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
-                    </TouchableOpacity>
-                :
-                    <View
-                    style={[styles.button, {backgroundColor:'grey'}]}                >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
-                    </View>
-                }
-
+                <TouchableOpacity
+                style={styles.button}
+                onPress={()=>{navigation.navigate("Rank", {user: user, group: group});}}
+                >
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
                 </TouchableOpacity>
