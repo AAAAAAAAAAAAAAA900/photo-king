@@ -1,4 +1,4 @@
-import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
+import { BackgroundImage } from '@rneui/themed/dist/config/index.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -73,35 +74,40 @@ export default function HomeScreen ({navigation}){
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
           <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-            <TouchableOpacity activeOpacity={1} style={styles.popupView}>
-              <TextInput 
-                style={[styles.textIn, {width: '80%'}]}
-                onChangeText={(text) => {setGroupTitle(text)}}
-                autoCapitalize ='none'
-                maxLength={20}
-                autoCorrect ={false}
-                placeholder="Enter Group Name..."
-              />
-              <View style={{flexDirection:'row'}}>
-                <TouchableOpacity style={styles.button}
-                  onPress={() => {
-                    addGroup();
-                    setGroupTitle('');
-                    setGroupModalVisible(false);
-                  }}
-                >
-                  <DefaultText>Submit</DefaultText>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}
-                  onPress={() => {
-                    setGroupTitle(''); 
-                    setGroupModalVisible(false);
-                  }}
-                >
-                  <DefaultText>Cancel</DefaultText>
-                </TouchableOpacity>
-              </View>
+            <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
+            <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10,gap:40}]}>
+                <DefaultText style={styles.titleText}>Create Group</DefaultText>
+                <TextInput 
+                  style={[styles.textIn, {width: '80%'}]}
+                  onChangeText={(text) => {setGroupTitle(text)}}
+                  autoCapitalize ='none'
+                  maxLength={20}
+                  autoCorrect ={false}
+                  placeholder="Enter Group Name..."
+                />
+                <View style={{flexDirection:'row', gap:10}}>
+                <TouchableOpacity style={[styles.button, {width:'40%', backgroundColor:colors.greyWhite}]}
+                    onPress={() => {
+                      setGroupTitle(''); 
+                      setGroupModalVisible(false);
+                    }}
+                  >
+                    <DefaultText>Cancel</DefaultText>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.button, {width:'40%'}]}
+                    onPress={() => {
+                      addGroup();
+                      setGroupTitle('');
+                      setGroupModalVisible(false);
+                    }}
+                  >
+                    <DefaultText>Submit</DefaultText>
+                  </TouchableOpacity>
+                </View>
             </TouchableOpacity>
+            <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+            <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
           </TouchableOpacity>
         </Modal>
 
@@ -152,7 +158,7 @@ export default function HomeScreen ({navigation}){
                 margin: 5  
               }} 
               onPress={() => setGroupModalVisible(true)}>
-            <Image style={{height:'90%', width:'90%', resizeMode:'contain' }} source={require('../../assets/icons/plus.png')}/>
+            <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')}/>
         </TouchableOpacity> 
         <NavBar navigation={navigation} user={user} screen='Home'/>
       </SafeAreaView>

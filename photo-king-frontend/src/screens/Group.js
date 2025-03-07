@@ -273,6 +273,14 @@ export default function GroupScreen({navigation}){
                 style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} onPress={()=>setUserModalVisible(false)} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                    <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
+                    <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+                    <TouchableOpacity
+                    onPress={()=>{setUserModalVisible(false);}}
+                    style={{position:'absolute', top:'15%', right:'10%', height:60, width:60}}
+                    >
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
+                    </TouchableOpacity>
                     <TouchableOpacity activeOpacity={1} style={styles.popupView}>
                         <View style={{width:'100%', height:'100%'}}>
                             <FriendSearch 
@@ -288,11 +296,10 @@ export default function GroupScreen({navigation}){
                                 );
                                 setUserModalVisible(false);
                             }}/>
-                            <TouchableOpacity style={styles.button} onPress={()=>setUserModalVisible(false)}>
-                                <DefaultText>Close</DefaultText>
-                            </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
+                    <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+                    <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
                 </TouchableOpacity>
             </Modal>
 
@@ -339,7 +346,7 @@ export default function GroupScreen({navigation}){
                 style={{justifyContent:'center'}}
                 >
                     <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                        <TouchableOpacity activeOpacity={1} style={{backgroundColor:colors.primary, borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                        <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
                             { group.ownerId == user.id ?
                                 <View style={{gap:5}}>
                                     <TouchableOpacity
