@@ -1,16 +1,12 @@
-import { SafeAreaView, FlatList, StyleSheet, View, Image, TouchableOpacity, Modal, Linking, Alert, Text, TouchableWithoutFeedback, ImageBackground } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
-import {useEffect, useState} from "react";
-import GroupPreview from '../components/GroupPreview.js';
+import {useEffect, useState, useCallback} from "react";
 import * as ImagePicker from 'expo-image-picker';
-import { Controller } from 'react-hook-form';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import FriendSearch, { FriendPreview } from '../components/FriendSearch.js';
-import axios from "axios";
-import {API_URL} from "../api/utils";
+import FriendSearch from '../components/FriendSearch.js';
 import { lookup } from 'react-native-mime-types';
 import Pfp from '../components/Pfp.js';
 import Members from '../components/Members.js';
@@ -18,7 +14,6 @@ import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
-import TitleButtons from '../components/TitleButtons.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -31,6 +26,8 @@ export default function GroupScreen({navigation}){
     const [friendModalVisible, setFriendModalVisible] = useState(false); 
     const [friendClicked, setFriendClicked] = useState(null);   
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
+    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -60,6 +57,7 @@ export default function GroupScreen({navigation}){
     }
 
     const uploadPhotos = async (images) => {
+        setLoading(true);
         const formData = new FormData();
 
         images.assets.forEach((image) => {
@@ -79,30 +77,32 @@ export default function GroupScreen({navigation}){
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
-        loadPictures(setPictures, group);
+        loadPictures(setPictures, group, setLoading);
     }
 
     // FlatList element's view
-    const Pic = ({ photo }) => {
+    const Pic = useCallback(({ photo }) => {
         // Gets pfp of poster
         const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
-        for(let i = 0; i < pictures.length && i < 3; ++i){
-            if(pictures[i].id == photo.id){
-                winningBorder['borderWidth'] = 4;
-                switch (i) {
-                    case 0:
-                        winningBorder['borderColor'] = '#FFD700'
-                        break;
-                    case 1:
-                        winningBorder['borderColor'] = '#C0C0C0'
-                        break;
-                    case 2:
-                        winningBorder['borderColor'] = '#CD7F32'
-                        break;
-                    default:
-                        break;
+        if (photo.points != 0){
+            for(let i = 0; i < pictures.length && i < 3; ++i){
+                if(pictures[i].id == photo.id){
+                    winningBorder['borderWidth'] = 4;
+                    switch (i) {
+                        case 0:
+                            winningBorder['borderColor'] = '#FFD700'
+                            break;
+                        case 1:
+                            winningBorder['borderColor'] = '#C0C0C0'
+                            break;
+                        case 2:
+                            winningBorder['borderColor'] = '#CD7F32'
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -113,7 +113,6 @@ export default function GroupScreen({navigation}){
                 <Image
                     style={[styles.pic, winningBorder]}
                     source={{uri: photo.url}}
-                    // defaultSource= default image to display while loading images.
                 />
                 <View style={{width:30, height:30, borderRadius:15, position:'absolute', top:10, left:10, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                     <DefaultText>{photo.points}</DefaultText>
@@ -123,7 +122,7 @@ export default function GroupScreen({navigation}){
                 </View>
             </TouchableOpacity>
         );
-    };
+    }, []);
     
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -188,7 +187,7 @@ export default function GroupScreen({navigation}){
         try {
             const response = await photoGroupApi.addUserToGroup(id, group.id);
             // remove current group then add back updated version
-            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            const groupsCopy = user.groups.filter((g) => g.id != group.id);
             groupsCopy.push(response.data);
             setUser({...user, groups: groupsCopy});   
         }
@@ -201,9 +200,9 @@ export default function GroupScreen({navigation}){
         try {
             const response = await photoGroupApi.removeUserFromGroup(id, group.id);
             // remove current group then add back updated version
-            const groupsCopy = user.groups.filter((g) => {g.id != group.id});
+            const groupsCopy = user.groups.filter((g) => g.id != group.id);
             groupsCopy.push(response.data);
-            setUser({...user, groups: groupsCopy});   
+            setUser({...user, groups: groupsCopy});
         }
         catch (error) {
             console.log(error);
@@ -239,7 +238,7 @@ export default function GroupScreen({navigation}){
 
     // useEffect to get group pictures on load
     useEffect(() => {
-        loadPictures(setPictures, group).then(r => {});
+        loadPictures(setPictures, group, setLoading).then(r => {});
     }, []);
 
     return(
@@ -303,6 +302,58 @@ export default function GroupScreen({navigation}){
                 </TouchableOpacity>
             </Modal>
 
+            {/* Options modal */}
+            {/* owner: delete group & change title | member: leave group */}
+            <Modal
+            animationType="fade"
+            transparent={true}
+            visible={optionsModalVisible}
+            onRequestClose={() => {setOptionsModalVisible(false);}}
+            style={{justifyContent:'center'}}
+            >
+                <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                        { group.ownerId == user.id ?
+                            <View style={{gap:5}}>
+                                <TouchableOpacity
+                                style={styles.button}
+                                onPress={()=>{Alert.alert(
+                                    `Delete ${group.name}?`,
+                                    "This will delete all photos stored here",
+                                    [
+                                        { text: "Cancel", style: "cancel"},
+                                        { text: "Confirm", onPress: () => {deleteGroup()} }
+                                    ]
+                                );}}
+                                >
+                                    <DefaultText>Delete Group</DefaultText>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                style={styles.button}
+                                onPress={()=>{}}
+                                >
+                                    <DefaultText>Rename Group</DefaultText>
+                                </TouchableOpacity>
+                            </View>
+                        :
+                            <TouchableOpacity
+                            style={styles.button}
+                            onPress={()=>{Alert.alert(
+                                `Leave ${group.name}?`,
+                                "You will have to be invited back to rejoin.",
+                                [
+                                    { text: "Cancel", style: "cancel"},
+                                    { text: "Confirm", onPress: () => {removeUserFromGroup(user.id); setIsGroupDeleted(true);} }
+                                ]
+                            );}}
+                            >
+                                <DefaultText>Leave Group</DefaultText>
+                            </TouchableOpacity>
+                        }
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
             {/* Group members side bar popup */}
             <Members users={[...group.users].filter((u) => u.id != user.id)}
             membersPopUpVisible={membersPopUpVisible} 
@@ -335,58 +386,6 @@ export default function GroupScreen({navigation}){
                 <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
                 </TouchableOpacity>
-
-                {/* Options modal */}
-                {/* owner: delete group & change title | member: leave group */}
-                <Modal
-                animationType="fade"
-                transparent={true}
-                visible={optionsModalVisible}
-                onRequestClose={() => {setOptionsModalVisible(false);}}
-                style={{justifyContent:'center'}}
-                >
-                    <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                        <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
-                            { group.ownerId == user.id ?
-                                <View style={{gap:5}}>
-                                    <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={()=>{Alert.alert(
-                                        `Delete ${group.name}?`,
-                                        "This will delete all photos stored here",
-                                        [
-                                            { text: "Cancel", style: "cancel"},
-                                            { text: "Confirm", onPress: () => {deleteGroup()} }
-                                        ]
-                                    );}}
-                                    >
-                                        <DefaultText>Delete Group</DefaultText>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={()=>{}}
-                                    >
-                                        <DefaultText>Rename Group</DefaultText>
-                                    </TouchableOpacity>
-                                </View>
-                            :
-                                <TouchableOpacity
-                                style={styles.button}
-                                onPress={()=>{Alert.alert(
-                                    `Leave ${group.name}?`,
-                                    "You will have to be invited back to rejoin.",
-                                    [
-                                        { text: "Cancel", style: "cancel"},
-                                        { text: "Confirm", onPress: () => {removeUserFromGroup(user.id); setIsGroupDeleted(true);} }
-                                    ]
-                                );}}
-                                >
-                                    <DefaultText>Leave Group</DefaultText>
-                                </TouchableOpacity>
-                            }
-                        </TouchableOpacity>
-                    </TouchableOpacity>
-                </Modal>
             </View>
 
             {/* group member preview */}
@@ -401,20 +400,28 @@ export default function GroupScreen({navigation}){
             {/* Photo list */}
             <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
                 <View style={{flex:1, padding:5}}>
-                    { pictures.length ?
-                        <FlatList 
-                            numColumns={2}
-                            renderItem={({ item }) => <Pic photo={item} />}
-                            keyExtractor={(picture) => picture.url}
-                            data={pictures}
-                        />
-                    :
-                        <View style={{alignItems:'center', justifyContent:'center', flex:1, padding:20}}>
-                            <DefaultText>Upload some pictures to get started!</DefaultText>
+                    { loading ? 
+                        <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+                            <ActivityIndicator size="large" color="#0000ff" />
                         </View>
+                    :
+                        pictures.length ?
+                            <FlatList 
+                                numColumns={2}
+                                renderItem={({ item }) => <Pic photo={item} />}
+                                keyExtractor={(item) => item.id}
+                                data={pictures}
+                            />
+                        :
+                            <View style={{alignItems:'center', justifyContent:'center', flex:1, padding:20}}>
+                                <DefaultText>Upload some pictures to get started!</DefaultText>
+                            </View>
+                        
                     }
                 </View>
             </ImageBackground>
+            
+            {/* Add images/users buttons */}
             <View style={{flexDirection:'row', height:'8%',alignContent:'space-between',paddingHorizontal:0, backgroundColor:colors.secondary}}>
                 <TouchableOpacity style={{flex:1}}
                     onPress={() => {onPressPhoto()}}>
@@ -430,11 +437,11 @@ export default function GroupScreen({navigation}){
     );
 }
 
-export const loadPictures = async (setPictures, group) => {
-
+export const loadPictures = async (setPictures, group, setLoading) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
         setPictures(response.data.sort((a,b)=> b.points-a.points));
+        if(setLoading) setLoading(false);
     } catch (error) {
         console.log(error);
     }

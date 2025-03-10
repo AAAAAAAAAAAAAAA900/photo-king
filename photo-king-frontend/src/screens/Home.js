@@ -2,16 +2,13 @@ import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableO
 import GroupPreview from '../components/GroupPreview.js';
 import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
-import axios from "axios";
 import {useEffect, useState} from "react";
-import {API_URL} from "../api/utils";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
 import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
-import { BackgroundImage } from '@rneui/themed/dist/config/index.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -19,7 +16,8 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(route.params?.user);
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-  const [thumbnails, setThumbnails] = useState({});
+  const [thumbnails, setThumbnails] = useState({}); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(()=>{
     getGroupThumbnails();
@@ -55,6 +53,7 @@ export default function HomeScreen ({navigation}){
       // get data from responses
       Object.keys(images).forEach((key) => images[key]=images[key].data);
       setThumbnails(images);
+      setLoading(false);
     } catch(error){
       console.log(error);
     }
@@ -113,8 +112,10 @@ export default function HomeScreen ({navigation}){
 
 
         {/* Show loading indicator while fetching data */}
-        {!thumbnails ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+        {loading ? (
+            <View style={styles.containerCenterAll}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
         ) : user ? (
           // Render flatlist if user has groups
           user.groups && user.groups.length ? (

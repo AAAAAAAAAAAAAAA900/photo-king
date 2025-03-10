@@ -4,7 +4,7 @@ import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { CommonActions } from "@react-navigation/native";
 import { loadPictures } from "./Group.js";
-import { useEffect, useState } from "react";
+import {useEffect, useState, useCallback} from "react";
 import axios from "axios";
 import {API_URL} from "../api/utils";
 import imageApi from "../api/imageApi";
@@ -45,8 +45,7 @@ export default function RankScreen({navigation}){
     };
 
     // FlatList element's view
-    const RankablePic = ({ photo }) => {
-        const imageRank = ranks.findIndex((element) => element==photo.id);
+    const RankablePic = useCallback(({ photo, imageRank }) => {
         return (
             <TouchableOpacity 
             onPress={()=>{rankPhoto(photo, imageRank);}}
@@ -63,7 +62,7 @@ export default function RankScreen({navigation}){
                 }
             </TouchableOpacity>
         );
-    };
+    }, [ranks]);
 
     useEffect(()=>{
         if(isSubmitted){
@@ -157,7 +156,7 @@ export default function RankScreen({navigation}){
                 <View style={{flex:1, padding:5}}>
                     <FlatList 
                         numColumns={2}
-                        renderItem={({ item }) => <RankablePic photo={item}/>}
+                        renderItem={({ item }) => <RankablePic photo={item} imageRank={ranks.findIndex((element) => element==item.id)}/>}
                         keyExtractor={(picture) => picture.url}
                         data={[...pictures].sort((a,b)=> b.points-a.points)}
                     />

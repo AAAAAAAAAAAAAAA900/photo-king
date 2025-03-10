@@ -32,7 +32,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                     `Remove ${friendClicked.username} as friend?`,
                                     "You will be removed from their friends list aswell.",
                                     [
-                                        { text: "Confirm", onPress: ()=>removeFriend(friendClicked.id)},
+                                        { text: "Confirm", onPress: ()=> {removeFriend(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false);}},
                                         { text: "Cancel", style: "cancel"}
                                     ]
                                 );}}
@@ -47,7 +47,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                     `Remove ${friendClicked.username} from group?`,
                                     "This group will no longer appear on their home screen.",
                                     [
-                                        { text: "Confirm", onPress: ()=>removeFriendFromGroup(friendClicked.id)},
+                                        { text: "Confirm", onPress: ()=> {removeFriendFromGroup(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false);}},
                                         { text: "Cancel", style: "cancel"}
                                     ]
                                 );}}

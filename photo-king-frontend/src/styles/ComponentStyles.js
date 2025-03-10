@@ -95,7 +95,8 @@ export default styles = StyleSheet.create({
         height:'100%', 
         width:'100%', 
         resizeMode:'cover',
-        borderRadius:20
+        borderRadius:20,
+        backgroundColor:'white'
     },
     iconStyle : {height:'90%', 
         width:'90%', 
