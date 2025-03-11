@@ -13,8 +13,16 @@ const photoGroupApi = {
         return apiClient.delete(`/photo-group/delete/${groupId}`);
     },
 
-    updateUserRank: async (group, user) => {
-        return apiClient.put(`/photo-group/update-user-rank/${group.id}/${user.id}`);
+    removeUserFromGroup: async (userId, groupId) => {
+        return apiClient.post(`/user-groups/remove-user/${userId}/${groupId}`)
+    },
+
+    updateUserRank: async (data) => {
+        return apiClient.post("/photo-group/update-user-rank", data);
+    },
+
+    getGroupsByUserId: async (userId) => {
+        return apiClient.get(`/user-groups/get-groups/${userId}`);
     }
 }
 

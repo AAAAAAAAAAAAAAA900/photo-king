@@ -1,7 +1,5 @@
 package com.condoncorp.photo_king_backend.controller;
 
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
@@ -90,6 +88,12 @@ public class UserImageController {
     @PutMapping(path = "/update-points/{id}/{points}")
     public void updatePoints(@PathVariable int id, @PathVariable int points) {
         userImageService.updatePoints(id, points);
+    }
+
+    // RETURNS IMAGES WITH HIGHEST POINTS
+    @GetMapping(path = "/get-top-image/{groupId}")
+    public UserImage getTopImage(@PathVariable int groupId) {
+        return userImageService.getTopImage(groupId);
     }
 
 

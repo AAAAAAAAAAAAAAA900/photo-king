@@ -9,7 +9,7 @@ export default function NavBar({navigation, user, screen}){
         width:'90%', 
         resizeMode:'contain' 
     };
-    const iconViewStyle = {height:50, 
+    const iconViewStyle = {height:'90%', 
         width:'30%', 
         backgroundColor: 'white', 
         alignItems:'center', 

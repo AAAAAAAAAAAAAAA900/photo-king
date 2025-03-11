@@ -10,9 +10,12 @@ const apiClient = axios.create({
     }
 });
 
-const apiImageClient = axios.create({
-    baseURL: `${API_URL}/api/user-image`,
+const apiFormClient = axios.create({
+    baseURL: `${API_URL}/api`,
+});
 
+const apiGroupClient = axios.create ({
+    baseURL: `${API_URL}/api`,
 });
 
 // GET TOKENS
@@ -84,7 +87,7 @@ apiClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-apiImageClient.interceptors.request.use(async (config) => {
+apiFormClient.interceptors.request.use(async (config) => {
 
     if (!config.url.startsWith("/auth/")) {
         let accessToken = await getAccessToken();
@@ -101,12 +104,10 @@ apiImageClient.interceptors.request.use(async (config) => {
     }
 
     config.headers['Content-Type'] = 'multipart/form-data';
-    console.log("API IMAGE INTERCEPTOR HEADERS:", config.headers);
     return config;
 }, (error) => {
     console.log("INTERCEPTOR ERROR:", error);
     return Promise.reject(error);
 })
 
-
-export { apiClient, apiImageClient };
+export { apiClient, apiFormClient };

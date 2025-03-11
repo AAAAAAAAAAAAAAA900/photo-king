@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,12 +117,20 @@ public class UserImageService {
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER
     public List<UserImage> getImagesByUser(int userId) { return userImageRepository.findByUser(userId); }
 
+    // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
+    public UserImage getTopImage(int groupId) {
+        List<UserImage> images = getImagesByGroup(groupId);
+        if(images.isEmpty()) return null;
+        images.sort((o1, o2) -> o2.getPoints() - o1.getPoints());
+        return images.get(0);
+    }
+
     // UPDATES AN IMAGE'S POINTS
     public void updatePoints(int id, int points) {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
         if (userImage.isEmpty()) {
-            return;
+            throw new RuntimeException("Image not found");
         }
 
         int currentPoints = userImage.get().getPoints();

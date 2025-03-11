@@ -2,9 +2,6 @@ package com.condoncorp.photo_king_backend.dto;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +9,6 @@ public class PhotoGroupDTO {
     private int id;
     private String name;
     private int ownerId;
-    private Map<Integer, Boolean> userRanked;
     private Set<FriendDTO> users;
 
     // SENDING DATA TO FRONTEND
@@ -20,7 +16,6 @@ public class PhotoGroupDTO {
         this.id = photoGroup.getId();
         this.name = photoGroup.getName();
         this.ownerId = photoGroup.getOwnerId();
-        this.userRanked = photoGroup.getUserRanked();
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
@@ -54,14 +49,6 @@ public class PhotoGroupDTO {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
-    }
-
-    public Map<Integer, Boolean> getUserRanked() {
-        return userRanked;
-    }
-
-    public void setUserRanked(Map<Integer, Boolean> userRanked) {
-        this.userRanked = userRanked;
     }
 
     public Set<FriendDTO> getUsers() {

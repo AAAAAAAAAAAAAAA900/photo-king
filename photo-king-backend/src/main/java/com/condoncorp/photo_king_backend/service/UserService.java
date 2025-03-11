@@ -115,7 +115,11 @@ public class UserService {
     }
 
 
-    public Set<FriendDTO> addFriend(Integer userId, Integer friendId) {
+    // ADDS FRIEND TO USER'S FRIENDS LIST
+    public Set<FriendDTO> addFriend(int userId, int friendId) {
+        if (userId == friendId) {
+            throw new RuntimeException("You can't add yourself as a friend");
+        }
         User user = getUserById(userId);
         User friend = getUserById(friendId);
         user.addFriend(friend);
@@ -125,7 +129,8 @@ public class UserService {
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
-    public Set<FriendDTO> removeFriend(Integer userId, Integer friendId) {
+    // REMOVES FRIEND FROM USER'S FRIENDS LIST
+    public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
         user.removeFriend(friend);
@@ -135,6 +140,7 @@ public class UserService {
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
+    // REFRESH TOKEN
     public String generateToken(String refreshToken) {
 
         if (refreshToken == null) {
@@ -149,10 +155,12 @@ public class UserService {
         return jwtService.generateToken(userDetailsService.loadUserByUsername(username));
     }
 
+    // CHECK IF TOKEN IS EXPIRED
     public boolean isTokenNonExpired(String token) {
         return jwtService.isTokenNonExpired(token);
     }
 
+    // RETURNS USER INFO BY TOKEN
     public UserDTO getUserInfo(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid token");

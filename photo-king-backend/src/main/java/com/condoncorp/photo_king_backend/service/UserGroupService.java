@@ -7,6 +7,8 @@ import com.condoncorp.photo_king_backend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserGroupService {
 
@@ -21,7 +23,9 @@ public class UserGroupService {
 
         user.getPhotoGroups().add(photoGroup);
         photoGroup.getUsers().add(user);
-        photoGroup.getUserRanked().put(user.getId(), false);
+
+        // UPDATE RANKINGS
+        photoGroupService.setUserRank(user.getId(), photoGroup.getId());
 
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
@@ -35,12 +39,16 @@ public class UserGroupService {
 
         user.getPhotoGroups().remove(photoGroup);
         photoGroup.getUsers().remove(user);
-        photoGroup.getUserRanked().remove(user.getId());
 
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
 
         return new PhotoGroupDTO(photoGroup);
+    }
+
+    public List<PhotoGroupDTO> getGroupsByUserId(int userId) {
+        User user = userService.getUserById(userId);
+        return user.getPhotoGroups().stream().map(PhotoGroupDTO::new).toList();
     }
 
 }
