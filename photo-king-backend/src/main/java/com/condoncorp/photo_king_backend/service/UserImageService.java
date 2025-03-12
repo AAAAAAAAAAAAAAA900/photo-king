@@ -1,11 +1,9 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.User;
-import com.condoncorp.photo_king_backend.model.UserImage;
-import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
-import com.condoncorp.photo_king_backend.repository.UserImageRepository;
-import com.condoncorp.photo_king_backend.repository.UserRepository;
+import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
+import com.condoncorp.photo_king_backend.dto.UserImageDTO;
+import com.condoncorp.photo_king_backend.model.*;
+import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,11 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserImageService {
@@ -30,12 +24,17 @@ public class UserImageService {
     private UserRepository userRepository;
     @Autowired
     private PhotoGroupRepository photoGroupRepository;
+    @Autowired
+    private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
+    @Autowired
+    private UserImageCommentRepository userImageCommentRepository;
 
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
-
-        if (!userRepository.existsById(userId) || !photoGroupRepository.existsById(groupId)) {
+        Optional<User> user = userRepository.findById(userId);
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (user.isEmpty() || photoGroup.isEmpty()) {
             return null;
         }
 
@@ -46,11 +45,11 @@ public class UserImageService {
 
         Map result = cloudinaryService.upload(file);
         UserImage userImage = new UserImage();
-        userImage.setImage_name((String) result.get("original_filename"));
+        userImage.setImageName((String) result.get("original_filename"));
         userImage.setUrl((String) result.get("url"));
         userImage.setPublicId((String) result.get("public_id"));
-        userImage.setUserId(userId);
-        userImage.setGroupId(groupId);
+        userImage.setUser(user.get());
+        userImage.setPhotoGroup(photoGroup.get());
         userImageRepository.save(userImage);
 
         return userImage.getUrl();
@@ -81,15 +80,39 @@ public class UserImageService {
     public void deleteImage(int id) throws IOException {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
+        Optional<PhotoGroupUserRanking> firstRank =  photoGroupUserRankingRepository.findByFirstRank(id);
+
+        if (firstRank.isPresent()) {
+            firstRank.get().setFirstRankId(0);
+            photoGroupUserRankingRepository.save(firstRank.get());
+        }
+        else {
+            Optional<PhotoGroupUserRanking> secondRank =  photoGroupUserRankingRepository.findBySecondRank(id);
+            if (secondRank.isPresent()) {
+                secondRank.get().setSecondRankId(0);
+                photoGroupUserRankingRepository.save(secondRank.get());
+            }
+            else {
+                Optional<PhotoGroupUserRanking> thirdRank =  photoGroupUserRankingRepository.findByThirdRank(id);
+                if (thirdRank.isPresent()) {
+                    thirdRank.get().setThirdRankId(0);
+                    photoGroupUserRankingRepository.save(thirdRank.get());
+                }
+            }
+        }
 
         if (userImage.isEmpty()) {
             return;
         }
 
-        cloudinaryService.delete(userImage.get().getPublicId());
-        userImageRepository.deleteById(id);
-    }
 
+        try {
+            cloudinaryService.delete(userImage.get().getPublicId());
+            userImageRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new IOException("Failed to delete image: " + userImage.get().getPublicId());
+        }
+    }
     // DELETES USER'S PROFILE PICTURE
     public void deleteProfileImage(int id) throws IOException {
 
@@ -110,23 +133,55 @@ public class UserImageService {
     }
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
-    public List<UserImage> getImagesByGroup(int groupId) {
-        return userImageRepository.findByUserPhotoGroup(groupId);
+    public List<UserImageDTO> getImagesByGroup(int groupId) {
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (photoGroup.isEmpty()) {
+            return null;
+        }
+
+        if (photoGroup.get().getUserImages().isEmpty()) {
+            return null;
+        }
+
+        return photoGroup.get().getUserImages().stream().map(UserImageDTO::new).toList();
+
     }
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER
-    public List<UserImage> getImagesByUser(int userId) { return userImageRepository.findByUser(userId); }
+    public List<UserImageDTO> getImagesByUser(int userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            return null;
+        }
+
+        if (user.get().getUserImages().isEmpty()) {
+            return null;
+        }
+
+        return user.get().getUserImages().stream().map(UserImageDTO::new).toList();
+    }
 
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
-    public UserImage getTopImage(int groupId) {
-        List<UserImage> images = getImagesByGroup(groupId);
-        if(images.isEmpty()) return null;
-        images.sort((o1, o2) -> o2.getPoints() - o1.getPoints());
+    public UserImageDTO getTopImage(int groupId) {
+
+        List<UserImageDTO> images = new ArrayList<>(getImagesByGroup(groupId));
+
+        if (images.isEmpty()) {
+            return null;
+        }
+
+        if (images.size() == 1) {
+            return images.get(0);
+        }
+
+        images.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
         return images.get(0);
+
+
     }
 
     // UPDATES AN IMAGE'S POINTS
-    public void updatePoints(int id, int points) {
+    public UserImageDTO updatePoints(int id, int points) {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
         if (userImage.isEmpty()) {
@@ -136,6 +191,35 @@ public class UserImageService {
         int currentPoints = userImage.get().getPoints();
         userImage.get().setPoints(currentPoints + points);
         userImageRepository.save(userImage.get());
+        return new UserImageDTO(userImage.get());
+    }
+
+    // COMMENT FUNCTIONS
+    // UPLOADS COMMENT TO IMAGE
+    public UserImageCommentDTO uploadComment(UserImageCommentDTO userImageCommentDTO) {
+        Optional<User> user = userRepository.findById(userImageCommentDTO.getUserId());
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        Optional<UserImage> userImage = userImageRepository.findById(userImageCommentDTO.getImageId());
+        if (userImage.isEmpty()) {
+            throw new RuntimeException("Image not found");
+        }
+
+        UserImageComment userImageComment = new UserImageComment();
+        userImageComment.setId(userImageCommentDTO.getId());
+        userImageComment.setComment(userImageCommentDTO.getComment());
+        userImageComment.setCreatedAt(userImageCommentDTO.getDate());
+        userImageComment.setUser(user.get());
+        userImageComment.setUserImage(userImage.get());
+        userImageCommentRepository.save(userImageComment);
+
+        return new UserImageCommentDTO(userImageComment);
+
+    }
+
+    public void deleteComment(int id) {
+        userImageCommentRepository.deleteById(id);
     }
 
 }

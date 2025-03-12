@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.dto;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ public class PhotoGroupDTO {
     private String name;
     private int ownerId;
     private Set<FriendDTO> users;
+    private List<UserImageDTO> userImages;
 
     // SENDING DATA TO FRONTEND
     public PhotoGroupDTO(PhotoGroup photoGroup) {
@@ -17,6 +19,7 @@ public class PhotoGroupDTO {
         this.name = photoGroup.getName();
         this.ownerId = photoGroup.getOwnerId();
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
+        this.userImages = photoGroup.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
     }
 
     // FOR CREATING A NEW PHOTO GROUP
@@ -55,7 +58,7 @@ public class PhotoGroupDTO {
         return users;
     }
 
-    public void setUsers(Set<FriendDTO> users) {
-        this.users = users;
+    public List<UserImageDTO> getUserImages() {
+        return userImages;
     }
 }

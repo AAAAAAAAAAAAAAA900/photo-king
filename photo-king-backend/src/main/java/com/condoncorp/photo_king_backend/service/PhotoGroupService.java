@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,7 +59,7 @@ public class PhotoGroupService {
         photoGroup.getUsers().clear();
 
         // RETURNS ALL IMAGES IN A GROUP AND DELETES THEM
-        for (UserImage userImage : userImageService.getImagesByGroup(groupId)) {
+        for (UserImage userImage : photoGroup.getUserImages()) {
             userImageService.deleteImage(userImage.getId());
         }
 
@@ -80,6 +79,7 @@ public class PhotoGroupService {
         if (photoGroupUserRanking.isEmpty()) {
             throw new RuntimeException("PhotoGroupUserRanking not found");
         }
+
         if (photoGroupUserRanking.get().getFirstRankId() != 0) {
             userImageService.updatePoints(photoGroupUserRanking.get().getFirstRankId(), -3);
         }
@@ -90,6 +90,7 @@ public class PhotoGroupService {
 
     public void updateSecondRank(int userId, int groupId, int secondRankId) {
         Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+
         if (photoGroupUserRanking.isEmpty()) {
             throw new RuntimeException("PhotoGroupUserRanking not found");
         }
