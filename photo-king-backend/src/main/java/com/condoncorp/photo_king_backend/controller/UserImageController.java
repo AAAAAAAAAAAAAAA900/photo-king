@@ -1,6 +1,9 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
+import com.condoncorp.photo_king_backend.dto.UserImageDTO;
 import com.condoncorp.photo_king_backend.model.UserImage;
+import com.condoncorp.photo_king_backend.model.UserImageComment;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
 import com.condoncorp.photo_king_backend.service.UserService;
@@ -68,7 +71,7 @@ public class UserImageController {
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     @GetMapping(path = "/get-group-images/{groupId}")
-    public List<UserImage> getGroupImages(@PathVariable int groupId) {
+    public List<UserImageDTO> getGroupImages(@PathVariable int groupId) {
         return userImageService.getImagesByGroup(groupId);
     }
 
@@ -86,14 +89,25 @@ public class UserImageController {
 
     // UPDATES AN IMAGE'S POINTS
     @PutMapping(path = "/update-points/{id}/{points}")
-    public void updatePoints(@PathVariable int id, @PathVariable int points) {
-        userImageService.updatePoints(id, points);
+    public UserImageDTO updatePoints(@PathVariable int id, @PathVariable int points) {
+        return userImageService.updatePoints(id, points);
     }
 
     // RETURNS IMAGES WITH HIGHEST POINTS
     @GetMapping(path = "/get-top-image/{groupId}")
-    public UserImage getTopImage(@PathVariable int groupId) {
+    public UserImageDTO getTopImage(@PathVariable int groupId) {
         return userImageService.getTopImage(groupId);
+    }
+
+    // UPLOADS A COMMENT
+    @PostMapping(path = "/upload-comment")
+    public UserImageCommentDTO uploadComment(@RequestBody UserImageCommentDTO userImageCommentDTO) {
+        return userImageService.uploadComment(userImageCommentDTO);
+    }
+
+    @DeleteMapping(path = "/delete-comment/{id}")
+    public void deleteComment(@PathVariable int id) {
+        userImageService.deleteComment(id);
     }
 
 

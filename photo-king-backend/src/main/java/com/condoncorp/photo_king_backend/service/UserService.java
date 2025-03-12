@@ -57,10 +57,12 @@ public class UserService {
 
         user.getFriends().clear();
 
-        // RETURNS ALL IMAGES FROM USER THEN DELETES IT ALL
-        for (UserImage userImage : userImageService.getImagesByUser(id)) {
+        // REMOVES ALL IMAGES FROM USER AND DELETES FROM DATABASE
+        for (UserImage userImage : user.getUserImages()) {
             userImageService.deleteImage(userImage.getId());
         }
+
+        user.getUserImages().clear();
 
         userRepository.deleteById(id);
     }
@@ -88,7 +90,11 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
-        User newUser = UserRegisterDTO.toUser(user);
+        User newUser = new User();
+        newUser.setUsername(user.getUsername());
+        newUser.setEmail(user.getEmail());
+        newUser.setPhone(user.getPhone());
+        newUser.setName(user.getName());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(newUser);

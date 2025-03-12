@@ -1,12 +1,10 @@
 package com.condoncorp.photo_king_backend.model;
 
 
+import  com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "photo_group")
@@ -25,12 +23,15 @@ public class PhotoGroup {
     @ManyToMany(mappedBy = "photoGroups")
     private Set<User> users = new HashSet<>();
 
-
+    @JsonIgnore
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserImage> userImages = new ArrayList<>();
 
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
         this.users = new HashSet<>();
+        this.userImages = new ArrayList<>();
     }
 
     public PhotoGroup() {
@@ -69,4 +70,11 @@ public class PhotoGroup {
         this.ownerId = ownerId;
     }
 
+    public List<UserImage> getUserImages() {
+        return userImages;
+    }
+
+    public void setUserImages(List<UserImage> userImages) {
+        this.userImages = userImages;
+    }
 }

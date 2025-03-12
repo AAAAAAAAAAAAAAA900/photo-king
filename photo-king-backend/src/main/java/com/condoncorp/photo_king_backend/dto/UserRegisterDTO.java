@@ -30,14 +30,4 @@ public class UserRegisterDTO {
         return name;
     }
 
-    public static User toUser(UserRegisterDTO userRegisterDTO) {
-        User user = new User();
-        user.setUsername(userRegisterDTO.getUsername());
-        user.setPassword(userRegisterDTO.getPassword());
-        user.setEmail(userRegisterDTO.getEmail());
-        user.setPhone(userRegisterDTO.getPhone());
-        user.setName(userRegisterDTO.getName());
-        user.setRole("user");
-        return user;
-    }
 }
