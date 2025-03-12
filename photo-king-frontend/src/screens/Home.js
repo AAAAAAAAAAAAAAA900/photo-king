@@ -1,23 +1,27 @@
-import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
-import axios from "axios";
 import {useEffect, useState} from "react";
-import {API_URL} from "../api/utils";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
 import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
+import imageApi from '../api/imageApi.js';
 
 export default function HomeScreen ({navigation}){
 
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
-  const [loading, setLoading] = useState(false); // loading page
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
+  const [thumbnails, setThumbnails] = useState({}); 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    getGroupThumbnails();
+  }, []);
 
   const addGroup = async () => {
       try {
@@ -37,6 +41,24 @@ export default function HomeScreen ({navigation}){
       }
   }
 
+  const getGroupThumbnails = async () => {
+    const images = {};
+    try{
+      // get response promises
+      const promises = user.groups.map(async (element) => {
+        images[element.id] = await imageApi.getTopImage(element.id);
+      });
+      // await all responses
+      await Promise.all(promises);
+      // get data from responses
+      Object.keys(images).forEach((key) => images[key]=images[key].data);
+      setThumbnails(images);
+      setLoading(false);
+    } catch(error){
+      console.log(error);
+    }
+  }
+
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ flex:1 }}>
@@ -51,42 +73,49 @@ export default function HomeScreen ({navigation}){
           onRequestClose={() => {setGroupModalVisible(false);}}
         >
           <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-            <TouchableOpacity activeOpacity={1} style={styles.popupView}>
-              <TextInput 
-                style={[styles.textIn, {width: '80%'}]}
-                onChangeText={(text) => {setGroupTitle(text)}}
-                autoCapitalize ='none'
-                maxLength={20}
-                autoCorrect ={false}
-                placeholder="Enter Group Name..."
-              />
-              <View style={{flexDirection:'row'}}>
-                <TouchableOpacity style={styles.button}
-                  onPress={() => {
-                    addGroup();
-                    setGroupTitle('');
-                    setGroupModalVisible(false);
-                  }}
-                >
-                  <DefaultText>Submit</DefaultText>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}
-                  onPress={() => {
-                    setGroupTitle(''); 
-                    setGroupModalVisible(false);
-                  }}
-                >
-                  <DefaultText>Cancel</DefaultText>
-                </TouchableOpacity>
-              </View>
+            <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
+            <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10,gap:40}]}>
+                <DefaultText style={styles.titleText}>Create Group</DefaultText>
+                <TextInput 
+                  style={[styles.textIn, {width: '80%'}]}
+                  onChangeText={(text) => {setGroupTitle(text)}}
+                  autoCapitalize ='none'
+                  maxLength={20}
+                  autoCorrect ={false}
+                  placeholder="Enter Group Name..."
+                />
+                <View style={{flexDirection:'row', gap:10}}>
+                <TouchableOpacity style={[styles.button, {width:'40%', backgroundColor:colors.greyWhite}]}
+                    onPress={() => {
+                      setGroupTitle(''); 
+                      setGroupModalVisible(false);
+                    }}
+                  >
+                    <DefaultText>Cancel</DefaultText>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.button, {width:'40%'}]}
+                    onPress={() => {
+                      addGroup();
+                      setGroupTitle('');
+                      setGroupModalVisible(false);
+                    }}
+                  >
+                    <DefaultText>Submit</DefaultText>
+                  </TouchableOpacity>
+                </View>
             </TouchableOpacity>
+            <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
+            <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
           </TouchableOpacity>
         </Modal>
 
 
         {/* Show loading indicator while fetching data */}
         {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            <View style={styles.containerCenterAll}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
         ) : user ? (
           // Render flatlist if user has groups
           user.groups && user.groups.length ? (
@@ -96,7 +125,7 @@ export default function HomeScreen ({navigation}){
                   ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                   data={[...user.groups].sort((a, b)=> a.name.localeCompare(b.name))} // alphabetical ordering
                   renderItem={({item}) => 
-                    <GroupPreview groupTitle={item.name} navFunction={() => {
+                    <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
                       navigation.navigate("Group", {user: user,group: item})
                     }}
                     />
@@ -130,7 +159,7 @@ export default function HomeScreen ({navigation}){
                 margin: 5  
               }} 
               onPress={() => setGroupModalVisible(true)}>
-            <Image style={{height:'90%', width:'90%', resizeMode:'contain' }} source={require('../../assets/icons/plus.png')}/>
+            <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')}/>
         </TouchableOpacity> 
         <NavBar navigation={navigation} user={user} screen='Home'/>
       </SafeAreaView>

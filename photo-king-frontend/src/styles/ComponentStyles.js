@@ -27,7 +27,8 @@ export default styles = StyleSheet.create({
     textIn: {
         height: 40, 
         width: 300,
-        borderColor: colors.secondary, 
+        padding:5,
+        borderColor: 'black', 
         borderRadius:5,
         backgroundColor:colors.greyWhite,
         borderWidth: 1,
@@ -67,7 +68,8 @@ export default styles = StyleSheet.create({
         backgroundColor: colors.greyWhite, 
         borderRadius: 10,
         alignItems:'center',
-        flexDirection:'row'
+        flexDirection:'row',
+        gap:10
     },
     separator:{
         height: 1,
@@ -78,7 +80,7 @@ export default styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width:'75%',
-        height:'60%',
+        height:'40%',
         backgroundColor: colors.greyWhite
     },
     picHolder: {
@@ -93,7 +95,8 @@ export default styles = StyleSheet.create({
         height:'100%', 
         width:'100%', 
         resizeMode:'cover',
-        borderRadius:20
+        borderRadius:20,
+        backgroundColor:'white'
     },
     iconStyle : {height:'90%', 
         width:'90%', 

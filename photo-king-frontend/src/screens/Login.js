@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, Platform, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -51,27 +51,29 @@ export default function LoginScreen ({navigation}){
           <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
             <Text style={styles.urlText}>create an account</Text>
           </TouchableOpacity>
-          <AppleAuthentication.AppleAuthenticationButton
-              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-              cornerRadius={5}
-              style={styles.button}
-              onPress={async () => {
-                try {
-                  const credential = await AppleAuthentication.signInAsync();
-                  const { identityToken } = credential;
-                  console.log(identityToken);
+          { Platform.OS == 'ios' &&
+            <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={5}
+                style={styles.button}
+                onPress={async () => {
+                  try {
+                    const credential = await AppleAuthentication.signInAsync();
+                    const { identityToken } = credential;
+                    console.log(identityToken);
 
-                  // signed in
-                } catch (e) {
-                  if (e.code === 'ERR_REQUEST_CANCELED') {
-                    // handle that the user canceled the sign-in flow
-                  } else {
-                    // handle other errors
+                    // signed in
+                  } catch (e) {
+                    if (e.code === 'ERR_REQUEST_CANCELED') {
+                      // handle that the user canceled the sign-in flow
+                    } else {
+                      // handle other errors
+                    }
                   }
-                }
-              }}
-          />
+                }}
+            />
+          }
         </View>
       </LinearGradient>
     </SafeAreaView>
