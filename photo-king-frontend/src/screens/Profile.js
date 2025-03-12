@@ -47,15 +47,15 @@ export default function ProfileScreen({navigation}){
     return(
         <SafeAreaView style={{flex:1}}>
             <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
-            <View style={{flex:1, padding: 10}}>
-                <View style={{alignSelf:"baseline"}}>
-                    <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={175}/>
-                    <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:5, right:10, height:40, width:40}}>
+            <View style={{flex:1, padding: 15, justifyContent:"space-between", alignItems:"center"}}>
+                <View style={{alignSelf:"center"}}>
+                    <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120}/>
+                    <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:0, right:0, height:40, width:40}}>
                         <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')}/>
                     </View>
                 </View>
-                <View style={{flex:1, paddingHorizontal:15, paddingTop:10, gap:1}}>
-                    <DefaultText style={{marginLeft:10}}>Username</DefaultText>
+                <View>
+                    <DefaultText style={{marginLeft:4}}>Username</DefaultText>
                     <Controller
                         name="username"
                         control={control}
@@ -66,11 +66,13 @@ export default function ProfileScreen({navigation}){
                             autoCorrect={false}
                             value={value}
                             onChangeText={onChange}
-                            style={[styles.textIn, {alignSelf:"center", marginBottom:5}]}
+                            style={styles.textIn}
                             />
                         )}
                     />
-                    <DefaultText style={{marginLeft:10}}>Name</DefaultText>
+                </View>
+                <View>
+                    <DefaultText style={{marginLeft:4}}>Name</DefaultText>
                     <Controller
                         name="name"
                         control={control}
@@ -81,11 +83,13 @@ export default function ProfileScreen({navigation}){
                             autoCorrect={false}
                             value={value}
                             onChangeText={onChange}
-                            style={[styles.textIn, {alignSelf:"center", marginBottom:5}]}
+                            style={styles.textIn}
                             />
                         )}
                     />
-                    <DefaultText style={{marginLeft:10}}>Message</DefaultText>
+                </View>
+                <View>
+                    <DefaultText style={{marginLeft:4}}>Message</DefaultText>
                     <Controller
                         name="bio"
                         control={control}
@@ -96,16 +100,16 @@ export default function ProfileScreen({navigation}){
                             multiline={true}
                             value={value}
                             onChangeText={onChange}
-                            style={[styles.textIn, {flex:1, textAlignVertical:"top", alignSelf:"center", marginBottom:5}]}
+                            style={[styles.textIn, {height:100 , textAlignVertical:"top", marginBottom:5}]}
                             />
                         )}
                     />
-                <TouchableOpacity style={[styles.button, {alignSelf:"center"}]}
+                </View>
+                <TouchableOpacity style={styles.button}
                 onPress={() => handleSubmit(onSubmit)}
                 >
                     <DefaultText>Submit</DefaultText>
                 </TouchableOpacity>
-                </View>
             </View>
             <NavBar navigation={navigation} user={user} screen='Profile'/>
         </SafeAreaView>

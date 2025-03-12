@@ -312,7 +312,7 @@ export default function GroupScreen({navigation}){
             style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
                             <View style={{gap:5}}>
                                 <TouchableOpacity
