@@ -4,21 +4,23 @@ package com.condoncorp.photo_king_backend.dto;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserDTO {
 
-    private int id;
-    private String username;
-    private String email;
-    private String phone;
-    private String name;
-    private String profileUrl;
-    private String profilePublicId;
-    private String role;
-    private Set<FriendDTO> friends;
-    private Set<PhotoGroupDTO> groups;
+    private final int id;
+    private final String username;
+    private final String email;
+    private final String phone;
+    private final String name;
+    private final String profileUrl;
+    private final String profilePublicId;
+    private final String role;
+    private final Set<FriendDTO> friends;
+    private final Set<PhotoGroupDTO> groups;
+    private final List<UserImageDTO> userImages;
 
     public UserDTO(User user){
         this.id = user.getId();
@@ -31,6 +33,7 @@ public class UserDTO {
         this.role = user.getRole();
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
+        this.userImages = user.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
     }
 
     public int getId() { return id; }
@@ -64,4 +67,8 @@ public class UserDTO {
 
     public Set<FriendDTO> getFriends(){ return friends; }
     public Set<PhotoGroupDTO> getGroups(){ return groups; }
+
+    public List<UserImageDTO> getUserImages() {
+        return userImages;
+    }
 }

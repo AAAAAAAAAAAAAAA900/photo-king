@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,7 +59,7 @@ public class PhotoGroupService {
         photoGroup.getUsers().clear();
 
         // RETURNS ALL IMAGES IN A GROUP AND DELETES THEM
-        for (UserImage userImage : userImageService.getImagesByGroup(groupId)) {
+        for (UserImage userImage : photoGroup.getUserImages()) {
             userImageService.deleteImage(userImage.getId());
         }
 
@@ -87,8 +86,6 @@ public class PhotoGroupService {
         photoGroupUserRanking.get().setFirstRankId(firstRankId);
         userImageService.updatePoints(firstRankId, 3);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
-
-
     }
 
     public void updateSecondRank(int userId, int groupId, int secondRankId) {
@@ -103,7 +100,6 @@ public class PhotoGroupService {
         photoGroupUserRanking.get().setSecondRankId(secondRankId);
         userImageService.updatePoints(secondRankId, 2);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
-
     }
 
     public void updateThirdRank(int userId, int groupId, int thirdRankId) {

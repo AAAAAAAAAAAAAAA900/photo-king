@@ -9,10 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
@@ -39,6 +36,8 @@ public class User implements UserDetails {
     private String profilePublicId;
     @Column(name = "role")
     private String role;
+    @Column(name = "bio")
+    private String bio;
 
     @JsonIgnore
     @ManyToMany
@@ -60,6 +59,11 @@ public class User implements UserDetails {
     @Cascade(CascadeType.ALL)
     private Set<User> friends = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @Cascade(CascadeType.ALL)
+    private List<UserImage> userImages = new ArrayList<>();
+
     public User(String username, String password, String phone, String email, String name) {
         this.username = username;
         this.password = password;
@@ -69,13 +73,22 @@ public class User implements UserDetails {
         this.profileUrl = "";
         this.profilePublicId = "";
         this.role = "user";
+        this.bio = "";
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
+        this.userImages = new ArrayList<>();
     }
-    
 
 
-    public User() {}
+    public User() {
+        this.profileUrl = "";
+        this.profilePublicId = "";
+        this.role = "user";
+        this.bio = "";
+        this.photoGroups = new HashSet<>();
+        this.friends = new HashSet<>();
+        this.userImages = new ArrayList<>();
+    }
 
     public int getId() {
         return id;
@@ -176,6 +189,14 @@ public class User implements UserDetails {
         this.profilePublicId = profilePublicId;
     }
 
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     public Set<PhotoGroup> getPhotoGroups() {
         return photoGroups;
     }
@@ -190,6 +211,14 @@ public class User implements UserDetails {
 
     public void setFriends(Set<User> friends) {
         this.friends = friends;
+    }
+
+    public List<UserImage> getUserImages() {
+        return userImages;
+    }
+
+    public void setUserImages(List<UserImage> userImages) {
+        this.userImages = userImages;
     }
 
     public void addFriend(User friend) {
