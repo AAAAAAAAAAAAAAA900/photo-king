@@ -1,25 +1,25 @@
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity, Modal } from 'react-native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import * as ImagePicker from 'expo-image-picker';
-import axios from "axios";
-import {API_URL} from "../api/utils";
 import {useActionSheet} from "@expo/react-native-action-sheet";
 import imageApi from "../api/imageApi";
 import { lookup } from 'react-native-mime-types';
 import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
+import DefaultText from './DefaultText.js';
 import * as SecureStore from "expo-secure-store";
 
 
 export default function Pfp ({navigation, user, setUser, setUserUpdated, url, size}){
 
     const [style, setStyle] = useState({height: 50, width:50, borderRadius:25, backgroundColor:'white', borderColor:'white'});
-    
+    const [optionsVisible, setOptionsVisible] = useState(false);
+
     const press = () => {
         if(user){
             onPressPhoto();
         } else{
-            navigation.dispatch(StackActions.popToTop());
+            setOptionsVisible(!optionsVisible);
         }
     };
 
@@ -124,6 +124,20 @@ export default function Pfp ({navigation, user, setUser, setUserUpdated, url, si
 
     return(
         <View>
+
+            <Modal
+            visible={optionsVisible}
+            onRequestClose={()=> setOptionsVisible(false)}
+            animationType="fade"
+            transparent={true}
+            >
+                <TouchableOpacity activeOpacity={1} style={{flex:1}} onPress={()=>setOptionsVisible(false)}>
+                    <TouchableOpacity onPress={()=>navigation.dispatch(StackActions.popToTop())} style={{position:'absolute', top:58, right:10, height:45, width:85, backgroundColor:'white', borderRadius:20, alignItems:'center', justifyContent:'center', boxShadow:'5 5 5 0 rgba(0, 0, 0, 0.25)'}}>
+                        <DefaultText>Logout</DefaultText>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
             {/* If passed user or navigation make it clickable, else just a view */}
             {/* If passed a non empty url use it, else use default pfp icon */}
             { user || navigation ? ( url ?

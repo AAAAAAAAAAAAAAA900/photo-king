@@ -2,9 +2,29 @@ import { Alert, Modal, TouchableOpacity, View } from "react-native";
 import Pfp from "./Pfp";
 import DefaultText from "./DefaultText";
 import styles, {colors} from "../styles/ComponentStyles";
+import { useEffect, useState } from "react";
+import userApi from "../api/userApi";
 
 
 export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup }){
+
+    const [bio, setBio] = useState("");
+
+    const getBio = async (id) => {
+        try{
+            const response = await userApi.getBio(id);
+            setBio(response.data);
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
+    useEffect(()=> {
+        if(friendClicked){
+            getBio(friendClicked.id);
+        }
+    }, [friendClicked]);
 
     return(
         friendClicked && (    // prevents instant rendering and friendClicked null errors
@@ -22,7 +42,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                         <Pfp url={friendClicked.pfp} size={100}/>
                         <DefaultText style={[styles.titleText, {marginLeft:15}]}>{friendClicked.username}</DefaultText>
                         <View style={{height:65, width:'100%', borderWidth:1, borderRadius:10, padding:5}}>
-                            <DefaultText>message</DefaultText>
+                            <DefaultText>{bio}</DefaultText>
                         </View>
                         <View style={{flexDirection:'row', gap:10}}>
                             { removeFriend &&
