@@ -81,9 +81,9 @@ export default function GroupScreen({navigation}){
     }
 
     // FlatList element's view
-    const Pic = useCallback(({ photo }) => {
+    const Pic = useCallback(({ photo, pictures }) => {
         // Gets pfp of poster
-        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
+        const pfp = group.users.find((value)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         if (photo.points != 0){
@@ -408,7 +408,7 @@ export default function GroupScreen({navigation}){
                         pictures.length ?
                             <FlatList 
                                 numColumns={2}
-                                renderItem={({ item }) => <Pic photo={item} />}
+                                renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
                                 keyExtractor={(item) => item.id}
                                 data={pictures}
                             />
