@@ -1,9 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.dto.AuthRegReq;
-import com.condoncorp.photo_king_backend.dto.FriendDTO;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
-import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
+import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
@@ -178,6 +175,19 @@ public class UserService {
 
     }
 
+    // RETURNS BIO OF GIVEN USER
+    public String getUserBio(int userID){
+         return getUserById(userID).getBio();
+    }
 
+    // SETS NEW PROFILE DATA
+    public UserDTO setUserProfile(UserProfileReq userProfileReq){
+        User user = getUserById(userProfileReq.getId());
+        user.setUsername(userProfileReq.getUsername());
+        user.setName(userProfileReq.getName());
+        user.setBio(userProfileReq.getBio());
+        saveUser(user);
+        return new UserDTO(user);
+    }
 
 }

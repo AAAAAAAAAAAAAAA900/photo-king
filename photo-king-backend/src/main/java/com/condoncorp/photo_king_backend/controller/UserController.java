@@ -1,9 +1,6 @@
 package com.condoncorp.photo_king_backend.controller;
 
-import com.condoncorp.photo_king_backend.dto.FriendDTO;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
-import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
-import com.condoncorp.photo_king_backend.dto.AuthRegReq;
+import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +46,16 @@ public class UserController {
         return userService.getUserInfo(authHeader);
     }
 
+    // RETURNS USER BIO. REQUIRES USER ID.
+    @GetMapping(path = "/get-user-bio/{id}")
+    public String getUserBio(@PathVariable int id) {
+        return userService.getUserBio(id);
+    }
 
-
-
+    // UPDATES CUSTOMIZABLE USER PROFILE INFORMATION.
+    @PostMapping(path = "/set-user-profile")
+    public UserDTO setUserProfile(@RequestBody UserProfileReq userProfileReq){
+        return userService.setUserProfile(userProfileReq);
+    }
 
 }

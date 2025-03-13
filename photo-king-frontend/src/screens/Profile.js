@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import DefaultText from "../components/DefaultText";
-import { Image, SafeAreaView, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import NavBar from "../components/NavBar";
 import Pfp from "../components/Pfp";
@@ -9,12 +9,38 @@ import TitleButtons from "../components/TitleButtons";
 import Header from "../components/Header";
 import photoGroupApi from "../api/photoGroupApi";
 import { useForm, Controller } from 'react-hook-form';
-
+import userApi from "../api/userApi";
 
 export default function ProfileScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
     const [userUpdated, setUserUpdated] = useState(false);
+    const [bio, setBio] = useState("");
+
+    const getBio = async () => {
+        try{
+            const userBio = await userApi.getBio(user.id);   
+            setBio(userBio.data);
+        }
+        catch(error){
+            console.log(error);
+            return null;
+        }
+    }
+
+    const setProfile = async (data) => {
+        try{
+            const response = await userApi.setProfile(user.id, data.username, data.name, data.bio);
+            console.log(response.data);
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
+    useEffect(()=> {
+        getBio();
+    }, []);
 
     const getGroups = async () => {
         try {
@@ -37,11 +63,18 @@ export default function ProfileScreen({navigation}){
         handleSubmit,
         formState: { 
             errors
-        }
-    } = useForm();
+        },
+        reset
+    } = useForm({defaultValues: {
+        username: user.username,
+        name: user.name,
+        bio: bio
+    }});
 
-    const onSubmit = data => {
-
+    const onSubmit = (data) => {
+        console.log(data);
+        setProfile(data);
+        reset();
     }
 
     return(
@@ -59,6 +92,7 @@ export default function ProfileScreen({navigation}){
                     <Controller
                         name="username"
                         control={control}
+                        rules={{ required: "Username is required." }}
                         render={({ field : { onChange, value} }) => (
                             <TextInput
                             placeholder={user.username}
@@ -76,6 +110,7 @@ export default function ProfileScreen({navigation}){
                     <Controller
                         name="name"
                         control={control}
+                        rules={{ required: "Name is required" }}
                         render={({ field : { onChange, value} }) => (
                             <TextInput
                             placeholder={user.name}
@@ -95,7 +130,7 @@ export default function ProfileScreen({navigation}){
                         control={control}
                         render={({ field : { onChange, value} }) => (
                             <TextInput
-                            placeholder="Add bio..."
+                            placeholder={bio ? bio : "Add bio..."}
                             maxLength={100}
                             multiline={true}
                             value={value}
@@ -106,7 +141,7 @@ export default function ProfileScreen({navigation}){
                     />
                 </View>
                 <TouchableOpacity style={styles.button}
-                onPress={() => handleSubmit(onSubmit)}
+                onPress={handleSubmit(onSubmit)}
                 >
                     <DefaultText>Submit</DefaultText>
                 </TouchableOpacity>
