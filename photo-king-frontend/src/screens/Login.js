@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, Platform, TouchableOpacity } from 'react-native';
+import {View, Text, SafeAreaView, Platform, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -8,12 +8,14 @@ import * as SecureStore from "expo-secure-store";
 import authApi from "../api/authApi";
 import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
+import {isTokenValid} from "../api/apiClient";
 
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
   const [password, setPassword] = useState(""); // State for password
   const [errorText, setErrorText] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // Login attempt
   const Login = async () => {
@@ -21,14 +23,38 @@ export default function LoginScreen ({navigation}){
       const response = await authApi.login(username, password);
       await SecureStore.setItemAsync("accessToken", response.data.accessToken);
       await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
-
       const user_info = await userApi.getUserInfo();
 
       navigation.navigate("Home", {user: user_info.data});
     } catch (error) {
       setErrorText("Username or password does not exist.");
       console.log(error);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        if (refreshToken && await isTokenValid(refreshToken)) {
+          const user_info = await userApi.getUserInfo();
+          navigation.navigate("Home", {user: user_info.data});
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkLoginStatus().then(r => console.log("SUCCESS"));
+  }, []);
+
+  if (loading) {
+    return (
+        <SafeAreaView style={styles.containerCenterAll}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </SafeAreaView>
+    );
   }
 
   // Login screen view
