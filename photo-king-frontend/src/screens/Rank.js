@@ -4,13 +4,9 @@ import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { CommonActions } from "@react-navigation/native";
 import { loadPictures } from "./Group.js";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import {API_URL} from "../api/utils";
-import imageApi from "../api/imageApi";
+import {useEffect, useState, useCallback} from "react";
 import photoGroupApi from "../api/photoGroupApi";
 import Header from "../components/Header.js";
-import { ImageStore } from "react-native";
 
 export default function RankScreen({navigation}){
     const route = useRoute();
@@ -18,14 +14,19 @@ export default function RankScreen({navigation}){
     const [group, setGroup] = useState(route.params?.group);
     const [pictures, setPictures] = useState([]);
     const [isSubmitted, setSubmitted] = useState(false);
-    const [ranks, setRanks] = useState([null,null,null]);  //tracks image rankings by url
-
-    // useEffect to get group pictures on load
+    const [ranks, setRanks] =  useState([]);  // image ids ordered by ranking
+    
+    // get group pictures on load
     useEffect(() => {
         loadPictures(setPictures, group).then(r => {});
     }, []);
 
-    const rankPhoto = (photo, rank) =>{
+    // Determine number of ranking slots
+    useEffect(()=>{
+        setRanks(pictures.length == 2 ? [null,null] : [null,null,null]);
+    }, [pictures]);
+
+    const rankPhoto = (photo, rank, ranks) =>{
         if(rank != -1){
             // If already ranked, undo rank
             const copy = [...ranks];
@@ -40,11 +41,10 @@ export default function RankScreen({navigation}){
     };
 
     // FlatList element's view
-    const RankablePic = ({ photo }) => {
-        const imageRank = ranks.findIndex((element) => element==photo.id);
+    const RankablePic = useCallback(({ photo, imageRank, ranks}) => {
         return (
             <TouchableOpacity 
-            onPress={()=>{rankPhoto(photo, imageRank);}}
+            onPress={()=>{rankPhoto(photo, imageRank, ranks);}}
             style={styles.picHolder}>
                 <Image
                     style={styles.pic}
@@ -58,7 +58,7 @@ export default function RankScreen({navigation}){
                 }
             </TouchableOpacity>
         );
-    };
+    }, []);
 
     useEffect(()=>{
         if(isSubmitted){
@@ -90,24 +90,16 @@ export default function RankScreen({navigation}){
     };
 
     const submitRanksPressed = () => {
-        const rankings = Object.keys(ranks).length;
-        if(rankings < 3){
+        if(ranks.findIndex((element)=> element===null) != -1){
             Alert.alert(
-                "Please rank 3 images.",
-                `You have only ranked ${rankings} images.`,
+                `Please rank ${ranks.length} images.`,
+                'Make sure no placings remain at the top.',
                 [
                     { text: "Confirm", style: "cancel"}
                 ]
             );
         } else{
-            Alert.alert(
-                "Submit rankings?",
-                `Your rankings will be final.`,
-                [
-                    { text: "Cancel", style: "cancel"},
-                    { text: "Continue", onPress: () => submitRanks() }
-                ]
-            );
+            submitRanks();
         }
     };
 
@@ -140,7 +132,7 @@ export default function RankScreen({navigation}){
                             <DefaultText>2</DefaultText>
                         </View>
                     }
-                    {!ranks[2] &&
+                    {ranks.length > 2 && !ranks[2] &&
                         <View style={{width:30, height:30, borderRadius:15, backgroundColor:colors.primary, alignItems:'center', justifyContent: 'center'}}>
                             <DefaultText>3</DefaultText>
                         </View>
@@ -160,7 +152,7 @@ export default function RankScreen({navigation}){
                 <View style={{flex:1, padding:5}}>
                     <FlatList 
                         numColumns={2}
-                        renderItem={({ item }) => <RankablePic photo={item}/>}
+                        renderItem={({ item }) => <RankablePic ranks={ranks} photo={item} imageRank={ranks.findIndex((element) => element==item.id)}/>}
                         keyExtractor={(picture) => picture.url}
                         data={[...pictures].sort((a,b)=> b.points-a.points)}
                     />

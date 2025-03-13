@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
 
 
-export default function Pfp ({navigation, user, setUser, url}){
+export default function Pfp ({navigation, user, setUser, setUserUpdated, url, size}){
 
     const [style, setStyle] = useState({height: 50, width:50, borderRadius:25, backgroundColor:'white', borderColor:'white'});
     
@@ -23,8 +23,8 @@ export default function Pfp ({navigation, user, setUser, url}){
     };
 
     useEffect(()=>{
-        if(user){
-            setStyle({height: 200, width:200, borderWidth:5, borderRadius:100,backgroundColor:'white', borderColor:'black'});
+        if(size){
+            setStyle({height: size, width:size, borderWidth:4, borderRadius:size/2,backgroundColor:'white', borderColor:'black'});
         }
     },[]);
 
@@ -113,6 +113,7 @@ export default function Pfp ({navigation, user, setUser, url}){
         try {
             const response = await imageApi.uploadProfile(formData);
             setUser({...user, profileUrl:response.data});
+            setUserUpdated(true);
             console.log('Upload Success');
             console.log(response.data);
         } catch (error) {
@@ -125,7 +126,7 @@ export default function Pfp ({navigation, user, setUser, url}){
             {/* If passed user or navigation make it clickable, else just a view */}
             {/* If passed a non empty url use it, else use default pfp icon */}
             { user || navigation ? ( url ?
-                <TouchableOpacity
+                <TouchableOpacity style={{alignSelf:'baseline'}}
                 onPress={press}
                 >
                     <Image  
@@ -134,7 +135,7 @@ export default function Pfp ({navigation, user, setUser, url}){
                     />
                 </TouchableOpacity>
             : 
-                <TouchableOpacity
+                <TouchableOpacity style={{alignSelf:'baseline'}}
                 onPress={press}
                 >
                     <Image  
@@ -143,14 +144,14 @@ export default function Pfp ({navigation, user, setUser, url}){
                     />
                 </TouchableOpacity>
             ) : ( url ?
-                <View>
+                <View style={{alignSelf:'baseline'}}>
                     <Image  
                     style={style}
                     source={{uri: url}} 
                     />
                 </View>
             : 
-                <View>
+                <View style={{alignSelf:'baseline'}}>
                     <Image  
                     style={style}
                     source={require('../../assets/icons/pfp.png')} 
