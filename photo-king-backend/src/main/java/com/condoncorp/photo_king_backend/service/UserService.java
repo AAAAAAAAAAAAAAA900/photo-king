@@ -148,13 +148,12 @@ public class UserService {
 
     // REFRESH TOKEN
     public String generateToken(String refreshToken) {
-
         if (refreshToken == null) {
-            throw new RuntimeException("Refresh token is null");
+            return null;
         }
 
         if (!jwtService.isTokenNonExpired(refreshToken)) {
-            throw new RuntimeException("Refresh token is expired");
+            return null;
         }
 
         String username = jwtService.extractUsername(refreshToken);
