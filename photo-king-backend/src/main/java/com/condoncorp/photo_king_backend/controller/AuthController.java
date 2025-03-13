@@ -48,8 +48,8 @@ public class AuthController {
     }
 
     @PostMapping(path = "/refresh-token")
-    public String generateToken(@RequestBody String refreshToken) {
-        return userService.generateToken(refreshToken);
+    public String generateToken(@RequestBody TokenReq token) {
+        return userService.generateToken(token.getToken());
     }
 
     @PostMapping(path = "/validate-token")

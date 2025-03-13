@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -55,8 +56,11 @@ public class PhotoGroupController {
             throw new RuntimeException("Invalid number of images");
         }
 
+    }
 
-
+    @GetMapping(path = "/expired")
+    public boolean isExpired(int groupId) {
+        return photoGroupService.isExpired(groupId);
     }
 
 

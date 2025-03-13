@@ -4,6 +4,7 @@ package com.condoncorp.photo_king_backend.model;
 import  com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -19,6 +20,9 @@ public class PhotoGroup {
 
     @Column(name = "owner_id", nullable = false)
     private int ownerId;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 
     @ManyToMany(mappedBy = "photoGroups")
     private Set<User> users = new HashSet<>();
@@ -68,6 +72,14 @@ public class PhotoGroup {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public List<UserImage> getUserImages() {
