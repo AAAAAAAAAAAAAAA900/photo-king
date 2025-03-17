@@ -26,7 +26,6 @@ export default function ProfileScreen({navigation}){
         }
         catch(error){
             console.log(error);
-            return null;
         }
     }
 
