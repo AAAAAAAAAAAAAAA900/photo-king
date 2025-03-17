@@ -81,9 +81,9 @@ export default function GroupScreen({navigation}){
     }
 
     // FlatList element's view
-    const Pic = useCallback(({ photo }) => {
+    const Pic = useCallback(({ photo, pictures }) => {
         // Gets pfp of poster
-        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
+        const pfp = group.users.find((value)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         if (photo.points != 0){
@@ -312,7 +312,7 @@ export default function GroupScreen({navigation}){
             style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
                             <View style={{gap:5}}>
                                 <TouchableOpacity
@@ -408,7 +408,7 @@ export default function GroupScreen({navigation}){
                         pictures.length ?
                             <FlatList 
                                 numColumns={2}
-                                renderItem={({ item }) => <Pic photo={item} />}
+                                renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
                                 keyExtractor={(item) => item.id}
                                 data={pictures}
                             />

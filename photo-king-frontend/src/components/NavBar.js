@@ -34,7 +34,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.greyWhite}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/profile.png')}/>
                 </View>
@@ -51,7 +51,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.greyWhite}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/home.png')}/>
                 </View>
@@ -68,7 +68,7 @@ export default function NavBar({navigation, user, screen}){
                 </TouchableOpacity>
             ) : (
                 <View
-                    style={[iconViewStyle, {backgroundColor: colors.primary}]}
+                    style={[iconViewStyle, {backgroundColor: colors.greyWhite}]}
                 >
                     <Image style={iconStyle} source={require('../../assets/icons/friends.png')}/>
                 </View>
