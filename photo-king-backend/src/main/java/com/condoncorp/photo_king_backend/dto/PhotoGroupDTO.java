@@ -24,10 +24,10 @@ public class PhotoGroupDTO {
     }
 
     // FOR CREATING A NEW PHOTO GROUP
-    public PhotoGroupDTO(String name, int ownerId, int selectedDay) {
+    public PhotoGroupDTO(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
-        this.selectedDay = selectedDay;
+        this.selectedDay = 1;
     }
 
     public PhotoGroupDTO() {}

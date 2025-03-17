@@ -164,6 +164,15 @@ public class UserImageService {
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImageDTO getTopImage(int groupId) {
 
+        List<UserImageDTO> groupImages = getImagesByGroup(groupId);
+
+        if (groupImages == null) {
+            return null;
+        }
+
+        if (groupImages.isEmpty()) {
+            return null;
+        }
         List<UserImageDTO> images = new ArrayList<>(getImagesByGroup(groupId));
 
         if (images.isEmpty()) {
