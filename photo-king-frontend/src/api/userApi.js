@@ -16,8 +16,14 @@ const userApi = {
 
     removeFriend: async (userId, friendId) => {
         return apiClient.post(`/user/remove-friend/${userId}/${friendId}`);
-    }
+    },
 
+    getBio: async (userId) => {
+        return apiClient.get(`/user/get-user-bio/${userId}`);
+    },
+    setProfile: async (userId, username, name, bio) => {
+        return apiClient.post(`/user/set-user-profile`, {"id": userId, "username": username, "name":name, "bio": bio});
+    },
 }
 
 export default userApi;
