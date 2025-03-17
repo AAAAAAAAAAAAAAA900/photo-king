@@ -18,6 +18,7 @@ import FriendsScreen from './src/screens/Friends.js';
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import PhotoScreen from './src/screens/Photo.js';
 import RankScreen from './src/screens/Rank.js';
+import {navigationRef} from "./src/utilities/RootNavigation";
 
 
 const Stack = createNativeStackNavigator();
@@ -48,7 +49,7 @@ export default function App() {
   return (
       <ActionSheetProvider>
         <SafeAreaProvider>
-          <NavigationContainer>
+          <NavigationContainer ref={ navigationRef }>
             <Stack.Navigator initialRouteName="Login">
               {/* Headers replaced with custom component because of expo go bug on android */}
               <Stack.Screen

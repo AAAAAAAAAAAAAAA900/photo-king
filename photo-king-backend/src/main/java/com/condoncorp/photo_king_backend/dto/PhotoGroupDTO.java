@@ -10,6 +10,7 @@ public class PhotoGroupDTO {
     private int id;
     private String name;
     private int ownerId;
+    private int selectedDay;
     private Set<FriendDTO> users;
     private List<UserImageDTO> userImages;
 
@@ -23,9 +24,10 @@ public class PhotoGroupDTO {
     }
 
     // FOR CREATING A NEW PHOTO GROUP
-    public PhotoGroupDTO(String name, int ownerId) {
+    public PhotoGroupDTO(String name, int ownerId, int selectedDay) {
         this.name = name;
         this.ownerId = ownerId;
+        this.selectedDay = selectedDay;
     }
 
     public PhotoGroupDTO() {}
@@ -52,6 +54,10 @@ public class PhotoGroupDTO {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public int getSelectedDay() {
+        return selectedDay;
     }
 
     public Set<FriendDTO> getUsers() {

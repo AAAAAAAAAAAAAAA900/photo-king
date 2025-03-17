@@ -176,8 +176,6 @@ public class UserImageService {
 
         images.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
         return images.get(0);
-
-
     }
 
     // UPDATES AN IMAGE'S POINTS

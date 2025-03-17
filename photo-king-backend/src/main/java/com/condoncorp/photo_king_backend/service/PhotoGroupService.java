@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 @Service
@@ -26,6 +30,7 @@ public class PhotoGroupService {
 
     public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
         PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO.getName(), photoGroupDTO.getOwnerId());
+        photoGroup.setExpiresAt(calculateExpiry(photoGroupDTO.getSelectedDay()));
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }
@@ -114,6 +119,22 @@ public class PhotoGroupService {
         userImageService.updatePoints(thirdRankId, 1);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
     }
+
+    // GENERATE EXPIRY DATE
+    public LocalDateTime calculateExpiry(int dayOfWeek) {
+        LocalDateTime now = LocalDateTime.now();
+        return now.with(TemporalAdjusters.next(DayOfWeek.of(dayOfWeek))).with(LocalTime.of(23, 59, 59));
+    }
+
+    // CHECKS IF GROUP IS EXPIRED
+    public boolean isExpired(int groupId) {
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (photoGroup.isEmpty()) {
+            throw new RuntimeException("Group not found");
+        }
+        return photoGroup.get().getExpiresAt().isBefore(LocalDateTime.now());
+    }
+
 
 
 

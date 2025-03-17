@@ -6,6 +6,7 @@ import imageApi from "../api/imageApi";
 import { lookup } from 'react-native-mime-types';
 import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
+import * as SecureStore from "expo-secure-store";
 import DefaultText from './DefaultText.js';
 
 
