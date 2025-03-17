@@ -1,8 +1,8 @@
 import {apiClient} from "./apiClient";
 
 const photoGroupApi = {
-    addGroup: async(groupTitle, userId) => {
-        return apiClient.post("/photo-group/add", {name: groupTitle, ownerId: userId})
+    addGroup: async(groupTitle, userId, day) => {
+        return apiClient.post("/photo-group/add", {name: groupTitle, ownerId: userId, selectedDay: day})
     },
 
     addUserToGroup: async (userId, groupId) => {

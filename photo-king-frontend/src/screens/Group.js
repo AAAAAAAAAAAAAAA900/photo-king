@@ -27,7 +27,7 @@ export default function GroupScreen({navigation}){
     const [friendClicked, setFriendClicked] = useState(null);   
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -312,7 +312,7 @@ export default function GroupScreen({navigation}){
             style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:140,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
                             <View style={{gap:5}}>
                                 <TouchableOpacity
@@ -362,8 +362,16 @@ export default function GroupScreen({navigation}){
             />
             
             {/* Group options bar */}
-            <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
-                {/* Disables ranking button if user already ranked this week */}
+            <View style={{padding:8, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', alignItems:'center',flexDirection:'row'}}>
+                
+
+                <View style={{height:50, width: 120, alignItems:'center', backgroundColor:'#CCCCCC', borderRadius:8, flexDirection:'row', gap:6}}>
+                    <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
+                    <View style={{alignItems:'center'}}>
+                        <DefaultText>Resets:</DefaultText>
+                        <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                    </View>
+                </View>
 
                 <TouchableOpacity
                 style={styles.button}

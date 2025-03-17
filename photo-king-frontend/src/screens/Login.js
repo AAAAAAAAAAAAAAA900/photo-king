@@ -42,11 +42,14 @@ export default function LoginScreen ({navigation}){
           const user_info = await userApi.getUserInfo();
           navigation.navigate("Home", {user: user_info.data});
         }
+        else{
+          setLoading(false);
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    checkLoginStatus().then(r => console.log("SUCCESS"));
+    checkLoginStatus();
   }, []);
 
   if (loading) {
