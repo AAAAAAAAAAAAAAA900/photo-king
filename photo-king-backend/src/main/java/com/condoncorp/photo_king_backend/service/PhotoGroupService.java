@@ -30,7 +30,7 @@ public class PhotoGroupService {
 
     public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
         PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO.getName(), photoGroupDTO.getOwnerId());
-        photoGroup.setExpiresAt(calculateExpiry(photoGroupDTO.getSelectedDay()));
+        photoGroup.setExpiresAt(calculateExpiry(1));
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }
