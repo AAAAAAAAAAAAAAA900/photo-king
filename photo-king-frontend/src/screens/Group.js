@@ -440,7 +440,9 @@ export default function GroupScreen({navigation}){
 export const loadPictures = async (setPictures, group, setLoading) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
-        setPictures(response.data.sort((a,b)=> b.points-a.points));
+        if(response.data){
+            setPictures(response.data.sort((a,b)=> b.points-a.points));
+        }
         if(setLoading) setLoading(false);
     } catch (error) {
         console.log(error);

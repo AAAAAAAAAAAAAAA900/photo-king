@@ -1,6 +1,8 @@
 package com.condoncorp.photo_king_backend.controller;
 
-import com.condoncorp.photo_king_backend.dto.*;
+import com.condoncorp.photo_king_backend.dto.FriendDTO;
+import com.condoncorp.photo_king_backend.dto.UserDTO;
+import com.condoncorp.photo_king_backend.dto.UserProfileReq;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     // RETURNS USER OBJECT BY USERNAME
     @GetMapping(path = "/get-user/{username}")
     public UserDTO getUser(@PathVariable String username) {
@@ -27,7 +28,6 @@ public class UserController {
     public Set<FriendDTO> addFriend(@PathVariable int userId, @PathVariable int friendId) {
         return userService.addFriend(userId, friendId);
     }
-
     // REMOVES A FRIEND FROM USER'S FRIENDS LIST
     @PostMapping(path="/remove-friend/{userId}/{friendId}")
     public Set<FriendDTO> removeFriend(@PathVariable int userId, @PathVariable int friendId) {

@@ -1,4 +1,4 @@
-import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground, StyleSheet } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
@@ -16,6 +16,7 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(route.params?.user);
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
+  const [daySelected, setDaySelected] = useState(1);
   const [thumbnails, setThumbnails] = useState({}); 
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +26,7 @@ export default function HomeScreen ({navigation}){
 
   const addGroup = async () => {
       try {
-          const group_response = await photoGroupApi.addGroup(groupTitle, user.id); // CREATES A GROUP
+          const group_response = await photoGroupApi.addGroup(groupTitle, user.id, daySelected); // CREATES A GROUP
           const group_data = group_response.data;
           try {
               const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
@@ -59,6 +60,61 @@ export default function HomeScreen ({navigation}){
     }
   }
 
+  const WeekRadioButtons = ({daySelected, setDaySelected}) => {
+    const radioStyles = StyleSheet.create({
+      container:{
+        width:800,
+        height:80,
+        justifyContent:'space-between',
+        padding:20,
+        alignItems:'center',
+        flexDirection:'row'
+      }
+    });
+    return(
+      <View style={radioStyles.container}>
+        <RadioButton text="Monday" isSelected={daySelected==1} select={() => {setDaySelected(1);}}/>
+        <RadioButton text="Teusday" isSelected={daySelected==2} select={() => {setDaySelected(2);}}/>
+        <RadioButton text="Wednesday" isSelected={daySelected==3} select={() => {setDaySelected(3);}}/>
+        <RadioButton text="Thursday" isSelected={daySelected==4} select={() => {setDaySelected(4);}}/>
+        <RadioButton text="Friday" isSelected={daySelected==5} select={() => {setDaySelected(5);}}/>
+        <RadioButton text="Saturday" isSelected={daySelected==6} select={() => {setDaySelected(6);}}/>
+        <RadioButton text="Sunday" isSelected={daySelected==7} select={() => {setDaySelected(7);}}/>
+      </View>
+    );
+  };
+  const RadioButton = ({text, isSelected, select}) => {
+    const buttonStyles = StyleSheet.create({
+      button: {
+        height:40,
+        width:100,
+        borderRadius: 20,
+        borderWidth: 2,
+        alignItems:'center',
+        justifyContent:'center'
+      },
+      selected: {
+        backgroundColor:colors.secondary,
+        borderColor: colors.secondary
+      },
+      selectedText: {
+        color:'white'
+      }
+    });
+    return(
+      isSelected ? (
+        <View style={[buttonStyles.button, buttonStyles.selected]}>
+          <DefaultText style={buttonStyles.selectedText}>{text}</DefaultText>
+        </View>
+      ) : (
+        <TouchableOpacity onPress={select} style={buttonStyles.button}>
+          <DefaultText>{text}</DefaultText>
+        </TouchableOpacity>
+      )
+    );
+  };
+  
+
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ flex:1 }}>
@@ -70,7 +126,7 @@ export default function HomeScreen ({navigation}){
           animationType="fade"
           transparent={true}
           visible={groupModalVisible}
-          onRequestClose={() => {setGroupModalVisible(false);}}
+          onRequestClose={() => {setDaySelected(1); setGroupTitle(""); setGroupModalVisible(false);}}
         >
           <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
@@ -85,10 +141,12 @@ export default function HomeScreen ({navigation}){
                   autoCorrect ={false}
                   placeholder="Enter Group Name..."
                 />
+                <WeekRadioButtons daySelected={daySelected} setDaySelected={setDaySelected}/>
                 <View style={{flexDirection:'row', gap:10}}>
                 <TouchableOpacity style={[styles.button, {width:'40%', backgroundColor:colors.greyWhite}]}
                     onPress={() => {
-                      setGroupTitle(''); 
+                      setGroupTitle('');
+                      setDaySelected(1); 
                       setGroupModalVisible(false);
                     }}
                   >
@@ -99,6 +157,7 @@ export default function HomeScreen ({navigation}){
                       addGroup();
                       setGroupTitle('');
                       setGroupModalVisible(false);
+                      setDaySelected(1);
                     }}
                   >
                     <DefaultText>Submit</DefaultText>
