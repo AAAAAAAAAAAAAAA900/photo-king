@@ -9,6 +9,8 @@ import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
+import DropDownMenu from '../components/DropDownMenu.js';
+import Timer from '../components/Timer.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -70,65 +72,6 @@ export default function HomeScreen ({navigation}){
       console.log(error);
     }
   }
-
-  const DropDownMenu = ({data, selection, setSelection}) => {
-    const [dropVisible, setDropVisible] = useState(false);
-
-    const dropStyles = StyleSheet.create({
-      selectionBox:{
-        width:140,
-        height: 30,
-        borderWidth:1,
-        borderRadius:2,
-        padding:5,
-        alignItems:'center',
-        justifyContent:"space-between",
-        flexDirection:'row'
-      },
-      container:{
-        width:140,
-        height: 100,
-      },
-      listContainer:{
-        flex:1,
-        borderWidth:1,
-        borderRadius:2
-      },
-      listItem:{
-        width:140,
-        height: 30,
-        padding:5,
-        justifyContent:'center',
-      }
-    });
-
-    const ListItem = ({text, setSelection}) => {
-      return(
-        <TouchableOpacity onPress={()=> setSelection(text)} style={dropStyles.listItem}>
-          <DefaultText>{text}</DefaultText>
-        </TouchableOpacity>
-      );
-    }
-
-    return(
-      <View style={dropStyles.container}>
-        <TouchableOpacity onPress={()=> setDropVisible(!dropVisible)} style={dropStyles.selectionBox}>
-          <DefaultText>{selection}</DefaultText>
-          <Image style={[styles.iconStyle, {width:'20%'}]} source={require('../../assets/icons/down.png')}/>
-        </TouchableOpacity>
-        { dropVisible &&
-          <View style={dropStyles.listContainer}>
-            <FlatList
-            data={data}
-            renderItem={(item) => <ListItem text={item.item} setSelection={setSelection}/>}
-            keyExtractor={(item)=>item}
-            />
-          </View>
-        }
-      </View>
-    );
-  };
-
   
   // Home screen view: scrollable list of groups
   return (
@@ -157,7 +100,7 @@ export default function HomeScreen ({navigation}){
                   placeholder="Enter Group Name..."
                 />
                 <View style={{flexDirection:'row',justifyContent:'center'}}>
-                  <DefaultText style={{marginTop:5, marginRight:5}}>The group will reset every... </DefaultText>
+                  <DefaultText style={{marginTop:5, marginRight:5}}>Resets every: </DefaultText>
                   <DropDownMenu data={days} selection={daySelected} setSelection={setDaySelected}/>
                 </View>
                 <View style={{flexDirection:'row', gap:10}}>

@@ -14,6 +14,7 @@ import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
+import Timer from '../components/Timer.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -241,6 +242,21 @@ export default function GroupScreen({navigation}){
         loadPictures(setPictures, group, setLoading).then(r => {});
     }, []);
 
+    const getDateInfo = () => {
+        const current_date = new Date(Date.now());
+        const day = current_date.getDay();
+        
+        let secondsToEndDay = current_date.getTime();
+        current_date.setHours(23, 59, 59);
+        secondsToEndDay = Math.floor((current_date.getTime() - secondsToEndDay)/1000);
+
+        return {
+            day: (day !=0 ? day : 7), // adjusts sunday from 0 to 7 to match database
+            secondsLeft: secondsToEndDay
+        }
+    };
+    
+
     return(
         <SafeAreaView style={{flex:1}}>
             <Header 
@@ -367,9 +383,13 @@ export default function GroupScreen({navigation}){
 
                 <View style={{height:50, width: 120, alignItems:'center', backgroundColor:'#CCCCCC', borderRadius:8, flexDirection:'row', gap:6}}>
                     <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
-                    <View style={{alignItems:'center'}}>
+                    <View style={{alignItems:'center', width:'60%'}}>
                         <DefaultText>Resets:</DefaultText>
-                        <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                        {getDateInfo().day != group.selectedDay ? 
+                            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                        :
+                            <Timer startTime={getDateInfo().secondsLeft}/>
+                        }
                     </View>
                 </View>
 

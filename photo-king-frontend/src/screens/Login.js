@@ -29,8 +29,6 @@ export default function LoginScreen ({navigation}){
     } catch (error) {
       setErrorText("Username or password does not exist.");
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -41,12 +39,12 @@ export default function LoginScreen ({navigation}){
         if (refreshToken && await isTokenValid(refreshToken)) {
           const user_info = await userApi.getUserInfo();
           navigation.navigate("Home", {user: user_info.data});
-        }
-        else{
+        } else{
           setLoading(false);
         }
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
     checkLoginStatus();
