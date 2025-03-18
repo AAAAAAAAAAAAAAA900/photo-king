@@ -65,15 +65,6 @@ public class UserService {
     }
 
 
-    // HANDLES USER LOGIN
-    public UserDTO loginUser(AuthRegReq authRegReq) {
-        Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
-        return new UserDTO(user.get());
-    }
-
     // HANDLES USER REGISTRATION
     public UserDTO registerUser(UserRegisterDTO user) {
 
