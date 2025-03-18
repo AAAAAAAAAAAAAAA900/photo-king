@@ -16,9 +16,10 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(route.params?.user);
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-  const [daySelected, setDaySelected] = useState(1);
+  const [daySelected, setDaySelected] = useState("Monday");
   const [thumbnails, setThumbnails] = useState({}); 
   const [loading, setLoading] = useState(true);
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   useEffect(()=>{
     getGroupThumbnails();
@@ -26,7 +27,17 @@ export default function HomeScreen ({navigation}){
 
   const addGroup = async () => {
       try {
-          const group_response = await photoGroupApi.addGroup(groupTitle, user.id, daySelected); // CREATES A GROUP
+          let day;
+          switch(daySelected){
+            case "Monday": day = 1; break;
+            case "Tuesday": day = 2; break;
+            case "Wednesday": day = 3; break;
+            case "Thursday": day = 4; break;
+            case "Friday": day = 5; break;
+            case "Saturday": day = 6; break;
+            case "Sunday": day = 7; break;
+          }
+          const group_response = await photoGroupApi.addGroup(groupTitle, user.id, day); // CREATES A GROUP
           const group_data = group_response.data;
           try {
               const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
@@ -60,61 +71,65 @@ export default function HomeScreen ({navigation}){
     }
   }
 
-  const WeekRadioButtons = ({daySelected, setDaySelected}) => {
-    const radioStyles = StyleSheet.create({
-      container:{
-        width:800,
-        height:80,
-        justifyContent:'space-between',
-        padding:20,
+  const DropDownMenu = ({data, selection, setSelection}) => {
+    const [dropVisible, setDropVisible] = useState(false);
+
+    const dropStyles = StyleSheet.create({
+      selectionBox:{
+        width:140,
+        height: 30,
+        borderWidth:1,
+        borderRadius:2,
+        padding:5,
         alignItems:'center',
+        justifyContent:"space-between",
         flexDirection:'row'
+      },
+      container:{
+        width:140,
+        height: 100,
+      },
+      listContainer:{
+        flex:1,
+        borderWidth:1,
+        borderRadius:2
+      },
+      listItem:{
+        width:140,
+        height: 30,
+        padding:5,
+        justifyContent:'center',
       }
     });
+
+    const ListItem = ({text, setSelection}) => {
+      return(
+        <TouchableOpacity onPress={()=> setSelection(text)} style={dropStyles.listItem}>
+          <DefaultText>{text}</DefaultText>
+        </TouchableOpacity>
+      );
+    }
+
     return(
-      <View style={radioStyles.container}>
-        <RadioButton text="Monday" isSelected={daySelected==1} select={() => {setDaySelected(1);}}/>
-        <RadioButton text="Teusday" isSelected={daySelected==2} select={() => {setDaySelected(2);}}/>
-        <RadioButton text="Wednesday" isSelected={daySelected==3} select={() => {setDaySelected(3);}}/>
-        <RadioButton text="Thursday" isSelected={daySelected==4} select={() => {setDaySelected(4);}}/>
-        <RadioButton text="Friday" isSelected={daySelected==5} select={() => {setDaySelected(5);}}/>
-        <RadioButton text="Saturday" isSelected={daySelected==6} select={() => {setDaySelected(6);}}/>
-        <RadioButton text="Sunday" isSelected={daySelected==7} select={() => {setDaySelected(7);}}/>
+      <View style={dropStyles.container}>
+        <TouchableOpacity onPress={()=> setDropVisible(!dropVisible)} style={dropStyles.selectionBox}>
+          <DefaultText>{selection}</DefaultText>
+          <Image style={[styles.iconStyle, {width:'20%'}]} source={require('../../assets/icons/down.png')}/>
+        </TouchableOpacity>
+        { dropVisible &&
+          <View style={dropStyles.listContainer}>
+            <FlatList
+            data={data}
+            renderItem={(item) => <ListItem text={item.item} setSelection={setSelection}/>}
+            keyExtractor={(item)=>item}
+            />
+          </View>
+        }
       </View>
     );
   };
-  const RadioButton = ({text, isSelected, select}) => {
-    const buttonStyles = StyleSheet.create({
-      button: {
-        height:40,
-        width:100,
-        borderRadius: 20,
-        borderWidth: 2,
-        alignItems:'center',
-        justifyContent:'center'
-      },
-      selected: {
-        backgroundColor:colors.secondary,
-        borderColor: colors.secondary
-      },
-      selectedText: {
-        color:'white'
-      }
-    });
-    return(
-      isSelected ? (
-        <View style={[buttonStyles.button, buttonStyles.selected]}>
-          <DefaultText style={buttonStyles.selectedText}>{text}</DefaultText>
-        </View>
-      ) : (
-        <TouchableOpacity onPress={select} style={buttonStyles.button}>
-          <DefaultText>{text}</DefaultText>
-        </TouchableOpacity>
-      )
-    );
-  };
-  
 
+  
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ flex:1 }}>
@@ -126,12 +141,12 @@ export default function HomeScreen ({navigation}){
           animationType="fade"
           transparent={true}
           visible={groupModalVisible}
-          onRequestClose={() => {setDaySelected(1); setGroupTitle(""); setGroupModalVisible(false);}}
+          onRequestClose={() => {setDaySelected("Monday"); setGroupTitle(""); setGroupModalVisible(false);}}
         >
-          <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {setGroupTitle(''); setDaySelected("Monday"); setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
             <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10,gap:40}]}>
+            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10, gap:13}]}>
                 <DefaultText style={styles.titleText}>Create Group</DefaultText>
                 <TextInput 
                   style={[styles.textIn, {width: '80%'}]}
@@ -141,12 +156,15 @@ export default function HomeScreen ({navigation}){
                   autoCorrect ={false}
                   placeholder="Enter Group Name..."
                 />
-                <WeekRadioButtons daySelected={daySelected} setDaySelected={setDaySelected}/>
+                <View style={{flexDirection:'row',justifyContent:'center'}}>
+                  <DefaultText style={{marginTop:5, marginRight:5}}>The group will reset every... </DefaultText>
+                  <DropDownMenu data={days} selection={daySelected} setSelection={setDaySelected}/>
+                </View>
                 <View style={{flexDirection:'row', gap:10}}>
                 <TouchableOpacity style={[styles.button, {width:'40%', backgroundColor:colors.greyWhite}]}
                     onPress={() => {
                       setGroupTitle('');
-                      setDaySelected(1); 
+                      setDaySelected("Monday"); 
                       setGroupModalVisible(false);
                     }}
                   >
@@ -157,7 +175,7 @@ export default function HomeScreen ({navigation}){
                       addGroup();
                       setGroupTitle('');
                       setGroupModalVisible(false);
-                      setDaySelected(1);
+                      setDaySelected("Monday");
                     }}
                   >
                     <DefaultText>Submit</DefaultText>
