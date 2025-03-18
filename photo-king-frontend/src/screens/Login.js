@@ -10,6 +10,7 @@ import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
 import {isTokenValid} from "../api/apiClient";
 
+
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
@@ -29,8 +30,6 @@ export default function LoginScreen ({navigation}){
     } catch (error) {
       setErrorText("Username or password does not exist.");
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -44,9 +43,11 @@ export default function LoginScreen ({navigation}){
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
-    checkLoginStatus().then(r => console.log("SUCCESS"));
+    checkLoginStatus().then();
   }, []);
 
   if (loading) {
@@ -56,6 +57,7 @@ export default function LoginScreen ({navigation}){
         </SafeAreaView>
     );
   }
+
 
   // Login screen view
   return(
