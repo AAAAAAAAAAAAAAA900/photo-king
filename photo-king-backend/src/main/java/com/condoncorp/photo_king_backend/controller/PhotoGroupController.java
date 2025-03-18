@@ -33,7 +33,7 @@ public class PhotoGroupController {
     }
 
 
-
+    // UPDATES USER'S RANKINGS
     @PostMapping(path = "/update-user-rank")
     public void updateUserRank(@RequestBody RankUpdateReq rankUpdateReq) {
         List<Integer> images = rankUpdateReq.getImages();
@@ -58,6 +58,7 @@ public class PhotoGroupController {
 
     }
 
+    // CHECKS IF GROUP IS EXPIRED
     @GetMapping(path = "/expired")
     public boolean isExpired(int groupId) {
         return photoGroupService.isExpired(groupId);

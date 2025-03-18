@@ -30,7 +30,7 @@ public class PhotoGroupService {
 
     public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
         PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO.getName(), photoGroupDTO.getOwnerId());
-        photoGroup.setExpiresAt(calculateExpiry(1));
+        photoGroup.setExpiresAt(calculateExpiry(photoGroupDTO.getSelectedDay()));
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }
@@ -123,7 +123,15 @@ public class PhotoGroupService {
     // GENERATE EXPIRY DATE
     public LocalDateTime calculateExpiry(int dayOfWeek) {
         LocalDateTime now = LocalDateTime.now();
-        return now.with(TemporalAdjusters.next(DayOfWeek.of(dayOfWeek))).with(LocalTime.of(23, 59, 59));
+        LocalDateTime nextOccurrence = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)));
+
+        // Ensure it's at least one full week ahead
+        if (!nextOccurrence.isAfter(now)) {
+            nextOccurrence = nextOccurrence.plusWeeks(1);
+        }
+
+        // Set time to 23:59:59
+        return nextOccurrence.with(LocalTime.of(23, 59, 59));
     }
 
     // CHECKS IF GROUP IS EXPIRED

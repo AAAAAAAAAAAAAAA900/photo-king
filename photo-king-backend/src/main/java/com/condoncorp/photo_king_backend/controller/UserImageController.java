@@ -75,7 +75,7 @@ public class UserImageController {
         return userImageService.getImagesByGroup(groupId);
     }
 
-    // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
+    // DELETES AN IMAGE FROM CLOUD AND DATABASE
     @DeleteMapping(path = "/delete-image/{id}")
     public void deleteImage(@PathVariable int id) throws IOException {
         userImageService.deleteImage(id);
@@ -105,6 +105,7 @@ public class UserImageController {
         return userImageService.uploadComment(userImageCommentDTO);
     }
 
+    // DELETES COMMENT
     @DeleteMapping(path = "/delete-comment/{id}")
     public void deleteComment(@PathVariable int id) {
         userImageService.deleteComment(id);
