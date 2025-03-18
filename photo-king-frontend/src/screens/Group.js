@@ -14,6 +14,7 @@ import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
+import Timer from '../components/Timer.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -27,7 +28,7 @@ export default function GroupScreen({navigation}){
     const [friendClicked, setFriendClicked] = useState(null);   
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -241,6 +242,21 @@ export default function GroupScreen({navigation}){
         loadPictures(setPictures, group, setLoading).then(r => {});
     }, []);
 
+    const getDateInfo = () => {
+        const current_date = new Date(Date.now());
+        const day = current_date.getDay();
+        
+        let secondsToEndDay = current_date.getTime();
+        current_date.setHours(23, 59, 59);
+        secondsToEndDay = Math.floor((current_date.getTime() - secondsToEndDay)/1000);
+
+        return {
+            day: (day !=0 ? day : 7), // adjusts sunday from 0 to 7 to match database
+            secondsLeft: secondsToEndDay
+        }
+    };
+    
+
     return(
         <SafeAreaView style={{flex:1}}>
             <Header 
@@ -312,7 +328,7 @@ export default function GroupScreen({navigation}){
             style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:140,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
                             <View style={{gap:5}}>
                                 <TouchableOpacity
@@ -362,8 +378,20 @@ export default function GroupScreen({navigation}){
             />
             
             {/* Group options bar */}
-            <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
-                {/* Disables ranking button if user already ranked this week */}
+            <View style={{padding:8, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', alignItems:'center',flexDirection:'row'}}>
+                
+
+                <View style={{height:50, width: 120, alignItems:'center', backgroundColor:'#CCCCCC', borderRadius:8, flexDirection:'row', gap:6}}>
+                    <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
+                    <View style={{alignItems:'center', width:'60%'}}>
+                        <DefaultText>Resets:</DefaultText>
+                        {getDateInfo().day != group.selectedDay ? 
+                            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                        :
+                            <Timer startTime={getDateInfo().secondsLeft}/>
+                        }
+                    </View>
+                </View>
 
                 <TouchableOpacity
                 style={styles.button}

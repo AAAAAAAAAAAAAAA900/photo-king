@@ -21,13 +21,14 @@ public class PhotoGroupDTO {
         this.ownerId = photoGroup.getOwnerId();
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.userImages = photoGroup.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
+        this.selectedDay = photoGroup.getExpiresAt().getDayOfWeek().getValue();
     }
 
     // FOR CREATING A NEW PHOTO GROUP
-    public PhotoGroupDTO(String name, int ownerId) {
+    public PhotoGroupDTO(String name, int ownerId, int selectedDay) {
         this.name = name;
         this.ownerId = ownerId;
-        this.selectedDay = 1;
+        this.selectedDay = selectedDay;
     }
 
     public PhotoGroupDTO() {}

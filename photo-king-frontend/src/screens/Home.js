@@ -9,6 +9,8 @@ import photoGroupApi from "../api/photoGroupApi";
 import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
+import DropDownMenu from '../components/DropDownMenu.js';
+import Timer from '../components/Timer.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -16,9 +18,10 @@ export default function HomeScreen ({navigation}){
   const [user, setUser] = useState(route.params?.user);
   const [groupModalVisible, setGroupModalVisible] = useState(false)
   const [groupTitle, setGroupTitle] = useState('');
-  const [daySelected, setDaySelected] = useState(1);
+  const [daySelected, setDaySelected] = useState("Monday");
   const [thumbnails, setThumbnails] = useState({}); 
   const [loading, setLoading] = useState(true);
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   useEffect(()=>{
     getGroupThumbnails();
@@ -26,7 +29,17 @@ export default function HomeScreen ({navigation}){
 
   const addGroup = async () => {
       try {
-          const group_response = await photoGroupApi.addGroup(groupTitle, user.id, daySelected); // CREATES A GROUP
+          let day;
+          switch(daySelected){
+            case "Monday": day = 1; break;
+            case "Tuesday": day = 2; break;
+            case "Wednesday": day = 3; break;
+            case "Thursday": day = 4; break;
+            case "Friday": day = 5; break;
+            case "Saturday": day = 6; break;
+            case "Sunday": day = 7; break;
+          }
+          const group_response = await photoGroupApi.addGroup(groupTitle, user.id, day); // CREATES A GROUP
           const group_data = group_response.data;
           try {
               const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
@@ -59,62 +72,7 @@ export default function HomeScreen ({navigation}){
       console.log(error);
     }
   }
-
-  const WeekRadioButtons = ({daySelected, setDaySelected}) => {
-    const radioStyles = StyleSheet.create({
-      container:{
-        width:800,
-        height:80,
-        justifyContent:'space-between',
-        padding:20,
-        alignItems:'center',
-        flexDirection:'row'
-      }
-    });
-    return(
-      <View style={radioStyles.container}>
-        <RadioButton text="Monday" isSelected={daySelected==1} select={() => {setDaySelected(1);}}/>
-        <RadioButton text="Teusday" isSelected={daySelected==2} select={() => {setDaySelected(2);}}/>
-        <RadioButton text="Wednesday" isSelected={daySelected==3} select={() => {setDaySelected(3);}}/>
-        <RadioButton text="Thursday" isSelected={daySelected==4} select={() => {setDaySelected(4);}}/>
-        <RadioButton text="Friday" isSelected={daySelected==5} select={() => {setDaySelected(5);}}/>
-        <RadioButton text="Saturday" isSelected={daySelected==6} select={() => {setDaySelected(6);}}/>
-        <RadioButton text="Sunday" isSelected={daySelected==7} select={() => {setDaySelected(7);}}/>
-      </View>
-    );
-  };
-  const RadioButton = ({text, isSelected, select}) => {
-    const buttonStyles = StyleSheet.create({
-      button: {
-        height:40,
-        width:100,
-        borderRadius: 20,
-        borderWidth: 2,
-        alignItems:'center',
-        justifyContent:'center'
-      },
-      selected: {
-        backgroundColor:colors.secondary,
-        borderColor: colors.secondary
-      },
-      selectedText: {
-        color:'white'
-      }
-    });
-    return(
-      isSelected ? (
-        <View style={[buttonStyles.button, buttonStyles.selected]}>
-          <DefaultText style={buttonStyles.selectedText}>{text}</DefaultText>
-        </View>
-      ) : (
-        <TouchableOpacity onPress={select} style={buttonStyles.button}>
-          <DefaultText>{text}</DefaultText>
-        </TouchableOpacity>
-      )
-    );
-  };
   
-
   // Home screen view: scrollable list of groups
   return (
       <SafeAreaView style={{ flex:1 }}>
@@ -126,12 +84,12 @@ export default function HomeScreen ({navigation}){
           animationType="fade"
           transparent={true}
           visible={groupModalVisible}
-          onRequestClose={() => {setDaySelected(1); setGroupTitle(""); setGroupModalVisible(false);}}
+          onRequestClose={() => {setDaySelected("Monday"); setGroupTitle(""); setGroupModalVisible(false);}}
         >
-          <TouchableOpacity activeOpacity={1} onPress={() => {setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {setGroupTitle(''); setDaySelected("Monday"); setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
             <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10,gap:40}]}>
+            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10, gap:13}]}>
                 <DefaultText style={styles.titleText}>Create Group</DefaultText>
                 <TextInput 
                   style={[styles.textIn, {width: '80%'}]}
@@ -141,12 +99,15 @@ export default function HomeScreen ({navigation}){
                   autoCorrect ={false}
                   placeholder="Enter Group Name..."
                 />
-                <WeekRadioButtons daySelected={daySelected} setDaySelected={setDaySelected}/>
+                <View style={{flexDirection:'row',justifyContent:'center'}}>
+                  <DefaultText style={{marginTop:5, marginRight:5}}>Resets every: </DefaultText>
+                  <DropDownMenu data={days} selection={daySelected} setSelection={setDaySelected}/>
+                </View>
                 <View style={{flexDirection:'row', gap:10}}>
                 <TouchableOpacity style={[styles.button, {width:'40%', backgroundColor:colors.greyWhite}]}
                     onPress={() => {
                       setGroupTitle('');
-                      setDaySelected(1); 
+                      setDaySelected("Monday"); 
                       setGroupModalVisible(false);
                     }}
                   >
@@ -157,7 +118,7 @@ export default function HomeScreen ({navigation}){
                       addGroup();
                       setGroupTitle('');
                       setGroupModalVisible(false);
-                      setDaySelected(1);
+                      setDaySelected("Monday");
                     }}
                   >
                     <DefaultText>Submit</DefaultText>
