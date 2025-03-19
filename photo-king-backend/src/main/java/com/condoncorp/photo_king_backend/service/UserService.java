@@ -6,11 +6,14 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -189,4 +192,12 @@ public class UserService {
         return new UserDTO(user);
     }
 
+    // FINDS USERS MATCHING SEARCH QUERY
+    public List<FriendDTO> findMatchingUsers(String search){
+        Pageable pageable = PageRequest.of(0, 10);
+        return userRepository.findUsernamesLike(search, pageable)
+                .stream()
+                .map(FriendDTO::new).
+                collect(Collectors.toList());
+    }
 }

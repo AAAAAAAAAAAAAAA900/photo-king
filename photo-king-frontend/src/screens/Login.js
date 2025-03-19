@@ -36,10 +36,13 @@ export default function LoginScreen ({navigation}){
     const checkLoginStatus = async () => {
       try {
         const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        console.log("before");
         if (refreshToken && await isTokenValid(refreshToken)) {
+          console.log("in");
           const user_info = await userApi.getUserInfo();
           navigation.navigate("Home", {user: user_info.data});
         } else{
+          console.log("else");
           setLoading(false);
         }
       } catch (error) {

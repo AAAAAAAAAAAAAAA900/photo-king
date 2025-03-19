@@ -386,7 +386,7 @@ export default function GroupScreen({navigation}){
                     <View style={{alignItems:'center', width:'60%'}}>
                         <DefaultText>Resets:</DefaultText>
                         {getDateInfo().day != group.selectedDay ? 
-                            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                            <DefaultText style={styles.bold}>{days[group.selectedDay-1]}</DefaultText>
                         :
                             <Timer startTime={getDateInfo().secondsLeft}/>
                         }

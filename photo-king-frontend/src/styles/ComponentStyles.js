@@ -15,6 +15,9 @@ export default styles = StyleSheet.create({
         fontFamily: 'DMSans-Regular',
         fontSize:16
     },
+    bold:{
+        fontFamily: 'DMSans-Bold',
+    },
     titleText:{
         fontFamily: 'DMSans-Bold',
         fontSize: 25
