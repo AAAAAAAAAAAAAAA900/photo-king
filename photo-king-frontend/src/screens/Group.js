@@ -2,7 +2,7 @@ import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, 
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState, useCallback, useRef} from "react";
 import * as ImagePicker from 'expo-image-picker';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
@@ -14,6 +14,7 @@ import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
+import Timer from '../components/Timer.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -27,7 +28,7 @@ export default function GroupScreen({navigation}){
     const [friendClicked, setFriendClicked] = useState(null);   
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -241,6 +242,28 @@ export default function GroupScreen({navigation}){
         loadPictures(setPictures, group, setLoading).then(r => {});
     }, []);
 
+    const getDateInfo = () => {
+
+        const current_date = new Date(Date.now());
+        const expirationDate = new Date(group.expiresAt);
+        const expirationDay = expirationDate.getDay();
+        const isDay = current_date.getDate() === expirationDate.getDate() && current_date.getMonth() === expirationDate.getMonth();
+
+        
+        let secondsToEndDay = current_date.getTime();
+        current_date.setHours(23, 59, 59);
+        secondsToEndDay = Math.floor((current_date.getTime() - secondsToEndDay)/1000);
+
+        return {
+            isDay: isDay, // adjusts sunday from 0 to 7 to match database
+            secondsLeft: secondsToEndDay,
+            day: expirationDay
+        }
+    };
+
+    const dateInfo = useRef(getDateInfo()).current;
+    
+
     return(
         <SafeAreaView style={{flex:1}}>
             <Header 
@@ -367,9 +390,13 @@ export default function GroupScreen({navigation}){
 
                 <View style={{height:50, width: 120, alignItems:'center', backgroundColor:'#CCCCCC', borderRadius:8, flexDirection:'row', gap:6}}>
                     <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
-                    <View style={{alignItems:'center'}}>
+                    <View style={{alignItems:'center', width:'60%'}}>
                         <DefaultText>Resets:</DefaultText>
-                        <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[group.selectedDay-1]}</DefaultText>
+                        {!dateInfo.isDay ?
+                            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[dateInfo.day]}</DefaultText>
+                        :
+                            <Timer startTime={dateInfo.secondsLeft}/>
+                        }
                     </View>
                 </View>
 
