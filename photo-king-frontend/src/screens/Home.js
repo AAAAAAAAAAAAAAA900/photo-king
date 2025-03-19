@@ -1,4 +1,4 @@
-import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground, StyleSheet } from 'react-native';
+import {SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, {colors} from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
@@ -89,7 +89,7 @@ export default function HomeScreen ({navigation}){
           <TouchableOpacity activeOpacity={1} onPress={() => {setGroupTitle(''); setDaySelected("Monday"); setGroupModalVisible(false);}} style={ [styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
             <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
             <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-            <TouchableOpacity activeOpacity={1} style={[styles.popupView, {padding:10, gap:13}]}>
+            <TouchableOpacity activeOpacity={1} onPress={()=> Keyboard.dismiss()} style={[styles.popupView, {padding:10, gap:13}]}>
                 <DefaultText style={styles.titleText}>Create Group</DefaultText>
                 <TextInput 
                   style={[styles.textIn, {width: '80%'}]}

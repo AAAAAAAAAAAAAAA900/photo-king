@@ -1,4 +1,4 @@
-import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList } from "react-native";
+import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard } from "react-native";
 import DefaultText from "../components/DefaultText";
 import { useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
@@ -135,108 +135,112 @@ export default function FriendsScreen({navigation}){
     };
 
     return( 
-        <SafeAreaView style={{flex:1}}>
-            <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
-            
-            {/* friend clicked modal */}  
-            <FriendModal 
-            friendClicked={friendClicked} 
-            setFriendClicked={setFriendClicked}
-            friendModalVisible={friendModalVisible} 
-            setFriendModalVisible={setFriendModalVisible}
-            removeFriend={removeFriend}
-            />
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <SafeAreaView style={{flex:1}}>
+                <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+                
+                {/* friend clicked modal */}  
+                <FriendModal 
+                friendClicked={friendClicked} 
+                setFriendClicked={setFriendClicked}
+                friendModalVisible={friendModalVisible} 
+                setFriendModalVisible={setFriendModalVisible}
+                removeFriend={removeFriend}
+                />
 
-            {/* add friend modal */}
-            <Modal
-            visible={addFriendModalVisible}
-            onRequestClose={()=> closeModal()}
-            transparent={true}
-            animationType="fade"
-            >
-                <TouchableOpacity style={[styles.containerCenterAll, {backgroundColor:'rgba(0,0,0,.5)'}]}
-                activeOpacity={1} 
-                onPress={() => closeModal()}
+                {/* add friend modal */}
+                <Modal
+                visible={addFriendModalVisible}
+                onRequestClose={()=> closeModal()}
+                transparent={true}
+                animationType="fade"
                 >
-                    <TouchableOpacity style={{height:'70%', width:'90%', backgroundColor:'white',}}
-                    activeOpacity={1}
+                    <TouchableOpacity style={[styles.containerCenterAll, {backgroundColor:'rgba(0,0,0,.5)'}]}
+                    activeOpacity={1} 
+                    onPress={() => closeModal()}
                     >
-                        <View style={{width:'100%', height:30, backgroundColor:colors.secondary}}/>
-                        <View style={{width:'100%', height:10, backgroundColor:colors.primary}}/>
-                        <View style={{flex:1, alignItems:"center"}}>
-                            <View style={{flexDirection:'row', padding:5, justifyContent:'center'}}>
-                                <TextInput 
-                                    style={[styles.textIn, {width:'60%', marginRight:5}]}
-                                    onChangeText={(text) => setUserSearch(text)}
-                                    autoCapitalize ='none'
-                                    autoCorrect ={false}
-                                    placeholder="Enter username"
-                                    value={userSearch}
-                                />
-                                <TouchableOpacity style={styles.button} onPress={()=>{addFriendPressed(userSearch);}}>
-                                    <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
-                                </TouchableOpacity>
+                        <TouchableOpacity style={{height:400, width:'90%', backgroundColor:'white',}}
+                        onPress={()=> Keyboard.dismiss()}
+                        activeOpacity={1}
+                        >
+                            <View style={{width:'100%', height:30, backgroundColor:colors.secondary}}/>
+                            <View style={{width:'100%', height:10, backgroundColor:colors.primary}}/>
+                            <View style={{flex:1, alignItems:"center"}}>
+                                <View style={{flexDirection:'row', padding:5, justifyContent:'center'}}>
+                                    <TextInput 
+                                        style={[styles.textIn, {width:'60%', marginRight:5}]}
+                                        onChangeText={(text) => setUserSearch(text)}
+                                        autoCapitalize ='none'
+                                        autoCorrect ={false}
+                                        placeholder="Enter username"
+                                        value={userSearch}
+                                    />
+                                    <TouchableOpacity style={styles.button} onPress={()=>{addFriendPressed(userSearch);}}>
+                                        <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{height:'100%', width:'90%'}}>
+                                    <FlatList
+                                    data={searchResults}
+                                    renderItem={({item}) => <FriendPreview friend={item} press={() => {addFriendPressed(item.username);}}/>}
+                                    ItemSeparatorComponent={ () => <View style={styles.separator} /> }
+                                    keyExtractor={(item) => item.username}
+                                    />
+                                </View>
                             </View>
-                            <View style={{height:'100%', width:'90%'}}>
-                                <FlatList
-                                data={searchResults}
-                                renderItem={({item}) => <FriendPreview friend={item} press={() => {addFriendPressed(item.username);}}/>}
-                                ItemSeparatorComponent={ () => <View style={styles.separator} /> }
-                                keyExtractor={(item) => item.username}
-                                />
-                            </View>
-                        </View>
-                        <View style={{width:'100%', height:10, backgroundColor:colors.primary}}/>
-                        <View style={{width:'100%', height:30, backgroundColor:colors.secondary}}/>
+                            <View style={{width:'100%', height:10, backgroundColor:colors.primary}}/>
+                            <View style={{width:'100%', height:30, backgroundColor:colors.secondary}}/>
+                        </TouchableOpacity>
                     </TouchableOpacity>
-                </TouchableOpacity>
-            </Modal>
-        
-            {/* TAB BAR */}
-            <View style={{height:50, flexDirection:"row", width:'100%', backgroundColor:colors.secondary, padding:8}}>
-                <TouchableOpacity style={{flex:1, alignItems:"center", justifyContent:"center"}}
-                onPress={()=>setInvitesTab(false)}    
-                >
-                    <View style={[{width:'50%', height:'100%', borderRadius:10, alignItems:"center", justifyContent:"center"}, (invitesTab ? {} : {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5})]}>
-                        <DefaultText style={[styles.bold, {color:'white'}]}>Friends</DefaultText>
-                    </View>
-                </TouchableOpacity>
-                <View style={{width:1, height:'90%', backgroundColor:'black'}}/>
-                <TouchableOpacity style={{flex:1, alignItems:"center", justifyContent:"center"}}
-                onPress={()=>setInvitesTab(true)}
-                >
-                    <View style={[{width:'50%', height:'100%', borderRadius:5, alignItems:"center", justifyContent:"center"}, (invitesTab ? {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5} : {})]}>
-                        <DefaultText style={[styles.bold, {color:'white'}]}>Invites</DefaultText>
-                    </View>
-                </TouchableOpacity>
-            </View>
-            <View style={{backgroundColor:colors.primary, width:'100%', height:10}}/>
-
-            <Animated.View style={{flex:1, width:'200%', flexDirection:"row", transform: [{ translateX: slideAnim }]}}>
-                {/* FRIENDS TAB */}
-                <View style={{flex:1}}>
-                    <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 
-                    searchData={friendsList}/>
+                </Modal>
+            
+                {/* TAB BAR */}
+                <View style={{height:50, flexDirection:"row", width:'100%', backgroundColor:colors.secondary, padding:8}}>
+                    <TouchableOpacity style={{flex:1, alignItems:"center", justifyContent:"center"}}
+                    onPress={()=>setInvitesTab(false)}    
+                    >
+                        <View style={[{width:'50%', height:'100%', borderRadius:10, alignItems:"center", justifyContent:"center"}, (invitesTab ? {} : {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5})]}>
+                            <DefaultText style={[styles.bold, {color:'white'}]}>Friends</DefaultText>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={{width:1, height:'90%', backgroundColor:'black'}}/>
+                    <TouchableOpacity style={{flex:1, alignItems:"center", justifyContent:"center"}}
+                    onPress={()=>{Keyboard.dismiss(); setInvitesTab(true);}}
+                    >
+                        <View style={[{width:'50%', height:'100%', borderRadius:5, alignItems:"center", justifyContent:"center"}, (invitesTab ? {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5} : {})]}>
+                            <DefaultText style={[styles.bold, {color:'white'}]}>Invites</DefaultText>
+                        </View>
+                    </TouchableOpacity>
                 </View>
-                    
+                <View style={{backgroundColor:colors.primary, width:'100%', height:10}}/>
 
-                {/* INVITES TAB */}
-                <View style={{flex:1}}>
-                    <View style={{flex:1,justifyContent:"center", alignItems:"center"}}>
-                        <DefaultText>No pending invites</DefaultText>
+                <Animated.View style={{flex:1, width:'200%', flexDirection:"row", transform: [{ translateX: slideAnim }]}}>
+                    {/* FRIENDS TAB */}
+                    <View style={{flex:1}}>
+                        <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 
+                        searchData={friendsList}/>
                     </View>
+                        
+
+                    {/* INVITES TAB */}
+                    <View style={{flex:1}}>
+                        <View style={{flex:1,justifyContent:"center", alignItems:"center"}}>
+                            <DefaultText>No pending invites</DefaultText>
+                        </View>
+                    </View>
+                </Animated.View>
+
+                <View style={{height:60, width:'100%', padding:8, justifyContent:"center", alignItems:"center", backgroundColor:colors.primary}}>
+                    <TouchableOpacity style={{height:'100%', width:'100%', borderRadius:10, borderWidth:2, alignItems:"center", justifyContent:"center",borderColor:colors.secondary, backgroundColor:colors.secondary}}
+                    onPress={()=> setAddFriendModalVisible(true)}
+                    >
+                        <DefaultText style={[styles.bold, {color:'white'}]} >Add Friend</DefaultText>
+                    </TouchableOpacity>
                 </View>
-            </Animated.View>
 
-            <View style={{height:60, width:'100%', padding:8, justifyContent:"center", alignItems:"center", backgroundColor:colors.primary}}>
-                <TouchableOpacity style={{height:'100%', width:'100%', borderRadius:10, borderWidth:2, alignItems:"center", justifyContent:"center",borderColor:colors.secondary, backgroundColor:colors.secondary}}
-                onPress={()=> setAddFriendModalVisible(true)}
-                >
-                    <DefaultText style={[styles.bold, {color:'white'}]} >Add Friend</DefaultText>
-                </TouchableOpacity>
-            </View>
-
-            <NavBar navigation={navigation} user={user} screen='Friends'/>
-        </SafeAreaView>
+                <NavBar navigation={navigation} user={user} screen='Friends'/>
+                
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     );
 }

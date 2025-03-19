@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Keyboard } from 'react-native';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -290,13 +290,7 @@ export default function GroupScreen({navigation}){
                 <TouchableOpacity activeOpacity={1} onPress={()=>setUserModalVisible(false)} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
                     <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-                    <TouchableOpacity
-                    onPress={()=>{setUserModalVisible(false);}}
-                    style={{position:'absolute', top:'15%', right:'10%', height:60, width:60}}
-                    >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1} style={styles.popupView}>
+                    <TouchableOpacity activeOpacity={1} onPress={()=> Keyboard.dismiss()} style={styles.popupView}>
                         <View style={{width:'100%', height:'100%'}}>
                             <FriendSearch 
                             searchData={user.friends.filter((f)=>!group.users.some((member)=>member.id==f.id))} 

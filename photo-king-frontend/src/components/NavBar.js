@@ -24,7 +24,7 @@ export default function NavBar({navigation, user, screen}){
 
 
     return(
-        <View style={{flexDirection:"row", height:'10%', justifyContent: "space-between", backgroundColor:'white', padding: 10 }}>
+        <View style={{flexDirection:"row", height: 60, justifyContent: "space-between", backgroundColor:'white', padding: 10 }}>
             { screen != 'Profile' ? (
                 <TouchableOpacity
                     style={iconViewStyle}

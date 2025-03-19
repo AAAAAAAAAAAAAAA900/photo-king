@@ -83,7 +83,7 @@ export default styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width:'75%',
-        height:'40%',
+        height: 300,
         backgroundColor: colors.greyWhite
     },
     picHolder: {
