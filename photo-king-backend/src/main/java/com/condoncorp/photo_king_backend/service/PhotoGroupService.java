@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
 import com.condoncorp.photo_king_backend.model.User;
@@ -28,8 +29,8 @@ public class PhotoGroupService {
     private UserImageService userImageService;
 
 
-    public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
-        PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO);
+    public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
+        PhotoGroup photoGroup = new PhotoGroup(photoGroupReq);
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }

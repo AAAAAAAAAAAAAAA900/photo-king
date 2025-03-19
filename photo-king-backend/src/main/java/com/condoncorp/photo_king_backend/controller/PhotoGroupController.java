@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
@@ -23,8 +24,8 @@ public class PhotoGroupController {
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
-    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
-        return photoGroupService.addGroup(photoGroupDTO);
+    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupReq photoGroupReq) {
+        return photoGroupService.addGroup(photoGroupReq);
     }
 
     @DeleteMapping(path = "/delete/{id}")
