@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert } from "react-native";
+import { FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert, TouchableWithoutFeedback, Keyboard } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
 import { CommonActions } from "@react-navigation/native";
@@ -38,82 +38,84 @@ export default function PhotoScreen ({navigation}){
     };
 
     return(
-        <SafeAreaView style={{flex:1}}>
-            <Header title={group.name} backFunction={()=>{
-                navigation.dispatch((state) => {
-                    const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
-                    return CommonActions.reset({
-                        ...state,
-                        index: routes.length - 1,
-                        routes
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <SafeAreaView style={{flex:1}}>
+                <Header title={group.name} backFunction={()=>{
+                    navigation.dispatch((state) => {
+                        const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
+                        return CommonActions.reset({
+                            ...state,
+                            index: routes.length - 1,
+                            routes
+                        });
                     });
-                });
-                navigation.navigate('Group', {user:user, group:group});
-            }}/>
+                    navigation.navigate('Group', {user:user, group:group});
+                }}/>
 
-            <Modal
-            animationType="fade"
-            transparent={true}
-            visible={photoModalVisible}
-            onRequestClose={() => {setPhotoModalVisible(false);}}
-            >
-                <TouchableOpacity activeOpacity={1} onPress={()=>setPhotoModalVisible(false)}
-                style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <TouchableOpacity style={{height:'90%', width:'90%'}} activeOpacity={1}>
-                        <Image
-                        source={{uri: photo.url}}
-                        style={{height:'100%', width:'100%', resizeMode:'contain'}}
-                        />
-                        <TouchableOpacity
-                        onPress={()=>{setPhotoModalVisible(false);}}
-                        style={{position:'absolute', top:height*0.1, right:width*0.1, height:60, width:60}}
-                        >
-                            <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
+                <Modal
+                animationType="fade"
+                transparent={true}
+                visible={photoModalVisible}
+                onRequestClose={() => {setPhotoModalVisible(false);}}
+                >
+                    <TouchableOpacity activeOpacity={1} onPress={()=>setPhotoModalVisible(false)}
+                    style={[styles.containerCenterAll, {flex:1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
+                        <TouchableOpacity style={{height:'90%', width:'90%'}} activeOpacity={1}>
+                            <Image
+                            source={{uri: photo.url}}
+                            style={{height:'100%', width:'100%', resizeMode:'contain'}}
+                            />
+                            <TouchableOpacity
+                            onPress={()=>{setPhotoModalVisible(false);}}
+                            style={{position:'absolute', top:height*0.1, right:width*0.1, height:60, width:60}}
+                            >
+                                <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
+                            </TouchableOpacity>
                         </TouchableOpacity>
                     </TouchableOpacity>
-                </TouchableOpacity>
-            </Modal>
+                </Modal>
 
-            <TouchableOpacity 
-            style={{flex:1, maxHeight:'60%', maxWidth:'100%', backgroundColor:colors.grey }}
-            onPress={()=>{setPhotoModalVisible(true);}}
-            >
-                <Image 
-                source={{uri: photo.url}}
-                style={{height:'100%', width:'100%', resizeMode:'contain'}}
-                />
-            </TouchableOpacity>
-            <View borderWidth={1} style={{padding: 20, flexDirection:'row', backgroundColor:colors.primary}}>
-                { photo.userId == user.id &&
+                <TouchableOpacity 
+                style={{flex:1, maxHeight:'60%', maxWidth:'100%', backgroundColor:colors.grey }}
+                onPress={()=>{setPhotoModalVisible(true);}}
+                >
+                    <Image 
+                    source={{uri: photo.url}}
+                    style={{height:'100%', width:'100%', resizeMode:'contain'}}
+                    />
+                </TouchableOpacity>
+                <View borderWidth={1} style={{padding: 20, flexDirection:'row', backgroundColor:colors.primary}}>
+                    { photo.userId == user.id &&
+                        <TouchableOpacity
+                        onPress={()=>{Alert.alert(
+                                            `Delete this photo?`,
+                                            "It will be removed from the group for everyone.",
+                                            [
+                                                { text: "Cancel", style: "cancel"},
+                                                { text: "Confirm", onPress: () => {deletePhoto()} }
+                                            ]
+                                        );}}
+                        style={[styles.button, {backgroundColor: colors.secondary}]}
+                        >
+                            <DefaultText>Delete Photo</DefaultText>
+                        </TouchableOpacity>
+                    }
                     <TouchableOpacity
-                    onPress={()=>{Alert.alert(
-                                        `Delete this photo?`,
-                                        "It will be removed from the group for everyone.",
-                                        [
-                                            { text: "Cancel", style: "cancel"},
-                                            { text: "Confirm", onPress: () => {deletePhoto()} }
-                                        ]
-                                    );}}
+                    onPress={()=>{}}
                     style={[styles.button, {backgroundColor: colors.secondary}]}
                     >
-                        <DefaultText>Delete Photo</DefaultText>
+                        <DefaultText>Download</DefaultText>
                     </TouchableOpacity>
-                }
-                <TouchableOpacity
-                onPress={()=>{}}
-                style={[styles.button, {backgroundColor: colors.secondary}]}
-                >
-                    <DefaultText>Download</DefaultText>
-                </TouchableOpacity>
-            </View>
-            <View style={{flex:1}}>
-                <FlatList/>
-                <TextInput
-                style={[styles.textIn, {margin:20}]}
-                onChangeText={()=>{}}
-                placeholder="Enter Comment..."
-                />
-            </View>
-        </SafeAreaView>
+                </View>
+                <View style={{flex:1}}>
+                    <FlatList/>
+                    <TextInput
+                    style={[styles.textIn, {margin:20}]}
+                    onChangeText={()=>{}}
+                    placeholder="Enter Comment..."
+                    />
+                </View>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     );
 }

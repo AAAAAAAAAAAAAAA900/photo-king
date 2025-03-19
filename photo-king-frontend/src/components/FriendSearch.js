@@ -36,7 +36,7 @@ export default function FriendSearch({searchData, onSelect}){
                 onChangeText={(userSearch) => {setUserSearch(userSearch)}}
                 value={userSearch}
                 inputStyle={{
-                        borderColor: colors.secondary, 
+                        borderColor: 'grey', 
                         borderRadius:5,
                         backgroundColor:colors.greyWhite,
                         borderWidth: 1,
@@ -44,7 +44,7 @@ export default function FriendSearch({searchData, onSelect}){
                         fontSize: 16,
                     }}
                 inputContainerStyle={{ backgroundColor:"transparent"}}
-                containerStyle={{alignItems:'center', backgroundColor:"transparent"}}
+                containerStyle={{alignItems:'center', backgroundColor:"transparent", borderColor:"transparent"}}
                 lightTheme={true}
             />
             <FlatList

@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import DefaultText from "../components/DefaultText";
-import { ActivityIndicator, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, SafeAreaView, TextInput, TouchableOpacity, View, Keyboard } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import NavBar from "../components/NavBar";
 import Pfp from "../components/Pfp";
@@ -89,85 +89,87 @@ export default function ProfileScreen({navigation}){
     }
 
     return(
-        <SafeAreaView style={{flex:1}}>
-            <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
-            {loading ?
-                <View style={styles.containerCenterAll}>
-                    <ActivityIndicator size="large" color="#0000ff" />
-                </View>
-            : 
-                <View style={{flex:1, padding: 15, justifyContent:"space-between", alignItems:"center"}}>
-                    <View style={{alignSelf:"center"}}>
-                        <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120}/>
-                        <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:0, right:0, height:40, width:40}}>
-                            <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')}/>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <SafeAreaView style={{flex:1}}>
+                <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+                {loading ?
+                    <View style={styles.containerCenterAll}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
+                : 
+                    <View style={{flex:1, padding: 15, justifyContent:"space-between", alignItems:"center"}}>
+                        <View style={{alignSelf:"center"}}>
+                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120}/>
+                            <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:0, right:0, height:40, width:40}}>
+                                <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')}/>
+                            </View>
                         </View>
+                        <View>
+                            <DefaultText style={{marginLeft:4}}>Username</DefaultText>
+                            <Controller
+                                name="username"
+                                control={control}
+                                rules={{ required: "Username is required." }}
+                                render={({ field : { onChange, value} }) => (
+                                    <TextInput
+                                    placeholder={user.username}
+                                    maxLength={20}
+                                    autoCorrect={false}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    style={styles.textIn}
+                                    />
+                                )}
+                            />
+                        </View>
+                        <View>
+                            <DefaultText style={{marginLeft:4}}>Name</DefaultText>
+                            <Controller
+                                name="name"
+                                control={control}
+                                rules={{ required: "Name is required" }}
+                                render={({ field : { onChange, value} }) => (
+                                    <TextInput
+                                    placeholder={user.name}
+                                    maxLength={30}
+                                    autoCorrect={false}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    style={styles.textIn}
+                                    />
+                                )}
+                            />
+                        </View>
+                        <View>
+                            <DefaultText style={{marginLeft:4}}>Message</DefaultText>
+                            <Controller
+                                name="bio"
+                                control={control}
+                                render={({ field : { onChange, value} }) => (
+                                    <TextInput
+                                    placeholder={bio ? bio : "Add bio..."}
+                                    maxLength={100}
+                                    multiline={true}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    style={[styles.textIn, {height:100 , textAlignVertical:"top", marginBottom:5}]}
+                                    />
+                                )}
+                            />
+                        </View>
+                        {errors.username && <DefaultText style={{color:"red"}}>{errors.username.message}</DefaultText>}
+                        {errors.name && <DefaultText style={{color:"red"}}>{errors.name.message}</DefaultText>}
+                        {submitted && <DefaultText style={{color:"green"}}>Profile Updated</DefaultText>}
+                        <TouchableOpacity style={styles.button}
+                        onPress={handleSubmit(onSubmit)}
+                        >
+                            <DefaultText>Submit</DefaultText>
+                        </TouchableOpacity>
                     </View>
-                    <View>
-                        <DefaultText style={{marginLeft:4}}>Username</DefaultText>
-                        <Controller
-                            name="username"
-                            control={control}
-                            rules={{ required: "Username is required." }}
-                            render={({ field : { onChange, value} }) => (
-                                <TextInput
-                                placeholder={user.username}
-                                maxLength={20}
-                                autoCorrect={false}
-                                value={value}
-                                onChangeText={onChange}
-                                style={styles.textIn}
-                                />
-                            )}
-                        />
-                    </View>
-                    <View>
-                        <DefaultText style={{marginLeft:4}}>Name</DefaultText>
-                        <Controller
-                            name="name"
-                            control={control}
-                            rules={{ required: "Name is required" }}
-                            render={({ field : { onChange, value} }) => (
-                                <TextInput
-                                placeholder={user.name}
-                                maxLength={30}
-                                autoCorrect={false}
-                                value={value}
-                                onChangeText={onChange}
-                                style={styles.textIn}
-                                />
-                            )}
-                        />
-                    </View>
-                    <View>
-                        <DefaultText style={{marginLeft:4}}>Message</DefaultText>
-                        <Controller
-                            name="bio"
-                            control={control}
-                            render={({ field : { onChange, value} }) => (
-                                <TextInput
-                                placeholder={bio ? bio : "Add bio..."}
-                                maxLength={100}
-                                multiline={true}
-                                value={value}
-                                onChangeText={onChange}
-                                style={[styles.textIn, {height:100 , textAlignVertical:"top", marginBottom:5}]}
-                                />
-                            )}
-                        />
-                    </View>
-                    {errors.username && <DefaultText style={{color:"red"}}>{errors.username.message}</DefaultText>}
-                    {errors.name && <DefaultText style={{color:"red"}}>{errors.name.message}</DefaultText>}
-                    {submitted && <DefaultText style={{color:"green"}}>Profile Updated</DefaultText>}
-                    <TouchableOpacity style={styles.button}
-                    onPress={handleSubmit(onSubmit)}
-                    >
-                        <DefaultText>Submit</DefaultText>
-                    </TouchableOpacity>
-                </View>
-            }
-            
-            <NavBar navigation={navigation} user={user} screen='Profile'/>
-        </SafeAreaView>
+                }
+                
+                <NavBar navigation={navigation} user={user} screen='Profile'/>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     );
 }

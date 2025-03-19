@@ -6,8 +6,8 @@ const userApi = {
         return apiClient.get("/user/get-user-info");
     },
 
-    getUser: async(userSearch) => {
-        return apiClient.get(`/user/get-user/${userSearch}`);
+    getUser: async(username) => {
+        return apiClient.get(`/user/get-user/${username}`);
     },
 
     addFriend: async (userId, friendId) => {
@@ -21,8 +21,13 @@ const userApi = {
     getBio: async (userId) => {
         return apiClient.get(`/user/get-user-bio/${userId}`);
     },
+
     setProfile: async (userId, username, name, bio) => {
         return apiClient.post(`/user/set-user-profile`, {"id": userId, "username": username, "name":name, "bio": bio});
+    },
+
+    searchUsers: async (search) => {
+        return apiClient.get(`/user/search-users/${search}`);
     },
 }
 

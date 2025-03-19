@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -58,4 +59,9 @@ public class UserController {
         return userService.setUserProfile(userProfileReq);
     }
 
+    // GETS USERS MATCHING SEARCH QUERY
+    @GetMapping(path = "/search-users/{search}")
+    public List<FriendDTO> searchUsers(@PathVariable String search){
+        return userService.findMatchingUsers(search);
+    }
 }

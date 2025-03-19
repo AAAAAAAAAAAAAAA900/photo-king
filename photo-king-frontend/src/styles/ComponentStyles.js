@@ -15,6 +15,9 @@ export default styles = StyleSheet.create({
         fontFamily: 'DMSans-Regular',
         fontSize:16
     },
+    bold:{
+        fontFamily: 'DMSans-Bold',
+    },
     titleText:{
         fontFamily: 'DMSans-Bold',
         fontSize: 25
@@ -80,7 +83,7 @@ export default styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width:'75%',
-        height:'40%',
+        height: 300,
         backgroundColor: colors.greyWhite
     },
     picHolder: {
