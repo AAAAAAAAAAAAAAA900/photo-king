@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, Platform, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {View, Text, SafeAreaView, Platform, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView} from 'react-native';
 import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -49,6 +49,9 @@ export default function LoginScreen ({navigation}){
         console.log(error);
         setLoading(false);
       }
+      finally{
+        setLoading(false);
+      }
     };
     checkLoginStatus();
   }, []);
@@ -70,41 +73,43 @@ export default function LoginScreen ({navigation}){
         end={{ x: 1, y: 1 }} // Bottom-right corner
         style={styles.containerCenterAll}
       >
-        <View padding={20} borderWidth={5} style={[styles.inputContainer, {alignSelf:'center'}]} >
-          <Input userUpdate={setUsername} passUpdate={setPassword}/>
-          { errorText &&
-            <Text style={[{color:'red'},styles.baseText]}>{errorText}</Text>
-          }
-          <TouchableOpacity style={styles.button} onPress={Login}>
-            <DefaultText>Sign In</DefaultText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
-            <Text style={styles.urlText}>create an account</Text>
-          </TouchableOpacity>
-          { Platform.OS == 'ios' &&
-            <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={5}
-                style={styles.button}
-                onPress={async () => {
-                  try {
-                    const credential = await AppleAuthentication.signInAsync();
-                    const { identityToken } = credential;
-                    console.log(identityToken);
+        <KeyboardAvoidingView behavior='padding' style={styles.containerCenterAll}>
+          <View padding={20} borderWidth={5} style={[styles.inputContainer, {alignSelf:'center'}]} >
+            <Input userUpdate={setUsername} passUpdate={setPassword}/>
+            { errorText &&
+              <Text style={[{color:'red'},styles.baseText]}>{errorText}</Text>
+            }
+            <TouchableOpacity style={styles.button} onPress={Login}>
+              <DefaultText>Sign In</DefaultText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {navigation.navigate("Register")}}>
+              <Text style={styles.urlText}>create an account</Text>
+            </TouchableOpacity>
+            { Platform.OS == 'ios' &&
+              <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                  cornerRadius={5}
+                  style={styles.button}
+                  onPress={async () => {
+                    try {
+                      const credential = await AppleAuthentication.signInAsync();
+                      const { identityToken } = credential;
+                      console.log(identityToken);
 
-                    // signed in
-                  } catch (e) {
-                    if (e.code === 'ERR_REQUEST_CANCELED') {
-                      // handle that the user canceled the sign-in flow
-                    } else {
-                      // handle other errors
+                      // signed in
+                    } catch (e) {
+                      if (e.code === 'ERR_REQUEST_CANCELED') {
+                        // handle that the user canceled the sign-in flow
+                      } else {
+                        // handle other errors
+                      }
                     }
-                  }
-                }}
-            />
-          }
-        </View>
+                  }}
+              />
+            }
+          </View>
+        </KeyboardAvoidingView>
       </LinearGradient>
     </SafeAreaView>
   );

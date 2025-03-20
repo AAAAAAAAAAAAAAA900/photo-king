@@ -71,7 +71,7 @@ export default function FriendsScreen({navigation}){
                 'They will receive an invitation to become your friend',
                 [
                     { text: "Cancel", style: "cancel"},
-                    { text: "Send", onPress:addFriend(friend.id)}
+                    { text: "Send", onPress: () => addFriend(friend.id)}
                 ]
             );
         }

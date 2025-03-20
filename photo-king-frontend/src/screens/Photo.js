@@ -69,7 +69,7 @@ export default function PhotoScreen ({navigation}){
                             onPress={()=>{setPhotoModalVisible(false);}}
                             style={{position:'absolute', top:height*0.1, right:width*0.1, height:60, width:60}}
                             >
-                                <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
+                                <Image style={[styles.iconStyle, {borderRadius:5, backgroundColor:'rgba(0,0,0,0.2)', boxShadow: '0 0 5 2 rgba(0, 0, 0, 0.25)'}]} source={require('../../assets/icons/close.png')}/>
                             </TouchableOpacity>
                         </TouchableOpacity>
                     </TouchableOpacity>
@@ -87,7 +87,8 @@ export default function PhotoScreen ({navigation}){
                 <View borderWidth={1} style={{padding: 20, flexDirection:'row', backgroundColor:colors.primary}}>
                     { photo.userId == user.id &&
                         <TouchableOpacity
-                        onPress={()=>{Alert.alert(
+                        onPress={()=>{Keyboard.dismiss(); 
+                                        Alert.alert(
                                             `Delete this photo?`,
                                             "It will be removed from the group for everyone.",
                                             [
@@ -101,7 +102,7 @@ export default function PhotoScreen ({navigation}){
                         </TouchableOpacity>
                     }
                     <TouchableOpacity
-                    onPress={()=>{}}
+                    onPress={()=>{Keyboard.dismiss();}}
                     style={[styles.button, {backgroundColor: colors.secondary}]}
                     >
                         <DefaultText>Download</DefaultText>
