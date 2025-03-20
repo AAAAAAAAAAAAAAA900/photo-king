@@ -52,7 +52,7 @@ export default function FriendsScreen({navigation}){
         // Check for user matching search
         let friend;
         try {
-            const response = await userApi.getUser(username)
+            const response = await userApi.getFriend(username);
             friend = response.data; // UserDTO
         }
         catch (error) {
@@ -71,7 +71,7 @@ export default function FriendsScreen({navigation}){
                 'They will receive an invitation to become your friend',
                 [
                     { text: "Cancel", style: "cancel"},
-                    { text: "Send", onPress:addFriend(friend.id)}
+                    { text: "Send", onPress:() => addFriend(friend.id)}
                 ]
             );
         }
@@ -91,9 +91,9 @@ export default function FriendsScreen({navigation}){
         closeModal();
     }
 
-    const removeFriend = async (id) => {
+    const removeFriend = async (friendId) => {
         try {
-            const response = await userApi.removeFriend(user.id, friend.id);
+            const response = await userApi.removeFriend(user.id, friendId);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({
