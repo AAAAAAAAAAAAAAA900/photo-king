@@ -43,10 +43,7 @@ export default function LoginScreen ({navigation}){
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
-      }
-      finally{
+      } finally{
         setLoading(false);
       }
     };
