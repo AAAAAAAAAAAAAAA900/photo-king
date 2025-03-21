@@ -16,7 +16,7 @@ export default function ProfileScreen({navigation}){
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
     const [userUpdated, setUserUpdated] = useState(false);
-    const [bio, setBio] = useState("");
+    const [bio, setBio] = useState(undefined);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(true);
     const [bioFocussed, setBioFocussed] = useState(false);
@@ -26,7 +26,7 @@ export default function ProfileScreen({navigation}){
 
     const getBio = async () => {
         try{
-            const userBio = await userApi.getBio(user.id);   
+            const userBio = await userApi.getBio(user.id);
             setBio(userBio.data);
         }
         catch(error){
@@ -57,8 +57,8 @@ export default function ProfileScreen({navigation}){
     }, []);
 
     useEffect(() =>{
-        if(bio){
-            reset({username: user.username, name: user.name, bio:bio});
+        if(bio !== undefined){
+            reset({username: user.username, name: user.name, bio:bio || ""});
             setLoading(false);
         }
     }, [bio]);
