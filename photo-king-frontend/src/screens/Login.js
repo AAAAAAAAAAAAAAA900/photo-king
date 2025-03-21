@@ -12,15 +12,11 @@ import { Controller, useForm } from 'react-hook-form';
 
 
 export default function LoginScreen({ navigation }) {
-    // Login screen logic: store username and password
     const [loading, setLoading] = useState(true);
     const [loginError, setLoginError] = useState("");
     const {
         control,
         handleSubmit,
-        formState: {
-            errors
-        },
     } = useForm();
 
     // Login attempt
@@ -38,6 +34,7 @@ export default function LoginScreen({ navigation }) {
         }
     }
 
+    // auto login
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
@@ -55,6 +52,11 @@ export default function LoginScreen({ navigation }) {
         checkLoginStatus().then();
     }, []);
 
+    const onSubmit = (data) => {
+        login(data.username, data.password);
+    };
+
+    // loading indicator blocking screen
     if (loading) {
         return (
             <SafeAreaView style={styles.containerCenterAll}>
@@ -62,10 +64,6 @@ export default function LoginScreen({ navigation }) {
             </SafeAreaView>
         );
     }
-
-    const onSubmit = (data) => {
-        login(data.username, data.password);
-    };
 
     // Login screen view
     return (
@@ -111,10 +109,10 @@ export default function LoginScreen({ navigation }) {
                                     rules={{ required: "Please enter a password." }}
                                     render={({ field: { onChange, value } }) => (
                                         <TextInput
-                                            inlineImageLeft=''
                                             placeholder={'Enter password...'}
                                             maxLength={128}
                                             autoCorrect={false}
+                                            secureTextEntry={true}
                                             value={value}
                                             onChangeText={(txt) => { onChange(txt); setLoginError(""); }}
                                             style={[styles.textIn, { width: 200 }]}
