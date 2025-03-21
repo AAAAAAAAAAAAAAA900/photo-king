@@ -25,6 +25,7 @@ export default styles = StyleSheet.create({
     urlText:{
         fontFamily: 'DMSans-Bold',
         fontSize: 16,
+        color: colors.secondary,
         textDecorationLine: 'underline'
     },
     textIn: {
