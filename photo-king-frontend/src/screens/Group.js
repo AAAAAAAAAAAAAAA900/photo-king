@@ -388,7 +388,7 @@ export default function GroupScreen({navigation}){
             <View style={{padding:8, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', alignItems:'center',flexDirection:'row'}}>
                 
 
-                <View style={{height:50, width: 120, alignItems:'center', backgroundColor:'#CCCCCC', borderRadius:8, flexDirection:'row', gap:6}}>
+                <View style={{height:50, width: 154, alignItems:'center', backgroundColor:'#CCCCCC',  alignSelf: 'flex-start', borderRadius:8, flexDirection:'row', gap:6}}>
                     <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
                     <View style={{alignItems:'center', width:'60%'}}>
                         <DefaultText>Resets:</DefaultText>

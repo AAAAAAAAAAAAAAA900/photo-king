@@ -209,6 +209,7 @@ export default function PhotoScreen ({navigation}){
                             </View>
                             <KeyboardAvoidingView
                             behavior={Platform.OS == "ios" ? "padding" : "height"}
+                            keyboardVerticalOffset={Platform.OS == "ios" ? 200 : undefined}
                             >
                                 <View style={{ padding:10,alignItems:"center", justifyContent:"center", gap:5, flexDirection:"row", borderTopLeftRadius:10, borderTopRightRadius:10, backgroundColor:colors.greyWhite}}>
                                     <TextInput
