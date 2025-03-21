@@ -142,7 +142,7 @@ export default function FriendsScreen({navigation}){
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <SafeAreaView style={{flex:1}}>
                 <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
-                
+
                 {/* friend clicked modal */}  
                 <FriendModal 
                 friendClicked={friendClicked} 

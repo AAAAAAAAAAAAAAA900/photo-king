@@ -1,3 +1,4 @@
+import { useImperativeHandle } from "react";
 import {apiClient, apiFormClient} from "./apiClient";
 
 const imageApi = {
@@ -24,8 +25,15 @@ const imageApi = {
 
     getTopImage: async (groupId) => {
         return apiClient.get(`/user-image/get-top-image/${groupId}`);
-    }
+    },
 
+    uploadComment: async (comment, userId, photoId) => {
+        return apiClient.post('/user-image/upload-comment', {"comment": comment, "userId": userId, "photoId": photoId});
+    },
+
+    getComments: async (photoId) => {
+        return apiClient.get(`/user-image/get-comments/${photoId}`);
+    }
 }
 
 export default imageApi;
