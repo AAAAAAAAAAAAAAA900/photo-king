@@ -31,6 +31,7 @@ export default styles = StyleSheet.create({
         height: 40, 
         width: 300,
         padding:5,
+        color:'black',
         borderColor: 'black', 
         borderRadius:5,
         backgroundColor:colors.greyWhite,

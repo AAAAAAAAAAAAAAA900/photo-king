@@ -71,7 +71,7 @@ export default function FriendsScreen({navigation}){
                 'They will receive an invitation to become your friend',
                 [
                     { text: "Cancel", style: "cancel"},
-                    { text: "Send", onPress:addFriend(friend.id)}
+                    { text: "Send", onPress: () => addFriend(friend.id)}
                 ]
             );
         }
@@ -138,7 +138,7 @@ export default function FriendsScreen({navigation}){
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <SafeAreaView style={{flex:1}}>
                 <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
-                
+
                 {/* friend clicked modal */}  
                 <FriendModal 
                 friendClicked={friendClicked} 
