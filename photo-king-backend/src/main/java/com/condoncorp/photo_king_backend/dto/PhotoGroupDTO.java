@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.dto;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -10,9 +11,9 @@ public class PhotoGroupDTO {
     private int id;
     private String name;
     private int ownerId;
-    private int selectedDay;
     private Set<FriendDTO> users;
     private List<UserImageDTO> userImages;
+    private LocalDateTime expiresAt;
 
     // SENDING DATA TO FRONTEND
     public PhotoGroupDTO(PhotoGroup photoGroup) {
@@ -21,14 +22,7 @@ public class PhotoGroupDTO {
         this.ownerId = photoGroup.getOwnerId();
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.userImages = photoGroup.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
-        this.selectedDay = photoGroup.getExpiresAt().getDayOfWeek().getValue();
-    }
-
-    // FOR CREATING A NEW PHOTO GROUP
-    public PhotoGroupDTO(String name, int ownerId, int selectedDay) {
-        this.name = name;
-        this.ownerId = ownerId;
-        this.selectedDay = selectedDay;
+        this.expiresAt = photoGroup.getExpiresAt();
     }
 
     public PhotoGroupDTO() {}
@@ -57,15 +51,15 @@ public class PhotoGroupDTO {
         this.ownerId = ownerId;
     }
 
-    public int getSelectedDay() {
-        return selectedDay;
-    }
-
     public Set<FriendDTO> getUsers() {
         return users;
     }
 
     public List<UserImageDTO> getUserImages() {
         return userImages;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
     }
 }

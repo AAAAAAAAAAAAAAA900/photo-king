@@ -6,8 +6,9 @@ import imageApi from "../api/imageApi";
 import { lookup } from 'react-native-mime-types';
 import { useEffect, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
-import * as SecureStore from "expo-secure-store";
 import DefaultText from './DefaultText.js';
+import * as SecureStore from "expo-secure-store";
+import {clearTokens} from "../api/apiClient";
 
 
 export default function Pfp ({navigation, user, setUser, setUserUpdated, url, size=50, borderWidth=0}){
@@ -116,6 +117,11 @@ export default function Pfp ({navigation, user, setUser, setUserUpdated, url, si
         }
     };
 
+    const logoutButton = async () => {
+        await clearTokens();
+        navigation.dispatch(StackActions.popToTop());
+    }
+
     return(
         <View>
 
@@ -126,7 +132,7 @@ export default function Pfp ({navigation, user, setUser, setUserUpdated, url, si
             transparent={true}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1}} onPress={()=>setOptionsVisible(false)}>
-                    <TouchableOpacity onPress={()=>navigation.dispatch(StackActions.popToTop())} style={{position:'absolute', top:58, right:10, height:45, width:85, backgroundColor:'white', borderRadius:20, alignItems:'center', justifyContent:'center', boxShadow:'5 5 5 0 rgba(0, 0, 0, 0.25)'}}>
+                    <TouchableOpacity onPress={logoutButton} style={{position:'absolute', top:58, right:10, height:45, width:85, backgroundColor:'white', borderRadius:20, alignItems:'center', justifyContent:'center', boxShadow:'5 5 5 0 rgba(0, 0, 0, 0.25)'}}>
                         <DefaultText>Logout</DefaultText>
                     </TouchableOpacity>
                 </TouchableOpacity>

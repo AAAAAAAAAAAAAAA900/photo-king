@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.model;
 
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import  com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -44,7 +45,7 @@ public class PhotoGroup {
         this.userImages = new ArrayList<>();
     }
 
-    public PhotoGroup(PhotoGroupDTO group) {
+    public PhotoGroup(PhotoGroupReq group) {
         this.name = group.getName();
         this.ownerId = group.getOwnerId();
         LocalDateTime now = LocalDateTime.now();

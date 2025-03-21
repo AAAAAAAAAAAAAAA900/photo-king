@@ -24,6 +24,12 @@ public class UserController {
         return userService.getUserByUsername(username);
     }
 
+    // DELETES USER FROM DATABASE. REQUIRES USER ID.
+    @DeleteMapping(path = "/delete/{id}")
+    public void deleteUser(@PathVariable int id) throws IOException {
+        userService.deleteUser(id);
+    }
+
     // ADDS A FRIEND TO USER'S FRIENDS LIST
     @PostMapping(path="/add-friend/{userId}/{friendId}")
     public Set<FriendDTO> addFriend(@PathVariable int userId, @PathVariable int friendId) {
@@ -35,10 +41,10 @@ public class UserController {
         return userService.removeFriend(userId, friendId);
     }
 
-    // DELETES USER FROM DATABASE. REQUIRES USER ID.
-    @DeleteMapping(path = "/delete/{id}")
-    public void deleteUser(@PathVariable int id) throws IOException {
-        userService.deleteUser(id);
+    // RETURNS FRIEND DTO BY USERNAME
+    @GetMapping(path = "/get-friend/{username}")
+    public FriendDTO getFriend(@PathVariable String username) {
+        return userService.getFriendByUsername(username);
     }
 
     // RETURNS USER DETAILS BY TOKEN

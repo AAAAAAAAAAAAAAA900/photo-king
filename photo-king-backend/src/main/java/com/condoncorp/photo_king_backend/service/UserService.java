@@ -68,15 +68,6 @@ public class UserService {
     }
 
 
-    // HANDLES USER LOGIN
-    public UserDTO loginUser(AuthRegReq authRegReq) {
-        Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
-        return new UserDTO(user.get());
-    }
-
     // HANDLES USER REGISTRATION
     public UserDTO registerUser(UserRegisterDTO user) {
 
@@ -144,11 +135,22 @@ public class UserService {
     public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
+        System.out.println(user.getId());
+        System.out.println(friend.getId());
         user.removeFriend(friend);
         friend.removeFriend(user);
         saveUser(user);
         saveUser(friend);
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
+    }
+
+    // RETURNS FRIEND OF USER
+    public FriendDTO getFriendByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        return new FriendDTO(user.get());
     }
 
     // REFRESH TOKEN

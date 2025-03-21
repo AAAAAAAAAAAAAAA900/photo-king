@@ -2,7 +2,7 @@ import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, A
 import DefaultText from "../components/DefaultText";
 import { useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState} from "react";
 import axios from "axios";
 import FriendSearch, { FriendPreview } from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -12,6 +12,7 @@ import userApi from "../api/userApi";
 import FriendModal from "../components/FriendModal.js";
 import Header from "../components/Header.js";
 import TitleButtons from "../components/TitleButtons.js";
+import { debounce } from "lodash";
 
 
 
@@ -44,15 +45,18 @@ export default function FriendsScreen({navigation}){
         }
     }
 
+    const debouncedSearch = useMemo(() => debounce(getSearchData, 500), []);
+
     useEffect(()=>{
-        getSearchData(userSearch);
+        debouncedSearch(userSearch);
+        return () => debouncedSearch.cancel();
     }, [userSearch]);
 
     const addFriendPressed = async (username) => {
         // Check for user matching search
         let friend;
         try {
-            const response = await userApi.getUser(username)
+            const response = await userApi.getFriend(username);
             friend = response.data; // UserDTO
         }
         catch (error) {
@@ -71,7 +75,7 @@ export default function FriendsScreen({navigation}){
                 'They will receive an invitation to become your friend',
                 [
                     { text: "Cancel", style: "cancel"},
-                    { text: "Send", onPress: () => addFriend(friend.id)}
+                    { text: "Send", onPress:() => addFriend(friend.id)}
                 ]
             );
         }
@@ -91,9 +95,9 @@ export default function FriendsScreen({navigation}){
         closeModal();
     }
 
-    const removeFriend = async (id) => {
+    const removeFriend = async (friendId) => {
         try {
-            const response = await userApi.removeFriend(user.id, friend.id);
+            const response = await userApi.removeFriend(user.id, friendId);
             // Update friends lists stored in front end
             setFriendsList([...response.data]);
             setUser({

@@ -10,6 +10,7 @@ import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
 import {isTokenValid} from "../api/apiClient";
 
+
 export default function LoginScreen ({navigation}){
   // Login screen logic: store username and password
   const [username, setUsername] = useState(""); // State for username
@@ -36,24 +37,17 @@ export default function LoginScreen ({navigation}){
     const checkLoginStatus = async () => {
       try {
         const refreshToken = await SecureStore.getItemAsync("refreshToken");
-        console.log(refreshToken);
         if (refreshToken && await isTokenValid(refreshToken)) {
-          console.log("in");
           const user_info = await userApi.getUserInfo();
           navigation.navigate("Home", {user: user_info.data});
-        } else{
-          console.log("else");
-          setLoading(false);
         }
       } catch (error) {
         console.log(error);
-        setLoading(false);
-      }
-      finally{
+      } finally{
         setLoading(false);
       }
     };
-    checkLoginStatus();
+    checkLoginStatus().then();
   }, []);
 
   if (loading) {
@@ -63,6 +57,7 @@ export default function LoginScreen ({navigation}){
         </SafeAreaView>
     );
   }
+
 
   // Login screen view
   return(
