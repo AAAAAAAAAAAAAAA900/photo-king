@@ -130,8 +130,6 @@ public class UserService {
     public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
-        System.out.println(user.getId());
-        System.out.println(friend.getId());
         user.removeFriend(friend);
         friend.removeFriend(user);
         saveUser(user);
