@@ -445,12 +445,12 @@ export default function GroupScreen({navigation}){
             
             {/* Add images/users buttons */}
             <View style={{flexDirection:'row', height:'8%',alignContent:'space-between',paddingHorizontal:0, backgroundColor:colors.secondary}}>
-                <TouchableOpacity style={{flex:1}}
+                <TouchableOpacity style={{flex:1, alignItems:'center', justifyContent:'center'}}
                     onPress={() => {onPressPhoto()}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/image.png')}/>
                 </TouchableOpacity>
                 <View style={{width:1, backgroundColor:'white', marginVertical:9}}/>
-                <TouchableOpacity style={{flex:1}}
+                <TouchableOpacity style={{flex:1, alignItems:'center', justifyContent:'center'}}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>

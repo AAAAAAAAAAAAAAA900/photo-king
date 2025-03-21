@@ -29,6 +29,10 @@ const userApi = {
     searchUsers: async (search) => {
         return apiClient.get(`/user/search-users/${search}`);
     },
+
+    getFriendById: async (friendId) => {
+        return apiClient.get(`/user/friend-by-id/${friendId}`);
+    }
 }
 
 export default userApi;

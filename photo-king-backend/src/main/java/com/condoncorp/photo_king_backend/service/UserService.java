@@ -112,6 +112,11 @@ public class UserService {
         return user.get();
     }
 
+    // RETURNS FRIEND BY ID
+    public FriendDTO getFriendById(int id){
+        return new FriendDTO(getUserById(id));
+    }
+
     public UserDTO getUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {

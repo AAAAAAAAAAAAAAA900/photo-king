@@ -64,4 +64,10 @@ public class UserController {
     public List<FriendDTO> searchUsers(@PathVariable String search){
         return userService.findMatchingUsers(search);
     }
+
+    // GETS FRIEND MATCHING ID
+    @GetMapping(path = "/friend-by-id/{id}")
+    public FriendDTO getFriendById(@PathVariable int id){
+        return userService.getFriendById(id);
+    }
 }

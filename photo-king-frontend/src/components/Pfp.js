@@ -10,9 +10,9 @@ import * as SecureStore from "expo-secure-store";
 import DefaultText from './DefaultText.js';
 
 
-export default function Pfp ({navigation, user, setUser, setUserUpdated, url, size}){
+export default function Pfp ({navigation, user, setUser, setUserUpdated, url, size=50, borderWidth=0}){
 
-    const [style, setStyle] = useState({height: 50, width:50, borderRadius:25, backgroundColor:'white', borderColor:'white'});
+    const style = {height: size, width:size, borderRadius:size/2, borderWidth:borderWidth, backgroundColor:'white', borderColor:'black'};
     const [optionsVisible, setOptionsVisible] = useState(false);
 
     const press = () => {
@@ -22,12 +22,6 @@ export default function Pfp ({navigation, user, setUser, setUserUpdated, url, si
             setOptionsVisible(!optionsVisible);
         }
     };
-
-    useEffect(()=>{
-        if(size){
-            setStyle({height: size, width:size, borderWidth:4, borderRadius:size/2,backgroundColor:'white', borderColor:'black'});
-        }
-    },[]);
 
     const { showActionSheetWithOptions } = useActionSheet();
 

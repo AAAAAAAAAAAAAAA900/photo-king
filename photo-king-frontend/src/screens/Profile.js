@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import photoGroupApi from "../api/photoGroupApi";
 import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
+import { color } from "@rneui/themed/dist/config";
 
 export default function ProfileScreen({navigation}){
     const route = useRoute();
@@ -107,18 +108,18 @@ export default function ProfileScreen({navigation}){
             <SafeAreaView style={{flex:1}}> 
                 <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
                 {loading ?
-                    <View style={styles.containerCenterAll}>
+                    <View style={[styles.containerCenterAll, {backgroundColor:colors.greyWhite}]}>
                         <ActivityIndicator size="large" color="#0000ff" />
                     </View>
                 : 
-                    <View style={{flex:1, padding: 15, alignItems:"center", backgroundColor:colors.greyWhite}}>
-                        <View style={{alignSelf:"center"}}>
-                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120}/>
+                    <View style={{flex:1, alignItems:"center", backgroundColor:colors.greyWhite}}>
+                        <View style={{alignSelf:"center", marginVertical:10}}>
+                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120} borderWidth={4}/>
                             <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:0, right:0, height:40, width:40}}>
                                 <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')}/>
                             </View>
                         </View>
-                        <View style={{flex:1,alignItems:"center", justifyContent:"space-between"}}>
+                        <View style={{flex:1, width:'100%', alignItems:"center", justifyContent:"space-between"}}>
                             { (bioFocussed || nameFocussed) && <View style={[(bioFocussed ? {zIndex:4} : {zIndex:3} ), {position:"absolute", height:'100%', width:'100%', backgroundColor: colors.greyWhite}]}/>}
                             <View>
                                 <DefaultText style={{marginLeft:4}}>Username</DefaultText>
@@ -159,7 +160,7 @@ export default function ProfileScreen({navigation}){
                                     )}
                                 />
                             </KeyboardAvoidingView>
-                            <KeyboardAvoidingView style={{zIndex:4}} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={250}>
+                            <KeyboardAvoidingView style={{zIndex:4}} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
                                 <DefaultText style={{marginLeft:4}}>Message</DefaultText>
                                 <Controller
                                     name="bio"
@@ -182,11 +183,15 @@ export default function ProfileScreen({navigation}){
                             {errors.username && <DefaultText style={{color:"red"}}>{errors.username.message}</DefaultText>}
                             {errors.name && <DefaultText style={{color:"red"}}>{errors.name.message}</DefaultText>}
                             {submitted && <DefaultText style={{color:"green"}}>Profile Updated</DefaultText>}
-                            <TouchableOpacity style={styles.button}
-                            onPress={handleSubmit(onSubmit)}
-                            >
-                                <DefaultText>Submit</DefaultText>
-                            </TouchableOpacity>
+
+                            <View style={{height:60, width:'100%', padding:8, justifyContent:"center", alignItems:"center", backgroundColor:colors.primary}}>
+                                <TouchableOpacity style={{height:'100%', width:'100%', borderRadius:10, borderWidth:2, alignItems:"center", justifyContent:"center",borderColor:colors.secondary, backgroundColor:colors.secondary}}
+                                onPress={()=> handleSubmit(onSubmit)}
+                                >
+                                    <DefaultText style={[styles.bold, {color:'white'}]} >Submit</DefaultText>
+                                </TouchableOpacity>
+                            </View>
+
                         </View>
                     </View>
                 } 

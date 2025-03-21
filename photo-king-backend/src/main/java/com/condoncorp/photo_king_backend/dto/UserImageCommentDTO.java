@@ -21,6 +21,12 @@ public class UserImageCommentDTO {
         this.imageId = userImageComment.getUserImage().getId();
     }
 
+    public UserImageCommentDTO(String comment, int userId, int photoId){
+        this.comment = comment;
+        this.userId = userId;
+        this.imageId = photoId;
+    }
+
     public UserImageCommentDTO() {
 
     }

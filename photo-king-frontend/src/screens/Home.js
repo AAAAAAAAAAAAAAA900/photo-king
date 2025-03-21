@@ -10,7 +10,6 @@ import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
 import DropDownMenu from '../components/DropDownMenu.js';
-import Timer from '../components/Timer.js';
 
 export default function HomeScreen ({navigation}){
 
@@ -75,9 +74,11 @@ export default function HomeScreen ({navigation}){
   
   // Home screen view: scrollable list of groups
   return (
+    <View style={{flex:1}}>
+      <Header border={true} title={'Home'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
       <SafeAreaView style={{ flex:1 }}>
 
-        <Header border={true} title={'Home'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+        
 
         {/* Create group popup */}
         <Modal
@@ -183,5 +184,6 @@ export default function HomeScreen ({navigation}){
         </TouchableOpacity> 
         <NavBar navigation={navigation} user={user} screen='Home'/>
       </SafeAreaView>
+      </View>
   );
 }
