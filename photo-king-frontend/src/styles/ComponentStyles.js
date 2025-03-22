@@ -25,17 +25,17 @@ export default styles = StyleSheet.create({
     urlText:{
         fontFamily: 'DMSans-Bold',
         fontSize: 16,
+        color: colors.secondary,
         textDecorationLine: 'underline'
     },
     textIn: {
         height: 40, 
-        width: 300,
+        width: 250,
         padding:5,
         color:'black',
         borderColor: 'black', 
         borderRadius:5,
         backgroundColor:colors.greyWhite,
-        borderWidth: 1,
         fontFamily: 'DMSans-Regular', 
         fontSize: 16,
     },
@@ -51,11 +51,13 @@ export default styles = StyleSheet.create({
         // alignSelf:'center'
     },
     inputContainer: {
-        alignSelf: 'baseline',
         backgroundColor: '#fff',
         justifyContent: 'space-between',
-        rowGap:10,
+        rowGap:20,
+        padding:30,
         alignItems: 'center',
+        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
+        borderRadius:10
     },
     button: {
         height:40, 

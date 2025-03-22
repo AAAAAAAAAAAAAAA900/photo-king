@@ -102,7 +102,6 @@ export default function ProfileScreen({navigation}){
     }
 
     return(
-
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <SafeAreaView style={{flex:1}}> 
                 <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>

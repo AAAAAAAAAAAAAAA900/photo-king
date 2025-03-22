@@ -87,6 +87,7 @@ export default function PhotoScreen ({navigation}){
             commentContainer: {
                 alignSelf: comment.userId=== user.id ? "flex-end" : "flex-start",
                 margin:10,
+                marginHorizontal:20
             },
             commentBubble:{
                 maxWidth:'70%', 
@@ -111,13 +112,21 @@ export default function PhotoScreen ({navigation}){
                 paddingLeft: comment.userId=== user.id ? 0 : 45,
                 maxWidth:'80%',
             },
+            date:{
+                alignSelf: comment.userId=== user.id ? "flex-end" : "flex-start",
+                paddingRight: comment.userId=== user.id ? 45 : 0,
+                paddingLeft: comment.userId=== user.id ? 0 : 45,
+                maxWidth:'80%',
+                color: colors.grey,
+
+            },
             commentText: {
                 color: comment.userId=== user.id ? 'white' : 'black',
             },
         });
         return(
             <View style={commentStyles.commentContainer}>
-                {commenter && <DefaultText numberOfLines={1} style={commentStyles.commenterName}>{commenter.username}</DefaultText>}
+                <DefaultText numberOfLines={1} style={commentStyles.commenterName}>{(commenter && commenter.username ? commenter.username : '')}</DefaultText>
                 <View style={commentStyles.commenterContainer}>
                     <Pfp url={commenter?.pfp} size={40}/>
                     <View style={commentStyles.commentBubble}>
@@ -200,6 +209,7 @@ export default function PhotoScreen ({navigation}){
                             </View>
                             <KeyboardAvoidingView
                             behavior={Platform.OS == "ios" ? "padding" : "height"}
+                            keyboardVerticalOffset={Platform.OS == "ios" ? 200 : undefined}
                             >
                                 <View style={{ padding:10,alignItems:"center", justifyContent:"center", gap:5, flexDirection:"row", borderTopLeftRadius:10, borderTopRightRadius:10, backgroundColor:colors.greyWhite}}>
                                     <TextInput
