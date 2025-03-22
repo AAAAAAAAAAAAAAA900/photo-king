@@ -149,7 +149,7 @@ export default function RankScreen({navigation}){
             </View>
 
             <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1, backgroundColor:'white'}}>
-                <View style={{flex:1}}>
+                <View style={{flex:1, paddingHorizontal:5}}>
                     <FlatList 
                         numColumns={2}
                         renderItem={({ item }) => <RankablePic ranks={ranks} photo={item} imageRank={ranks.findIndex((element) => element==item.id)}/>}

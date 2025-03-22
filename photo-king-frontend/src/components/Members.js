@@ -3,6 +3,8 @@ import { FriendPreview } from "./FriendSearch";
 import { useRef, useEffect } from "react";
 import DefaultText from "./DefaultText";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import styles, { colors } from "../styles/ComponentStyles";
+
 
 export default function Members({ membersPopUpVisible, setMembersPopUpVisible, users, press }){
     
@@ -30,7 +32,7 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, u
     return(
         // membersPopUpVisible &&
             <Animated.View pointerEvents={membersPopUpVisible ? "auto" : "none"} style={{top: 100+modalAdjustment ,height:'90%', width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
-                    <View style={{ width:'60%', height:'100%', backgroundColor:'white' }}>
+                    <View style={{ width:'60%', height:'100%', backgroundColor:'white',}}>
                         {users.length ? 
                             <FlatList
                                 data={[...users].sort((a,b)=>a.username.localeCompare(b.username))}

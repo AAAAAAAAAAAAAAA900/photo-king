@@ -452,7 +452,7 @@ export default function GroupScreen({navigation}){
 
             {/* Photo list */}
             <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1, backgroundColor:'white'}}>
-                <View style={{flex:1}}>
+                <View style={{flex:1, paddingHorizontal:5}}>
                     { loading ? 
                         <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
                             <ActivityIndicator size="large" color="#0000ff" />
