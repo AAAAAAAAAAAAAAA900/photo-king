@@ -29,7 +29,7 @@ export default function RegisterScreen({ navigation }) {
     // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor:colors.secondary}}>
                 <Header height={60} />
                 <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}>
 
@@ -37,97 +37,97 @@ export default function RegisterScreen({ navigation }) {
                     <DefaultText style={[styles.bold, { fontSize: 40, paddingVertical: 30 }]}>Register</DefaultText>
 
                     <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={80}>
-                        <View style={{alignItems:'center', backgroundColor:'white'}}>
-                        {/* USERNAME */}
-                        <View style={registerStyles.inputContainer}>
-                            <Controller
-                                name="username"
-                                control={control}
-                                rules={{ required: "This field is required" }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextInput
-                                        placeholder="Enter username..."
-                                        maxLength={20}
-                                        value={value}
-                                        autoCorrect={false}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
-                                    />
-                                )}
-                            />
-                        </View>
+                        <View style={{ alignItems: 'center', backgroundColor: 'white' }}>
+                            {/* USERNAME */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="username"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter username..."
+                                            maxLength={20}
+                                            value={value}
+                                            autoCorrect={false}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-                        {/* PASSWORD */}
-                        <View style={registerStyles.inputContainer}>
-                            <Controller
-                                name="password"
-                                control={control}
-                                rules={{ required: "This field is required" }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextInput
-                                        placeholder="Enter password..."
-                                        value={value}
-                                        maxLength={128}
-                                        autoCorrect={false}
-                                        secureTextEntry={true}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
-                                    />
-                                )}
-                            />
-                        </View>
+                            {/* PASSWORD */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="password"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter password..."
+                                            value={value}
+                                            maxLength={128}
+                                            autoCorrect={false}
+                                            secureTextEntry={true}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-                        {/* EMAIL */}
-                        <View style={registerStyles.inputContainer}>
-                            <Controller
-                                name="email"
-                                control={control}
-                                rules={{ required: "This field is required" }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextInput
-                                        placeholder="Enter email..."
-                                        value={value}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
-                                    />
-                                )}
-                            />
-                        </View>
+                            {/* EMAIL */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter email..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-                        {/* NAME */}
-                        <View style={registerStyles.inputContainer}>
-                            <Controller
-                                name="name"
-                                control={control}
-                                rules={{ required: "This field is required" }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextInput
-                                        placeholder="Enter name..."
-                                        value={value}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
-                                    />
-                                )}
-                            />
-                        </View>
+                            {/* NAME */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="name"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter name..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-                        {/* PHONE NUMBER */}
-                        <View style={registerStyles.inputContainer}>
-                            <Controller
-                                name="phone"
-                                control={control}
-                                rules={{ required: "This field is required" }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextInput
-                                        placeholder="Enter phone number..."
-                                        value={value}
-                                        onChangeText={onChange}
-                                        keyboardType='numeric'
-                                        style={styles.textIn}
-                                    />
-                                )}
-                            />
-                        </View>
+                            {/* PHONE NUMBER */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="phone"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter phone number..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            keyboardType='numeric'
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
                         </View>
                     </KeyboardAvoidingView>
 

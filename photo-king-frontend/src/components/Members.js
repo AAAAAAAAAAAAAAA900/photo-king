@@ -1,12 +1,15 @@
-import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions } from "react-native";
+import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions, Platform } from "react-native";
 import { FriendPreview } from "./FriendSearch";
 import { useRef, useEffect } from "react";
 import DefaultText from "./DefaultText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Members({ membersPopUpVisible, setMembersPopUpVisible, users, press }){
     
     const offScreen = Dimensions.get("window").width;
     const slideAnim = useRef(new Animated.Value(offScreen)).current; // Start offscreen (right side)
+    const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
+    
 
     useEffect(() => {
         if (membersPopUpVisible) {
@@ -26,7 +29,7 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, u
 
     return(
         // membersPopUpVisible &&
-            <Animated.View pointerEvents={membersPopUpVisible ? "auto" : "none"} style={{top: 100 ,height:'90%', width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
+            <Animated.View pointerEvents={membersPopUpVisible ? "auto" : "none"} style={{top: 100+modalAdjustment ,height:'90%', width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
                     <View style={{ width:'60%', height:'100%', backgroundColor:'white' }}>
                         {users.length ? 
                             <FlatList

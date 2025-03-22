@@ -104,7 +104,7 @@ export default function RankScreen({navigation}){
     };
 
     return(
-        <SafeAreaView style={{flex:1}}>
+        <SafeAreaView style={{flex:1, backgroundColor:colors.secondary}}>
             <Header 
                 backFunction={()=> {
                     navigation.dispatch((state) => {
@@ -148,8 +148,8 @@ export default function RankScreen({navigation}){
                 </View>
             </View>
 
-            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
-                <View style={{flex:1, padding:5}}>
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1, backgroundColor:'white'}}>
+                <View style={{flex:1}}>
                     <FlatList 
                         numColumns={2}
                         renderItem={({ item }) => <RankablePic ranks={ranks} photo={item} imageRank={ranks.findIndex((element) => element==item.id)}/>}

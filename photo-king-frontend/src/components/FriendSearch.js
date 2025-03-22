@@ -39,11 +39,11 @@ export default function FriendSearch({searchData, onSelect}){
                         borderColor: 'grey', 
                         borderRadius:5,
                         backgroundColor:colors.greyWhite,
-                        borderWidth: 1,
+                        padding:10,
                         fontFamily: 'DMSans-Regular', 
                         fontSize: 16,
                     }}
-                inputContainerStyle={{ backgroundColor:"transparent"}}
+                inputContainerStyle={{ backgroundColor:"transparent",}}
                 containerStyle={{alignItems:'center', backgroundColor:"transparent", borderColor:"transparent"}}
                 lightTheme={true}
             />

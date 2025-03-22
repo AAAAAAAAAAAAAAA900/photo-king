@@ -140,7 +140,7 @@ export default function FriendsScreen({navigation}){
 
     return( 
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{flex:1}}>
+            <SafeAreaView style={{flex:1, backgroundColor:colors.secondary}}>
                 <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
 
                 {/* friend clicked modal */}  
@@ -218,7 +218,8 @@ export default function FriendsScreen({navigation}){
                 </View>
                 <View style={{backgroundColor:colors.primary, width:'100%', height:10}}/>
 
-                <Animated.View style={{flex:1, width:'200%', flexDirection:"row", transform: [{ translateX: slideAnim }]}}>
+
+                <Animated.View style={{flex:1, width:'200%', flexDirection:"row", backgroundColor: 'white', transform: [{ translateX: slideAnim }]}}>
                     {/* FRIENDS TAB */}
                     <View style={{flex:1}}>
                         <FriendSearch onSelect={(friend)=>{setFriendClicked({...friend});}} 

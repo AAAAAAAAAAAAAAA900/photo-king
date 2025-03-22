@@ -68,7 +68,7 @@ export default function LoginScreen({ navigation }) {
     // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView style={[styles.container, {backgroundColor:colors.secondary}]}>
                 <ImageBackground
                     resizeMode='stretch'
                     source={require('../../assets/backgrounds/LoginBackground.png')}

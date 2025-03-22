@@ -141,7 +141,7 @@ export default function PhotoScreen ({navigation}){
 
     return(
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{flex:1}}>
+            <SafeAreaView style={{flex:1, backgroundColor:colors.secondary}}>
                 <Header title={group.name} backFunction={()=>{
                     navigation.dispatch((state) => {
                         const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
@@ -237,7 +237,7 @@ export default function PhotoScreen ({navigation}){
                 >
                     <Image 
                     source={{uri: photo.url}}
-                    style={{height:'100%', width:'100%', resizeMode:'contain'}}
+                    style={{height:'100%', width:'100%', resizeMode:'contain', backgroundColor: colors.greyWhite}}
                     />
                 </TouchableOpacity>
                 <View style={{height:60, flexDirection:'row', alignItems:"center", justifyContent:"space-between", padding:10, backgroundColor:colors.primary}}>

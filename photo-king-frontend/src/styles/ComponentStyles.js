@@ -87,7 +87,7 @@ export default styles = StyleSheet.create({
         alignItems: 'center',
         width:'75%',
         height: 300,
-        backgroundColor: colors.greyWhite
+        backgroundColor: 'white'
     },
     picHolder: {
         flex:1,
