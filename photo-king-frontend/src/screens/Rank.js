@@ -143,7 +143,7 @@ export default function RankScreen({navigation}){
                     style={styles.button}
                     onPress={()=>{submitRanksPressed();}}
                     >
-                        <DefaultText>Submit Ranking</DefaultText>
+                        <DefaultText style={styles.buttonText}>Submit</DefaultText>
                     </TouchableOpacity>
                 </View>
             </View>

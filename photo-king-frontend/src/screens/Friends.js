@@ -187,7 +187,6 @@ export default function FriendsScreen({navigation}){
                                     <FlatList
                                     data={searchResults}
                                     renderItem={({item}) => <FriendPreview friend={item} press={() => {addFriendPressed(item.username);}}/>}
-                                    ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                                     keyExtractor={(item) => item.username}
                                     />
                                 </View>
@@ -204,7 +203,7 @@ export default function FriendsScreen({navigation}){
                     onPress={()=>setInvitesTab(false)}    
                     >
                         <View style={[{width:'50%', height:'100%', borderRadius:10, alignItems:"center", justifyContent:"center"}, (invitesTab ? {} : {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5})]}>
-                            <DefaultText style={[styles.bold, {color:'white'}]}>Friends</DefaultText>
+                            <DefaultText style={styles.buttonText}>Friends</DefaultText>
                         </View>
                     </TouchableOpacity>
                     <View style={{width:1, height:'90%', backgroundColor:'black'}}/>
@@ -212,7 +211,7 @@ export default function FriendsScreen({navigation}){
                     onPress={()=>{Keyboard.dismiss(); setInvitesTab(true);}}
                     >
                         <View style={[{width:'50%', height:'100%', borderRadius:5, alignItems:"center", justifyContent:"center"}, (invitesTab ? {backgroundColor:'rgba(0,0,0,0.1)', borderRadius:5} : {})]}>
-                            <DefaultText style={[styles.bold, {color:'white'}]}>Invites</DefaultText>
+                            <DefaultText style={styles.buttonText}>Invites</DefaultText>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -239,7 +238,7 @@ export default function FriendsScreen({navigation}){
                     <TouchableOpacity style={{height:'100%', width:'100%', borderRadius:10, borderWidth:2, alignItems:"center", justifyContent:"center",borderColor:colors.secondary, backgroundColor:colors.secondary}}
                     onPress={()=> setAddFriendModalVisible(true)}
                     >
-                        <DefaultText style={[styles.bold, {color:'white'}]} >Add Friend</DefaultText>
+                        <DefaultText style={styles.buttonText} >Add Friend</DefaultText>
                     </TouchableOpacity>
                 </View>
 

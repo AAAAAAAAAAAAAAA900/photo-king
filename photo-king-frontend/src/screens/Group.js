@@ -406,7 +406,7 @@ export default function GroupScreen({navigation}){
 
                 {/* Ranking button */}
                 <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, {height:50}]}
                 onPress={()=>{
                     if(pictures.length < 2){
                         Alert.alert(
@@ -420,13 +420,14 @@ export default function GroupScreen({navigation}){
                         navigation.navigate("Rank", {user: user, group: group});
                     }
                 }}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
+                    <Image style={[styles.iconStyle, {height:'60%'}]} source={require('../../assets/icons/podium.png')}/>
+                    <DefaultText style={styles.buttonText}>Rank</DefaultText>
                 </TouchableOpacity>
 
                 {/* Options button */}
                 <TouchableOpacity 
                 ref={optionsButtonRef} 
-                style={styles.button} 
+                style={[styles.button, {height:50}]} 
                 onPress={()=>{setOptionsModalVisible(true);}}
                 onLayout={()=>{
                     optionsButtonRef.current.measureInWindow((x, y, width, height) => {
@@ -435,9 +436,10 @@ export default function GroupScreen({navigation}){
                 }}
                 >
                     <Image 
-                        style={styles.iconStyle} 
+                        style={[styles.iconStyle, {height:'60%'}]} 
                         source={require('../../assets/icons/options.png')}
                     />
+                    <DefaultText style={styles.buttonText}>Options</DefaultText>
                 </TouchableOpacity>
             </View>
 

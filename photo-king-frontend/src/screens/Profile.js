@@ -187,7 +187,7 @@ export default function ProfileScreen({ navigation }) {
                                 <TouchableOpacity style={{ height: '100%', width: '100%', borderRadius: 10, borderWidth: 2, alignItems: "center", justifyContent: "center", borderColor: colors.secondary, backgroundColor: colors.secondary }}
                                     onPress={() => handleSubmit(onSubmit)}
                                 >
-                                    <DefaultText style={[styles.bold, { color: 'white' }]} >Submit</DefaultText>
+                                    <DefaultText style={styles.buttonText} >Submit</DefaultText>
                                 </TouchableOpacity>
                             </View>
 

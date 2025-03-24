@@ -48,7 +48,6 @@ export default function FriendSearch({searchData, onSelect}){
                 lightTheme={true}
             />
             <FlatList
-                ItemSeparatorComponent={ () => <View style={styles.separator} /> }
                 data={[...filteredData].sort((a,b)=>a.username.localeCompare(b.username))}
                 keyExtractor={(item) => item.username}
                 renderItem={({item}) => <FriendPreview friend={item} press={() => {onSelect? onSelect(item) : null}}/>}
@@ -59,9 +58,9 @@ export default function FriendSearch({searchData, onSelect}){
 
 export function FriendPreview({friend, press}){
     return(
-        <TouchableOpacity style={[styles.listItem, {padding:10}]} onPress={press}>
+        <TouchableOpacity style={[styles.listItem, {padding:10, gap:20}]} onPress={press}>
             <Pfp url={friend.pfp}/>
-            <DefaultText>{friend.username}</DefaultText>
+            <DefaultText style={styles.bold}>{friend.username}</DefaultText>
         </TouchableOpacity>
     );
 }

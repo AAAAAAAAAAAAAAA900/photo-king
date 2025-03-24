@@ -141,7 +141,6 @@ export default function HomeScreen({ navigation }) {
                     // List groups if user has any
                     <View style={{ flex: 1, backgroundColor:'white' }}>
                         <FlatList
-                            ItemSeparatorComponent={() => <View style={styles.separator} />}
                             data={[...user.groups].sort((a, b) => a.name.localeCompare(b.name))} // alphabetical ordering
                             renderItem={({ item }) =>
                                 <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {

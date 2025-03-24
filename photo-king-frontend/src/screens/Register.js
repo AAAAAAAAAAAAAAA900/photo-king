@@ -134,7 +134,7 @@ export default function RegisterScreen({ navigation }) {
                     {/* SUBMIT BUTTON */}
                     <TouchableOpacity style={{ width: 250, height: 40, marginVertical: 20, alignSelf: 'center', borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }}
                         onPress={handleSubmit(onSubmit)}>
-                        <DefaultText style={[styles.bold, { color: 'white' }]}>Register</DefaultText>
+                        <DefaultText style={styles.buttonText}>Register</DefaultText>
                     </TouchableOpacity>
 
                     {/* LOG IN */}
