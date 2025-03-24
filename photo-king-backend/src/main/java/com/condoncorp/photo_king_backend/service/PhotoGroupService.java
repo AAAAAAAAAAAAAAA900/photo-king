@@ -8,6 +8,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupUserRankingRepository;
+import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,16 @@ public class PhotoGroupService {
     @Autowired
     private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private UserImageService userImageService;
 
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
+        Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
         PhotoGroup photoGroup = new PhotoGroup(photoGroupReq);
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
@@ -41,11 +48,6 @@ public class PhotoGroupService {
             throw new RuntimeException("Group not found");
         }
         return photoGroup.get();
-    }
-
-    public PhotoGroupDTO getGroupByIdDTO(int groupId) {
-        PhotoGroup photoGroup = getGroupById(groupId);
-        return new PhotoGroupDTO(photoGroup);
     }
 
     public void saveGroup(PhotoGroup photoGroup) {
@@ -71,6 +73,15 @@ public class PhotoGroupService {
         photoGroupRepository.deleteById(groupId);
     }
 
+    public PhotoGroupDTO updateGroupName(int groupId, String name) {
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (photoGroup.isEmpty()) {
+            throw new RuntimeException("Group not found");
+        }
+        photoGroup.get().setName(name);
+        photoGroupRepository.save(photoGroup.get());
+        return new PhotoGroupDTO(photoGroup.get());
+    }
 
 
     // ALL IMAGE RANKING FUNCTIONS

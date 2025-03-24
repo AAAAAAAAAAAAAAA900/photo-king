@@ -2,8 +2,7 @@ package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.TokenReq;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
-import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
+import com.condoncorp.photo_king_backend.dto.UserRegisterReq;
 import com.condoncorp.photo_king_backend.service.CustomUserDetailsService;
 import com.condoncorp.photo_king_backend.service.JwtService;
 import com.condoncorp.photo_king_backend.service.UserService;
@@ -45,9 +44,9 @@ public class AuthController {
     }
 
     @PostMapping(path = "/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterDTO userRegisterDTO) {
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterReq userRegisterReq) {
         try {
-            userService.registerUser(userRegisterDTO);
+            userService.registerUser(userRegisterReq);
             return ResponseEntity.ok("User registered successfully!");
         }
         catch (RuntimeException e) {

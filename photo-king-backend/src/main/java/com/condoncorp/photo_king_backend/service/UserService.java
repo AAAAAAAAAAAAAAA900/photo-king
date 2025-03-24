@@ -8,7 +8,6 @@ import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +69,7 @@ public class UserService {
 
 
     // HANDLES USER REGISTRATION
-    public void registerUser(UserRegisterDTO user) {
+    public void registerUser(UserRegisterReq user) {
 
         Optional<User> findByUsername = userRepository.findByUsername(user.getUsername());
         if (findByUsername.isPresent()) {

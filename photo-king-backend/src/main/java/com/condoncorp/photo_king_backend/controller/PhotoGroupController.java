@@ -6,6 +6,8 @@ import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -24,8 +26,9 @@ public class PhotoGroupController {
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
-    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupReq photoGroupReq) {
-        return photoGroupService.addGroup(photoGroupReq);
+    public ResponseEntity<?> addGroup(@RequestBody PhotoGroupReq photoGroupReq) {
+        return ResponseEntity.ok(photoGroupService.addGroup(photoGroupReq));
+
     }
 
     @DeleteMapping(path = "/delete/{id}")
@@ -63,6 +66,11 @@ public class PhotoGroupController {
     @GetMapping(path = "/expired")
     public boolean isExpired(int groupId) {
         return photoGroupService.isExpired(groupId);
+    }
+
+    @PutMapping(path="/update-name/{id}/{name}")
+    public PhotoGroupDTO updateName(@PathVariable int id, @PathVariable String name) {
+        return photoGroupService.updateGroupName(id, name);
     }
 
 
