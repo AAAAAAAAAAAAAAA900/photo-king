@@ -1,12 +1,17 @@
-import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions } from "react-native";
+import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions, Platform } from "react-native";
 import { FriendPreview } from "./FriendSearch";
 import { useRef, useEffect } from "react";
 import DefaultText from "./DefaultText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import styles, { colors } from "../styles/ComponentStyles";
+
 
 export default function Members({ membersPopUpVisible, setMembersPopUpVisible, users, press }){
     
-    const offScreen = Dimensions.get("window").width;
-    const slideAnim = useRef(new Animated.Value(offScreen)).current; // Start offscreen (right side)
+    const {width, height} = Dimensions.get("window");
+    const slideAnim = useRef(new Animated.Value(width)).current; // Start off screen (right side)
+    const modalAdjustment = //header height + top safe area
+    100 + (Platform.OS == 'ios' ? useSafeAreaInsets().top : 0);
 
     useEffect(() => {
         if (membersPopUpVisible) {
@@ -17,7 +22,7 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, u
             }).start();
         } else {
             Animated.timing(slideAnim, {
-                toValue: offScreen, // Slide out of view
+                toValue: width, // Slide out of view
                 duration: 300,
                 useNativeDriver: true,
             }).start();
@@ -26,8 +31,8 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, u
 
     return(
         // membersPopUpVisible &&
-            <Animated.View pointerEvents={membersPopUpVisible ? "auto" : "none"} style={{top: 100 ,height:'90%', width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
-                    <View style={{ width:'60%', height:'100%', backgroundColor:'white' }}>
+            <Animated.View pointerEvents={membersPopUpVisible ? "auto" : "none"} style={{top:modalAdjustment ,height: height - modalAdjustment, width:'100%', position:'absolute', zIndex:2, flexDirection:'row-reverse',transform: [{ translateX: slideAnim }]}}>
+                    <View style={{ width:'60%', height:'100%', backgroundColor:'white',}}>
                         {users.length ? 
                             <FlatList
                                 data={[...users].sort((a,b)=>a.username.localeCompare(b.username))}

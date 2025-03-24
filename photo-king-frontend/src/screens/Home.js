@@ -74,116 +74,112 @@ export default function HomeScreen({ navigation }) {
 
     // Home screen view: scrollable list of groups
     return (
-        <View style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor:colors.secondary}}>
             <Header border={true} title={'Home'} buttons={<TitleButtons navigation={navigation} user={user} />} />
-            <SafeAreaView style={{ flex: 1 }}>
 
 
-
-                {/* Create group popup */}
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={groupModalVisible}
-                    onRequestClose={() => { setDaySelected("Monday"); setGroupTitle(""); setGroupModalVisible(false); }}
-                >
-                    <TouchableOpacity activeOpacity={1} onPress={() => { setGroupTitle(''); setDaySelected("Monday"); setGroupModalVisible(false); }} style={[styles.containerCenterAll, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
-                        <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
-                        <View style={{ width: '75%', height: 10, backgroundColor: colors.primary }} />
-                        <TouchableOpacity activeOpacity={1} onPress={() => Keyboard.dismiss()} style={[styles.popupView, { padding: 10, gap: 13 }]}>
-                            <DefaultText style={styles.titleText}>Create Group</DefaultText>
-                            <TextInput
-                                style={[styles.textIn, { width: '80%' }]}
-                                onChangeText={(text) => { setGroupTitle(text) }}
-                                autoCapitalize='none'
-                                maxLength={20}
-                                autoCorrect={false}
-                                placeholder="Enter Group Name..."
-                            />
-                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <DefaultText style={{ marginTop: 5, marginRight: 5 }}>Resets every: </DefaultText>
-                                <DropDownMenu data={days} selection={daySelected} setSelection={setDaySelected} />
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 10 }}>
-                                <TouchableOpacity style={[styles.button, { width: '40%', backgroundColor: colors.greyWhite }]}
-                                    onPress={() => {
-                                        setGroupTitle('');
-                                        setDaySelected("Monday");
-                                        setGroupModalVisible(false);
-                                    }}
-                                >
-                                    <DefaultText>Cancel</DefaultText>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.button, { width: '40%' }]}
-                                    onPress={() => {
-                                        addGroup();
-                                        setGroupTitle('');
-                                        setGroupModalVisible(false);
-                                        setDaySelected("Monday");
-                                    }}
-                                >
-                                    <DefaultText>Submit</DefaultText>
-                                </TouchableOpacity>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={{ width: '75%', height: 10, backgroundColor: colors.primary }} />
-                        <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
+            {/* Create group popup */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={groupModalVisible}
+                onRequestClose={() => { setDaySelected("Monday"); setGroupTitle(""); setGroupModalVisible(false); }}
+            >
+                <TouchableOpacity activeOpacity={1} onPress={() => { setGroupTitle(''); setDaySelected("Monday"); setGroupModalVisible(false); }} style={[styles.containerCenterAll, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+                    <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
+                    <View style={{ width: '75%', height: 10, backgroundColor: colors.primary }} />
+                    <TouchableOpacity activeOpacity={1} onPress={() => Keyboard.dismiss()} style={[styles.popupView, { padding: 10, gap: 13, }]}>
+                        <DefaultText style={styles.titleText}>Create Group</DefaultText>
+                        <TextInput
+                            style={[styles.textIn, { width: '80%' }]}
+                            onChangeText={(text) => { setGroupTitle(text) }}
+                            autoCapitalize='none'
+                            maxLength={20}
+                            autoCorrect={false}
+                            placeholder="Enter Group Name..."
+                        />
+                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                            <DefaultText style={{ marginTop: 5, marginRight: 5 }}>Resets every: </DefaultText>
+                            <DropDownMenu data={days} selection={daySelected} setSelection={setDaySelected} />
+                        </View>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <TouchableOpacity style={[styles.button, { width: '40%', backgroundColor: colors.greyWhite }]}
+                                onPress={() => {
+                                    setGroupTitle('');
+                                    setDaySelected("Monday");
+                                    setGroupModalVisible(false);
+                                }}
+                            >
+                                <DefaultText>Cancel</DefaultText>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.button, { width: '40%' }]}
+                                onPress={() => {
+                                    addGroup();
+                                    setGroupTitle('');
+                                    setGroupModalVisible(false);
+                                    setDaySelected("Monday");
+                                }}
+                            >
+                                <DefaultText>Submit</DefaultText>
+                            </TouchableOpacity>
+                        </View>
                     </TouchableOpacity>
-                </Modal>
-
-
-                {/* Show loading indicator while fetching data */}
-                {loading ? (
-                    <View style={styles.containerCenterAll}>
-                        <ActivityIndicator size="large" color="#0000ff" />
-                    </View>
-                ) : user ? (
-                    // Render flatlist if user has groups
-                    user.groups && user.groups.length ? (
-                        // List groups if user has any
-                        <View style={{ flex: 1 }}>
-                            <FlatList
-                                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                                data={[...user.groups].sort((a, b) => a.name.localeCompare(b.name))} // alphabetical ordering
-                                renderItem={({ item }) =>
-                                    <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
-                                        navigation.navigate("Group", { user: user, group: item })
-                                    }}
-                                    />
-                                }
-                                keyExtractor={item => item.id}
-                            />
-                        </View>
-                    ) : (
-                        // No active groups message
-                        <View style={styles.containerCenterAll}>
-                            <DefaultText>You have no active groups!</DefaultText>
-                        </View>
-                    )
-                ) : (
-                    // Show error message if user is null (e.g., not found)
-                    <View style={styles.containerCenterAll}>
-                        <Text style={{ color: 'red' }}>User not found</Text>
-                    </View>
-                )}
-                <TouchableOpacity style={{
-                    position: 'absolute',
-                    right: '8%',
-                    bottom: '15%',
-                    width: 70,
-                    height: 70,
-                    backgroundColor: colors.secondary,
-                    boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 50,
-                    margin: 5
-                }}
-                    onPress={() => setGroupModalVisible(true)}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')} />
+                    <View style={{ width: '75%', height: 10, backgroundColor: colors.primary }} />
+                    <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
                 </TouchableOpacity>
-                <NavBar navigation={navigation} user={user} screen='Home' />
-            </SafeAreaView>
-        </View>
+            </Modal>
+
+
+            {/* Show loading indicator while fetching data */}
+            {loading ? (
+                <View style={[styles.containerCenterAll, {backgroundColor:'white'}]}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            ) : user ? (
+                // Render flatlist if user has groups
+                user.groups && user.groups.length ? (
+                    // List groups if user has any
+                    <View style={{ flex: 1, backgroundColor:'white' }}>
+                        <FlatList
+                            data={[...user.groups].sort((a, b) => a.name.localeCompare(b.name))} // alphabetical ordering
+                            renderItem={({ item }) =>
+                                <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
+                                    navigation.navigate("Group", { user: user, group: item })
+                                }}
+                                />
+                            }
+                            keyExtractor={item => item.id}
+                        />
+                    </View>
+                ) : (
+                    // No active groups message
+                    <View style={styles.containerCenterAll}>
+                        <DefaultText>You have no active groups!</DefaultText>
+                    </View>
+                )
+            ) : (
+                // Show error message if user is null (e.g., not found)
+                <View style={styles.containerCenterAll}>
+                    <Text style={{ color: 'red' }}>User not found</Text>
+                </View>
+            )}
+            <TouchableOpacity style={{
+                position: 'absolute',
+                right: '8%',
+                bottom: '15%',
+                width: 70,
+                height: 70,
+                backgroundColor: colors.secondary,
+                boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 50,
+                margin: 5
+            }}
+                onPress={() => setGroupModalVisible(true)}>
+                <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')} />
+            </TouchableOpacity>
+            <NavBar navigation={navigation} user={user} screen='Home' />
+        </SafeAreaView>
     );
 }

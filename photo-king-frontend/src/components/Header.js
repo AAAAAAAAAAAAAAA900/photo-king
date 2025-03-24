@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity, View } from "react-native";
+import { Image, Platform, TouchableOpacity, View } from "react-native";
 import DefaultText from "./DefaultText";
 import styles, { colors } from "../styles/ComponentStyles";
 
@@ -15,7 +15,7 @@ export default function Header({ title, backFunction, buttons, border, height=10
             alignItems:'center', 
             justifyContent:'center', 
             flexDirection:'row', 
-            paddingTop:30, 
+            paddingTop: 30, 
             padding:10,  
             backgroundColor: colors.secondary}
             ]}>

@@ -1,92 +1,130 @@
-import { Alert, Modal, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import Pfp from "./Pfp";
 import DefaultText from "./DefaultText";
-import styles, {colors} from "../styles/ComponentStyles";
+import styles, { colors } from "../styles/ComponentStyles";
 import { useEffect, useState } from "react";
 import userApi from "../api/userApi";
 
 
-export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup }){
+export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup }) {
 
     const [bio, setBio] = useState("");
 
     const getBio = async (id) => {
-        try{
+        try {
             const response = await userApi.getBio(id);
             setBio(response.data);
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
     }
 
-    useEffect(()=> {
-        if(friendClicked){
+    useEffect(() => {
+        if (friendClicked) {
             getBio(friendClicked.id);
         }
     }, [friendClicked]);
 
-    return(
+    return (
         friendClicked && (    // prevents instant rendering and friendClicked null errors
             <Modal
                 animationType="fade"
                 transparent={true}
                 visible={friendModalVisible}
-                onRequestClose={() => {setFriendModalVisible(false); setFriendClicked(null);}}
-                style={{justifyContent:'center'}}
+                onRequestClose={() => { setFriendModalVisible(false); setFriendClicked(null); }}
+                style={{ justifyContent: 'center' }}
             >
-                <TouchableOpacity activeOpacity={1} onPress={()=>{setFriendModalVisible(false); setFriendClicked(null);}} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
-                    <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
-                    <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-                    <TouchableOpacity activeOpacity={1} style={[styles.popupView, {justifyContent:"baseline", padding:10, gap:5, alignItems:'baseline'}]}>
-                        <Pfp url={friendClicked.pfp} size={100}/>
-                        <DefaultText style={[styles.titleText, {marginLeft:15}]}>{friendClicked.username}</DefaultText>
-                        <View style={{height:65, width:'100%', borderWidth:1, borderRadius:10, padding:5}}>
-                            <DefaultText>{bio}</DefaultText>
+                <TouchableOpacity activeOpacity={1} onPress={() => { setFriendModalVisible(false); setFriendClicked(null); }} style={[styles.containerCenterAll, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+                    <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
+                    <TouchableOpacity activeOpacity={1} style={[styles.popupView, { alignItems: "baseline", height: 320, justifyContent: "baseline" }]}>
+                        <View style={{ width: '100%', height: 60, position: "absolute", top: 0, left: 0, backgroundColor: colors.secondary }} />
+
+                        {/* Modal container */}
+                        <View style={{ gap: 5, paddingHorizontal: 10, flex: 1, width: '100%' }}>
+
+                            {/* PFP surrounded by white circle */}
+                            <View style={{ alignSelf: 'baseline', padding: 10, backgroundColor: 'white', borderRadius: 200 }}>
+                                <Pfp url={friendClicked.pfp} size={100} />
+                            </View>
+
+                            {/* Username */}
+                            <DefaultText style={[styles.titleText, { marginLeft: 15 }]}>{friendClicked.username}</DefaultText>
+
+                            {/* Bio */}
+                            <View style={{ height: 65, width: '100%', borderRadius: 10, padding: 5 }}>
+                                <DefaultText>{bio}</DefaultText>
+                            </View>
                         </View>
-                        <View style={{flexDirection:'row', gap:10}}>
-                            { removeFriend &&
-                                <TouchableOpacity 
-                                style={[styles.button, {backgroundColor:'red'}]}
-                                onPress={() => {Alert.alert(
-                                    `Remove ${friendClicked.username} as friend?`,
-                                    "You will be removed from their friends list aswell.",
-                                    [
-                                        { text: "Confirm", onPress: ()=> {removeFriend(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false);}},
-                                        { text: "Cancel", style: "cancel"}
-                                    ]
-                                );}}
+
+                        {/* Buttons */}
+                        <View style={{ flexDirection: 'row', width: '100%', padding: 10, backgroundColor: colors.primary, justifyContent: 'space-between' }}>
+                            {removeFriend &&
+                                <TouchableOpacity
+                                    style={friendStyles.button}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            `Remove ${friendClicked.username} as friend?`,
+                                            "You will be removed from their friends list aswell.",
+                                            [
+                                                { text: "Confirm", onPress: () => { removeFriend(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false); } },
+                                                { text: "Cancel", style: "cancel" }
+                                            ]
+                                        );
+                                    }}
                                 >
-                                    <DefaultText>Remove Friend</DefaultText>
+                                    <DefaultText style={friendStyles.buttonText}>Remove Friend</DefaultText>
                                 </TouchableOpacity>
                             }
-                            { removeFriendFromGroup &&
-                                <TouchableOpacity 
-                                style={[styles.button, {backgroundColor:'red'}]}
-                                onPress={() => {Alert.alert(
-                                    `Remove ${friendClicked.username} from group?`,
-                                    "This group will no longer appear on their home screen.",
-                                    [
-                                        { text: "Confirm", onPress: ()=> {removeFriendFromGroup(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false);}},
-                                        { text: "Cancel", style: "cancel"}
-                                    ]
-                                );}}
+
+                            {removeFriendFromGroup &&
+                                <TouchableOpacity
+                                    style={friendStyles.button}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            `Remove ${friendClicked.username} from group?`,
+                                            "This group will no longer appear on their home screen.",
+                                            [
+                                                { text: "Confirm", onPress: () => { removeFriendFromGroup(friendClicked.id); setFriendClicked(null); setFriendModalVisible(false); } },
+                                                { text: "Cancel", style: "cancel" }
+                                            ]
+                                        );
+                                    }}
                                 >
-                                    <DefaultText>Remove From Group</DefaultText>
+                                    <DefaultText style={friendStyles.buttonText}>Kick From Group</DefaultText>
                                 </TouchableOpacity>
                             }
-                            <TouchableOpacity 
-                            style={styles.button}
-                            onPress={() => { setFriendClicked(null); setFriendModalVisible(false);}}
+                            <TouchableOpacity
+                                style={friendStyles.button}
+                                onPress={() => { setFriendClicked(null); setFriendModalVisible(false); }}
                             >
-                                <DefaultText>Close</DefaultText>
+                                <DefaultText style={friendStyles.buttonText}>Close</DefaultText>
                             </TouchableOpacity>
                         </View>
+
                     </TouchableOpacity>
-                    <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-                    <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
+                    <View style={{ width: '75%', height: 30, backgroundColor: colors.secondary }} />
                 </TouchableOpacity>
             </Modal>
         )
     );
 }
+
+const friendStyles= StyleSheet.create({
+    button:{
+        height: 40, 
+        width: '45%', 
+        borderRadius: 10, 
+        backgroundColor: colors.secondary, 
+        alignItems: "center", 
+        justifyContent: "center"
+    },
+    buttonText: [
+        styles.bold, 
+        { 
+        color: 'white', 
+        textAlign: 
+        'center' 
+    }],
+
+});

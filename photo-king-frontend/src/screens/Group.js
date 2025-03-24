@@ -1,4 +1,5 @@
-import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform } from 'react-native';
+import {  useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -29,6 +30,9 @@ export default function GroupScreen({navigation}){
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const optionsButtonRef = useRef(null);
+    const [optionsHeight, setOptionsHeight] = useState(0);
+    const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -265,7 +269,7 @@ export default function GroupScreen({navigation}){
     
 
     return(
-        <SafeAreaView style={{flex:1}}>
+        <SafeAreaView style={{flex:1, backgroundColor:colors.secondary}}>
             <Header 
             backFunction={()=> {
                 navigation.dispatch((state) => {
@@ -334,10 +338,10 @@ export default function GroupScreen({navigation}){
             onRequestClose={() => {setOptionsModalVisible(false);}}
             style={{justifyContent:'center'}}
             >
-                <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:140,alignSelf:'baseline', boxShadow:'0 8 5 1 rgba(0, 0, 0, .25)'}}>
+                <TouchableOpacity activeOpacity={1} style={{flex:1}} onPress={()=>setOptionsModalVisible(false)}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5, padding:8, position:'absolute',right:0,top:optionsHeight+modalAdjustment+42, alignSelf:'baseline', boxShadow:'0 8 5 0 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
-                            <View style={{gap:5}}>
+                            <View style={{gap:8}}>
                                 <TouchableOpacity
                                 style={styles.button}
                                 onPress={()=>{Alert.alert(
@@ -387,7 +391,7 @@ export default function GroupScreen({navigation}){
             {/* Group options bar */}
             <View style={{padding:8, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', alignItems:'center',flexDirection:'row'}}>
                 
-
+                {/* Day tracker / timer */}
                 <View style={{height:50, width: 154, alignItems:'center', backgroundColor:'#CCCCCC',  alignSelf: 'flex-start', borderRadius:8, flexDirection:'row', gap:6}}>
                     <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
                     <View style={{alignItems:'center', width:'60%'}}>
@@ -400,8 +404,9 @@ export default function GroupScreen({navigation}){
                     </View>
                 </View>
 
+                {/* Ranking button */}
                 <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, {height:50}]}
                 onPress={()=>{
                     if(pictures.length < 2){
                         Alert.alert(
@@ -415,11 +420,26 @@ export default function GroupScreen({navigation}){
                         navigation.navigate("Rank", {user: user, group: group});
                     }
                 }}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
+                    <Image style={[styles.iconStyle, {height:'60%'}]} source={require('../../assets/icons/podium.png')}/>
+                    <DefaultText style={styles.buttonText}>Rank</DefaultText>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
+                {/* Options button */}
+                <TouchableOpacity 
+                ref={optionsButtonRef} 
+                style={[styles.button, {height:50}]} 
+                onPress={()=>{setOptionsModalVisible(true);}}
+                onLayout={()=>{
+                    optionsButtonRef.current.measureInWindow((x, y, width, height) => {
+                        setOptionsHeight(y);
+                    });
+                }}
+                >
+                    <Image 
+                        style={[styles.iconStyle, {height:'60%'}]} 
+                        source={require('../../assets/icons/options.png')}
+                    />
+                    <DefaultText style={styles.buttonText}>Options</DefaultText>
                 </TouchableOpacity>
             </View>
 
@@ -433,8 +453,8 @@ export default function GroupScreen({navigation}){
             />
 
             {/* Photo list */}
-            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
-                <View style={{flex:1, padding:5}}>
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1, backgroundColor:'white'}}>
+                <View style={{flex:1, paddingHorizontal:5}}>
                     { loading ? 
                         <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
                             <ActivityIndicator size="large" color="#0000ff" />

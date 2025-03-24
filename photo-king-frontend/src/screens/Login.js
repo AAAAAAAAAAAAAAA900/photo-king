@@ -68,7 +68,7 @@ export default function LoginScreen({ navigation }) {
     // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView style={[styles.container, {backgroundColor:colors.secondary}]}>
                 <ImageBackground
                     resizeMode='stretch'
                     source={require('../../assets/backgrounds/LoginBackground.png')}
@@ -130,7 +130,7 @@ export default function LoginScreen({ navigation }) {
                                 loginError ? { marginTop: 10 } : { marginTop: 30 },
                                 { width: 250, height: 40, borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }]}
                                 onPress={handleSubmit(onSubmit)}>
-                                <DefaultText style={[styles.bold, { color: 'white' }]}>Sign In</DefaultText>
+                                <DefaultText style={styles.buttonText}>Sign In</DefaultText>
                             </TouchableOpacity>
 
                             {/* DIVIDERS */}
