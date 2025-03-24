@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
 import com.condoncorp.photo_king_backend.model.User;
@@ -11,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 @Service
@@ -24,8 +29,8 @@ public class PhotoGroupService {
     private UserImageService userImageService;
 
 
-    public PhotoGroupDTO addGroup(PhotoGroupDTO photoGroupDTO) {
-        PhotoGroup photoGroup = new PhotoGroup(photoGroupDTO.getName(), photoGroupDTO.getOwnerId());
+    public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
+        PhotoGroup photoGroup = new PhotoGroup(photoGroupReq);
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
     }
@@ -114,6 +119,16 @@ public class PhotoGroupService {
         userImageService.updatePoints(thirdRankId, 1);
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
     }
+
+    // CHECKS IF GROUP IS EXPIRED
+    public boolean isExpired(int groupId) {
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (photoGroup.isEmpty()) {
+            throw new RuntimeException("Group not found");
+        }
+        return photoGroup.get().getExpiresAt().isBefore(LocalDateTime.now());
+    }
+
 
 
 

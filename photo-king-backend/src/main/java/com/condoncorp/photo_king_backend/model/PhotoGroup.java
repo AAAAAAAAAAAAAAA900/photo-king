@@ -1,9 +1,17 @@
 package com.condoncorp.photo_king_backend.model;
 
 
+import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
+import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import  com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Entity
@@ -20,6 +28,9 @@ public class PhotoGroup {
     @Column(name = "owner_id", nullable = false)
     private int ownerId;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @ManyToMany(mappedBy = "photoGroups")
     private Set<User> users = new HashSet<>();
 
@@ -30,6 +41,17 @@ public class PhotoGroup {
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
+        this.users = new HashSet<>();
+        this.userImages = new ArrayList<>();
+    }
+
+    public PhotoGroup(PhotoGroupReq group) {
+        this.name = group.getName();
+        this.ownerId = group.getOwnerId();
+        LocalDateTime now = LocalDateTime.now();
+        if(now.getDayOfWeek().getValue() > group.getSelectedDay())
+            now = now.plusWeeks(1);
+        this.setExpiresAt(now.with(TemporalAdjusters.next(DayOfWeek.of(group.getSelectedDay()))).with(LocalTime.of(23, 59, 59)));
         this.users = new HashSet<>();
         this.userImages = new ArrayList<>();
     }
@@ -68,6 +90,14 @@ public class PhotoGroup {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public List<UserImage> getUserImages() {

@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import {navigate} from "../utilities/RootNavigation";
 
 const API_URL = "https://mole-select-sadly.ngrok-free.app";
 
@@ -14,9 +15,6 @@ const apiFormClient = axios.create({
     baseURL: `${API_URL}/api`,
 });
 
-const apiGroupClient = axios.create ({
-    baseURL: `${API_URL}/api`,
-});
 
 // GET TOKENS
 const getAccessToken = async () => await SecureStore.getItemAsync("accessToken");
@@ -47,23 +45,25 @@ const isTokenValid = async (token) => {
 
 const refreshAccessToken = async () => {
     const refreshToken = await getRefreshToken();
-
     if (!refreshToken || !(await isTokenValid(refreshToken))) {
         await clearTokens();
-        return;
+        navigate("Login")
     }
     try {
-        const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { refreshToken: refreshToken }, {
+        const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { token: refreshToken }, {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
+        if (response.data === null) {
+            await clearTokens();
+            navigate("Login")
+        }
         await saveAccessToken(response.data);
     }
     catch (error) {
         await clearTokens();
     }
-
 }
 
 
@@ -110,4 +110,4 @@ apiFormClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-export { apiClient, apiFormClient };
+export { apiClient, apiFormClient, isTokenValid, clearTokens };

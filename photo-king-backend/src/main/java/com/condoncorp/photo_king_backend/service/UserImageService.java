@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
+import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
@@ -11,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -164,6 +167,15 @@ public class UserImageService {
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImageDTO getTopImage(int groupId) {
 
+        List<UserImageDTO> groupImages = getImagesByGroup(groupId);
+
+        if (groupImages == null) {
+            return null;
+        }
+
+        if (groupImages.isEmpty()) {
+            return null;
+        }
         List<UserImageDTO> images = new ArrayList<>(getImagesByGroup(groupId));
 
         if (images.isEmpty()) {
@@ -176,8 +188,6 @@ public class UserImageService {
 
         images.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
         return images.get(0);
-
-
     }
 
     // UPDATES AN IMAGE'S POINTS
@@ -196,20 +206,19 @@ public class UserImageService {
 
     // COMMENT FUNCTIONS
     // UPLOADS COMMENT TO IMAGE
-    public UserImageCommentDTO uploadComment(UserImageCommentDTO userImageCommentDTO) {
-        Optional<User> user = userRepository.findById(userImageCommentDTO.getUserId());
+    public UserImageCommentDTO uploadComment(UserImageCommentReq userImageCommentReq) {
+        Optional<User> user = userRepository.findById(userImageCommentReq.getUserId());
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        Optional<UserImage> userImage = userImageRepository.findById(userImageCommentDTO.getImageId());
+        Optional<UserImage> userImage = userImageRepository.findById(userImageCommentReq.getPhotoId());
         if (userImage.isEmpty()) {
             throw new RuntimeException("Image not found");
         }
 
         UserImageComment userImageComment = new UserImageComment();
-        userImageComment.setId(userImageCommentDTO.getId());
-        userImageComment.setComment(userImageCommentDTO.getComment());
-        userImageComment.setCreatedAt(userImageCommentDTO.getDate());
+        userImageComment.setComment(userImageCommentReq.getComment());
+        userImageComment.setCreatedAt(LocalDateTime.now());
         userImageComment.setUser(user.get());
         userImageComment.setUserImage(userImage.get());
         userImageCommentRepository.save(userImageComment);
@@ -220,6 +229,12 @@ public class UserImageService {
 
     public void deleteComment(int id) {
         userImageCommentRepository.deleteById(id);
+    }
+
+    // GETS COMMENTS FOR GIVEN IMAGE1
+    public List<UserImageCommentDTO> getComments(int photoId){
+        Optional<UserImage> image = userImageRepository.findById(photoId);
+        return image.map(userImage -> userImage.getComments().stream().map(UserImageCommentDTO::new).toList()).orElse(Collections.emptyList());
     }
 
 }

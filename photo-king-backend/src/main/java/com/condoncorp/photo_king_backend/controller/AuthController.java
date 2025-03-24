@@ -21,11 +21,11 @@ import java.util.HashMap;
 public class AuthController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    JwtService jwtService;
+    private JwtService jwtService;
     @Autowired
-    CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService userDetailsService;
     @Autowired
     private UserService userService;
 
@@ -48,8 +48,8 @@ public class AuthController {
     }
 
     @PostMapping(path = "/refresh-token")
-    public String generateToken(@RequestBody String refreshToken) {
-        return userService.generateToken(refreshToken);
+    public String generateToken(@RequestBody TokenReq token) {
+        return userService.generateToken(token.getToken());
     }
 
     @PostMapping(path = "/validate-token")

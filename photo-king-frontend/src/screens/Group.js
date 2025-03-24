@@ -1,8 +1,9 @@
-import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform } from 'react-native';
+import {  useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState, useCallback, useRef} from "react";
 import * as ImagePicker from 'expo-image-picker';
 import { CommonActions } from "@react-navigation/native";
 import {useActionSheet} from "@expo/react-native-action-sheet";
@@ -14,6 +15,7 @@ import imageApi from "../api/imageApi";
 import photoGroupApi from "../api/photoGroupApi";
 import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
+import Timer from '../components/Timer.js';
 
 export default function GroupScreen({navigation}){
     const route = useRoute();
@@ -27,7 +29,10 @@ export default function GroupScreen({navigation}){
     const [friendClicked, setFriendClicked] = useState(null);   
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const optionsButtonRef = useRef(null);
+    const [optionsHeight, setOptionsHeight] = useState(0);
+    const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
 
     useEffect(() => {
         setGroup(user.groups.filter((g)=>g.id == group.id)[0]);    // update group when members or name changes
@@ -81,9 +86,9 @@ export default function GroupScreen({navigation}){
     }
 
     // FlatList element's view
-    const Pic = useCallback(({ photo }) => {
+    const Pic = useCallback(({ photo, pictures }) => {
         // Gets pfp of poster
-        const pfp = group.users.find((value,index,array)=> {return value.id==photo.userId;})?.pfp;
+        const pfp = group.users.find((value)=> {return value.id==photo.userId;})?.pfp;
         // Checks if picture is first, second, or third
         const winningBorder = {};
         if (photo.points != 0){
@@ -241,8 +246,30 @@ export default function GroupScreen({navigation}){
         loadPictures(setPictures, group, setLoading).then(r => {});
     }, []);
 
+    const getDateInfo = () => {
+
+        const current_date = new Date(Date.now());
+        const expirationDate = new Date(group.expiresAt);
+        const expirationDay = expirationDate.getDay();
+        const isDay = current_date.getDate() === expirationDate.getDate() && current_date.getMonth() === expirationDate.getMonth();
+
+        
+        let secondsToEndDay = current_date.getTime();
+        current_date.setHours(23, 59, 59);
+        secondsToEndDay = Math.floor((current_date.getTime() - secondsToEndDay)/1000);
+
+        return {
+            isDay: isDay, // adjusts sunday from 0 to 7 to match database
+            secondsLeft: secondsToEndDay,
+            day: expirationDay
+        }
+    };
+
+    const dateInfo = useRef(getDateInfo()).current;
+    
+
     return(
-        <SafeAreaView style={{flex:1}}>
+        <SafeAreaView style={{flex:1, backgroundColor:colors.secondary}}>
             <Header 
             backFunction={()=> {
                 navigation.dispatch((state) => {
@@ -311,10 +338,10 @@ export default function GroupScreen({navigation}){
             onRequestClose={() => {setOptionsModalVisible(false);}}
             style={{justifyContent:'center'}}
             >
-                <TouchableOpacity activeOpacity={1} style={{flex:1, flexDirection:'row-reverse'}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5,padding:5, marginTop:121,alignSelf:'baseline'}}>
+                <TouchableOpacity activeOpacity={1} style={{flex:1}} onPress={()=>setOptionsModalVisible(false)}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5, padding:8, position:'absolute',right:0,top:optionsHeight+modalAdjustment+42, alignSelf:'baseline', boxShadow:'0 8 5 0 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
-                            <View style={{gap:5}}>
+                            <View style={{gap:8}}>
                                 <TouchableOpacity
                                 style={styles.button}
                                 onPress={()=>{Alert.alert(
@@ -362,11 +389,24 @@ export default function GroupScreen({navigation}){
             />
             
             {/* Group options bar */}
-            <View style={{padding:5, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', flexDirection:'row'}}>
-                {/* Disables ranking button if user already ranked this week */}
+            <View style={{padding:8, backgroundColor:'white',borderBottomWidth:.5,justifyContent:'space-between', alignItems:'center',flexDirection:'row'}}>
+                
+                {/* Day tracker / timer */}
+                <View style={{height:50, width: 154, alignItems:'center', backgroundColor:'#CCCCCC',  alignSelf: 'flex-start', borderRadius:8, flexDirection:'row', gap:6}}>
+                    <Image style={[styles.iconStyle, {width:'28%', marginLeft:5}]} source={require('../../assets/icons/clock.png')}/>
+                    <View style={{alignItems:'center', width:'60%'}}>
+                        <DefaultText>Resets:</DefaultText>
+                        {!dateInfo.isDay ?
+                            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>{days[dateInfo.day]}</DefaultText>
+                        :
+                            <Timer startTime={dateInfo.secondsLeft}/>
+                        }
+                    </View>
+                </View>
 
+                {/* Ranking button */}
                 <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, {height:50}]}
                 onPress={()=>{
                     if(pictures.length < 2){
                         Alert.alert(
@@ -380,11 +420,26 @@ export default function GroupScreen({navigation}){
                         navigation.navigate("Rank", {user: user, group: group});
                     }
                 }}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/podium.png')}/>
+                    <Image style={[styles.iconStyle, {height:'60%'}]} source={require('../../assets/icons/podium.png')}/>
+                    <DefaultText style={styles.buttonText}>Rank</DefaultText>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={()=>{setOptionsModalVisible(true);}}>
-                    <Image style={styles.iconStyle} source={require('../../assets/icons/options.png')}/>
+                {/* Options button */}
+                <TouchableOpacity 
+                ref={optionsButtonRef} 
+                style={[styles.button, {height:50}]} 
+                onPress={()=>{setOptionsModalVisible(true);}}
+                onLayout={()=>{
+                    optionsButtonRef.current.measureInWindow((x, y, width, height) => {
+                        setOptionsHeight(y);
+                    });
+                }}
+                >
+                    <Image 
+                        style={[styles.iconStyle, {height:'60%'}]} 
+                        source={require('../../assets/icons/options.png')}
+                    />
+                    <DefaultText style={styles.buttonText}>Options</DefaultText>
                 </TouchableOpacity>
             </View>
 
@@ -398,8 +453,8 @@ export default function GroupScreen({navigation}){
             />
 
             {/* Photo list */}
-            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1}}>
-                <View style={{flex:1, padding:5}}>
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} style={{flex:1, backgroundColor:'white'}}>
+                <View style={{flex:1, paddingHorizontal:5}}>
                     { loading ? 
                         <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
                             <ActivityIndicator size="large" color="#0000ff" />
@@ -408,7 +463,7 @@ export default function GroupScreen({navigation}){
                         pictures.length ?
                             <FlatList 
                                 numColumns={2}
-                                renderItem={({ item }) => <Pic photo={item} />}
+                                renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
                                 keyExtractor={(item) => item.id}
                                 data={pictures}
                             />
@@ -423,12 +478,12 @@ export default function GroupScreen({navigation}){
             
             {/* Add images/users buttons */}
             <View style={{flexDirection:'row', height:'8%',alignContent:'space-between',paddingHorizontal:0, backgroundColor:colors.secondary}}>
-                <TouchableOpacity style={{flex:1}}
+                <TouchableOpacity style={{flex:1, alignItems:'center', justifyContent:'center'}}
                     onPress={() => {onPressPhoto()}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/image.png')}/>
                 </TouchableOpacity>
                 <View style={{width:1, backgroundColor:'white', marginVertical:9}}/>
-                <TouchableOpacity style={{flex:1}}
+                <TouchableOpacity style={{flex:1, alignItems:'center', justifyContent:'center'}}
                 onPress={() => {setUserModalVisible(!userModalVisible)}}>
                     <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')}/>
                 </TouchableOpacity>
@@ -440,7 +495,9 @@ export default function GroupScreen({navigation}){
 export const loadPictures = async (setPictures, group, setLoading) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
-        setPictures(response.data.sort((a,b)=> b.points-a.points));
+        if(response.data){
+            setPictures(response.data.sort((a,b)=> b.points-a.points));
+        }
         if(setLoading) setLoading(false);
     } catch (error) {
         console.log(error);

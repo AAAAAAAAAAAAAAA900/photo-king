@@ -21,6 +21,12 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new RuntimeException("User not found");
         }
 
+        if (!user.get().getUsername().equals(username)) {
+            throw new RuntimeException("User not found");
+        }
+
+
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.get().getUsername())
                 .password(user.get().getPassword())

@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
+import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.model.UserImageComment;
@@ -75,7 +76,7 @@ public class UserImageController {
         return userImageService.getImagesByGroup(groupId);
     }
 
-    // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
+    // DELETES AN IMAGE FROM CLOUD AND DATABASE
     @DeleteMapping(path = "/delete-image/{id}")
     public void deleteImage(@PathVariable int id) throws IOException {
         userImageService.deleteImage(id);
@@ -101,13 +102,19 @@ public class UserImageController {
 
     // UPLOADS A COMMENT
     @PostMapping(path = "/upload-comment")
-    public UserImageCommentDTO uploadComment(@RequestBody UserImageCommentDTO userImageCommentDTO) {
-        return userImageService.uploadComment(userImageCommentDTO);
+    public UserImageCommentDTO uploadComment(@RequestBody UserImageCommentReq userImageCommentReq) {
+        return userImageService.uploadComment(userImageCommentReq);
     }
 
+    // DELETES COMMENT
     @DeleteMapping(path = "/delete-comment/{id}")
     public void deleteComment(@PathVariable int id) {
         userImageService.deleteComment(id);
+    }
+
+    @GetMapping(path = "/get-comments/{photoId}")
+    public List<UserImageCommentDTO> getComments(@PathVariable int photoId) {
+        return userImageService.getComments(photoId);
     }
 
 

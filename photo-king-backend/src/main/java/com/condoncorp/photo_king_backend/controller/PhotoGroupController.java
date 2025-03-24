@@ -1,6 +1,7 @@
 package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -22,8 +24,8 @@ public class PhotoGroupController {
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
-    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupDTO photoGroupDTO) {
-        return photoGroupService.addGroup(photoGroupDTO);
+    public PhotoGroupDTO addGroup(@RequestBody PhotoGroupReq photoGroupReq) {
+        return photoGroupService.addGroup(photoGroupReq);
     }
 
     @DeleteMapping(path = "/delete/{id}")
@@ -32,7 +34,7 @@ public class PhotoGroupController {
     }
 
 
-
+    // UPDATES USER'S RANKINGS
     @PostMapping(path = "/update-user-rank")
     public void updateUserRank(@RequestBody RankUpdateReq rankUpdateReq) {
         List<Integer> images = rankUpdateReq.getImages();
@@ -55,8 +57,12 @@ public class PhotoGroupController {
             throw new RuntimeException("Invalid number of images");
         }
 
+    }
 
-
+    // CHECKS IF GROUP IS EXPIRED
+    @GetMapping(path = "/expired")
+    public boolean isExpired(int groupId) {
+        return photoGroupService.isExpired(groupId);
     }
 
 

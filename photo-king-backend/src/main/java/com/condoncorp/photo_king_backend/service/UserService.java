@@ -1,19 +1,19 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.dto.AuthRegReq;
-import com.condoncorp.photo_king_backend.dto.FriendDTO;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
-import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
+import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,15 +68,6 @@ public class UserService {
     }
 
 
-    // HANDLES USER LOGIN
-    public UserDTO loginUser(AuthRegReq authRegReq) {
-        Optional<User> user = userRepository.findByUser(authRegReq.getUsername(), authRegReq.getPassword());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
-        return new UserDTO(user.get());
-    }
-
     // HANDLES USER REGISTRATION
     public UserDTO registerUser(UserRegisterDTO user) {
 
@@ -112,6 +103,11 @@ public class UserService {
         return user.get();
     }
 
+    // RETURNS FRIEND BY ID
+    public FriendDTO getFriendById(int id){
+        return new FriendDTO(getUserById(id));
+    }
+
     public UserDTO getUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
@@ -139,6 +135,8 @@ public class UserService {
     public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
+        System.out.println(user.getId());
+        System.out.println(friend.getId());
         user.removeFriend(friend);
         friend.removeFriend(user);
         saveUser(user);
@@ -146,15 +144,23 @@ public class UserService {
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
+    // RETURNS FRIEND OF USER
+    public FriendDTO getFriendByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        return new FriendDTO(user.get());
+    }
+
     // REFRESH TOKEN
     public String generateToken(String refreshToken) {
-
         if (refreshToken == null) {
-            throw new RuntimeException("Refresh token is null");
+            return null;
         }
 
         if (!jwtService.isTokenNonExpired(refreshToken)) {
-            throw new RuntimeException("Refresh token is expired");
+            return null;
         }
 
         String username = jwtService.extractUsername(refreshToken);
@@ -178,6 +184,27 @@ public class UserService {
 
     }
 
+    // RETURNS BIO OF GIVEN USER
+    public String getUserBio(int userID){
+         return getUserById(userID).getBio();
+    }
 
+    // SETS NEW PROFILE DATA
+    public UserDTO setUserProfile(UserProfileReq userProfileReq){
+        User user = getUserById(userProfileReq.getId());
+        user.setUsername(userProfileReq.getUsername());
+        user.setName(userProfileReq.getName());
+        user.setBio(userProfileReq.getBio());
+        saveUser(user);
+        return new UserDTO(user);
+    }
 
+    // FINDS USERS MATCHING SEARCH QUERY
+    public List<FriendDTO> findMatchingUsers(String search){
+        Pageable pageable = PageRequest.of(0, 10);
+        return userRepository.findUsernamesLike(search, pageable)
+                .stream()
+                .map(FriendDTO::new).
+                collect(Collectors.toList());
+    }
 }
