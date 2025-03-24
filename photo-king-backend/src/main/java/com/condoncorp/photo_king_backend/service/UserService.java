@@ -8,6 +8,7 @@ import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,16 +70,16 @@ public class UserService {
 
 
     // HANDLES USER REGISTRATION
-    public UserDTO registerUser(UserRegisterDTO user) {
+    public void registerUser(UserRegisterDTO user) {
 
         Optional<User> findByUsername = userRepository.findByUsername(user.getUsername());
         if (findByUsername.isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new RuntimeException("Username is already taken.");
         }
 
         Optional<User> findByEmail = userRepository.findByEmail(user.getEmail());
         if (findByEmail.isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new RuntimeException("Email is already taken.");
         }
 
         User newUser = new User();
@@ -90,7 +91,6 @@ public class UserService {
 
         userRepository.save(newUser);
 
-        return new UserDTO(newUser);
     }
 
 
@@ -122,8 +122,14 @@ public class UserService {
         if (userId == friendId) {
             throw new RuntimeException("You can't add yourself as a friend");
         }
+
         User user = getUserById(userId);
         User friend = getUserById(friendId);
+
+        if ( user.getFriends().contains(friend) ) {
+            throw new RuntimeException("You are already friends");
+        }
+
         user.addFriend(friend);
         friend.addFriend(user);
         saveUser(user);
@@ -135,8 +141,6 @@ public class UserService {
     public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
-        System.out.println(user.getId());
-        System.out.println(friend.getId());
         user.removeFriend(friend);
         friend.removeFriend(user);
         saveUser(user);
