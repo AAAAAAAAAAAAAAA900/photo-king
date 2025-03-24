@@ -10,7 +10,6 @@ import Header from "../components/Header";
 import photoGroupApi from "../api/photoGroupApi";
 import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
-import { color } from "@rneui/themed/dist/config";
 
 export default function ProfileScreen({ navigation }) {
     const route = useRoute();

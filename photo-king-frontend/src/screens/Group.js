@@ -301,14 +301,8 @@ export default function GroupScreen({navigation}){
                 <TouchableOpacity activeOpacity={1} onPress={()=>setUserModalVisible(false)} style={[styles.containerCenterAll, {backgroundColor: 'rgba(0, 0, 0, 0.5)'}]}>
                     <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
                     <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
-                    <TouchableOpacity
-                    onPress={()=>{setUserModalVisible(false);}}
-                    style={{position:'absolute', top:'15%', right:'10%', height:60, width:60}}
-                    >
-                        <Image style={styles.iconStyle} source={require('../../assets/icons/close.png')}/>
-                    </TouchableOpacity>
                     <TouchableOpacity activeOpacity={1} style={styles.popupView}>
-                        <View style={{width:'100%', height:'100%'}}>
+                        <View style={{flex:1}}>
                             <FriendSearch 
                             searchData={user.friends.filter((f)=>!group.users.some((member)=>member.id==f.id))} 
                             onSelect={(friend) => {
@@ -323,8 +317,15 @@ export default function GroupScreen({navigation}){
                                 setUserModalVisible(false);
                             }}/>
                         </View>
+                        <View style={{backgroundColor:colors.primary, height:50, width:'100%', justifyContent:'center', alignItems:'center'}}>
+                            <TouchableOpacity
+                            style={[styles.button, {width:'70%'}]}
+                            onPress={() => {setUserModalVisible(false);}}
+                            >
+                                <DefaultText style={styles.buttonText}>Close</DefaultText>
+                            </TouchableOpacity>
+                        </View>
                     </TouchableOpacity>
-                    <View style={{width:'75%', height:10, backgroundColor:colors.primary}}/>
                     <View style={{width:'75%', height:30, backgroundColor:colors.secondary}}/>
                 </TouchableOpacity>
             </Modal>
@@ -339,7 +340,7 @@ export default function GroupScreen({navigation}){
             style={{justifyContent:'center'}}
             >
                 <TouchableOpacity activeOpacity={1} style={{flex:1}} onPress={()=>setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5, padding:8, position:'absolute',right:0,top:optionsHeight+modalAdjustment+42, alignSelf:'baseline', boxShadow:'0 8 5 0 rgba(0, 0, 0, .25)'}}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'white', borderBottomLeftRadius:5, borderBottomRightRadius:5, padding:8, position:'absolute',right:0,top:optionsHeight+modalAdjustment+52, alignSelf:'baseline', boxShadow:'0 8 5 0 rgba(0, 0, 0, .25)'}}>
                         { group.ownerId == user.id ?
                             <View style={{gap:8}}>
                                 <TouchableOpacity
@@ -353,13 +354,13 @@ export default function GroupScreen({navigation}){
                                     ]
                                 );}}
                                 >
-                                    <DefaultText>Delete Group</DefaultText>
+                                    <DefaultText style={styles.buttonText}>Delete Group</DefaultText>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                 style={styles.button}
                                 onPress={()=>{}}
                                 >
-                                    <DefaultText>Rename Group</DefaultText>
+                                    <DefaultText style={styles.buttonText}>Rename Group</DefaultText>
                                 </TouchableOpacity>
                             </View>
                         :
@@ -374,7 +375,7 @@ export default function GroupScreen({navigation}){
                                 ]
                             );}}
                             >
-                                <DefaultText>Leave Group</DefaultText>
+                                <DefaultText style={styles.buttonText}>Leave Group</DefaultText>
                             </TouchableOpacity>
                         }
                     </TouchableOpacity>
