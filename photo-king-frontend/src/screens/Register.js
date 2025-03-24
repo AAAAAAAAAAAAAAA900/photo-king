@@ -1,172 +1,163 @@
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Button, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Button, ScrollView, TouchableWithoutFeedback, Keyboard, Dimensions, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
-import axios from 'axios';
 import { useForm, Controller } from 'react-hook-form';
-import { API_URL } from '../api/utils.js';
 import authApi from "../api/authApi";
+import Header from '../components/Header.js';
+import DefaultText from '../components/DefaultText.js';
+import styles, { colors } from '../styles/ComponentStyles.js';
 
 
-export default function RegisterScreen ({navigation}){  
+export default function RegisterScreen({ navigation }) {
+    const screenWidth = Dimensions.get('window').width;
+    const {
+        control,
+        handleSubmit,
+        formState: {
+            errors
+        }
+    } = useForm();
 
-
-  const { 
-    control,
-    handleSubmit,
-    formState: { 
-      errors
+    const onSubmit = (data) => {
+        try {
+            authApi.register(data).then(r => navigation.navigate("Login"));
+        } catch (e) {
+            console.log(e);
+        }
     }
-  } = useForm();
-
-  const onSubmit = data => {
-    authApi.register(data).then(r => navigation.navigate("Login"));
-  }
 
 
-  // Login screen view
-  return(
-    <SafeAreaView style={registerStyles.container}>
-      <ScrollView style={{ width: '95%' }}>
+    // Login screen view
+    return (
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <SafeAreaView style={{ flex: 1, backgroundColor:colors.secondary}}>
+                <Header height={60} />
+                <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}>
 
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Username</Text>
-          <Controller
-            name="username"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Username"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
+                    {/* PAGE TITLE */}
+                    <DefaultText style={[styles.bold, { fontSize: 40, paddingVertical: 30 }]}>Register</DefaultText>
 
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Password</Text>
-          <Controller
-            name="password"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Password"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
+                    <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={80}>
+                        <View style={{ alignItems: 'center', backgroundColor: 'white' }}>
+                            {/* USERNAME */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="username"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter username..."
+                                            maxLength={20}
+                                            value={value}
+                                            autoCorrect={false}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Email</Text>
-          <Controller
-            name="email"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Email"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
+                            {/* PASSWORD */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="password"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter password..."
+                                            value={value}
+                                            maxLength={128}
+                                            autoCorrect={false}
+                                            secureTextEntry={true}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Name</Text>
-          <Controller
-            name="name"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Name"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
+                            {/* EMAIL */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter email..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-        <View style={registerStyles.inputContainer}>
-          <Text style={registerStyles.label}>Phone</Text>
-          <Controller
-            name="phone"
-            control={control}
-            rules={{ required: "This field is required" }}
-            render={({ field : { onChange, value} }) => (
-              <TextInput
-                placeholder="Enter Phone Number"
-                placeholderTextColor={'#616161'}
-                value={value}
-                onChangeText={onChange}
-                keyboardType='numeric'
-                style={registerStyles.textInput}
-              />
-            )}
-          />
-        </View>
+                            {/* NAME */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="name"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter name..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
 
-        <TouchableOpacity style={registerStyles.button} onPress={handleSubmit(onSubmit)}>
-          <Text style={registerStyles.buttonText}>Register</Text>
-        </TouchableOpacity>
-      </ScrollView>
-      
-    </SafeAreaView>
-  );
+                            {/* PHONE NUMBER */}
+                            <View style={registerStyles.inputContainer}>
+                                <Controller
+                                    name="phone"
+                                    control={control}
+                                    rules={{ required: "This field is required" }}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            placeholder="Enter phone number..."
+                                            value={value}
+                                            onChangeText={onChange}
+                                            keyboardType='numeric'
+                                            style={styles.textIn}
+                                        />
+                                    )}
+                                />
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+
+                    {/* SUBMIT BUTTON */}
+                    <TouchableOpacity style={{ width: 250, height: 40, marginVertical: 20, alignSelf: 'center', borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }}
+                        onPress={handleSubmit(onSubmit)}>
+                        <DefaultText style={styles.buttonText}>Register</DefaultText>
+                    </TouchableOpacity>
+
+                    {/* LOG IN */}
+                    <View style={{ flexDirection: 'row' }}>
+                        <DefaultText style={{ color: '#999999' }}>Already have an accout? </DefaultText>
+                        <TouchableOpacity onPress={() => { navigation.popToTop() }}>
+                            <DefaultText style={styles.urlText}>Sign in!</DefaultText>
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+                <View style={{ position: 'absolute', bottom: -100, left: -screenWidth / 2, backgroundColor: colors.primary, width: screenWidth, height: 200, transform: [{ rotate: '20deg' }] }} />
+                <View style={{ position: 'absolute', bottom: -100, right: -screenWidth / 2, backgroundColor: colors.primary, width: screenWidth, height: 200, transform: [{ rotate: '-20deg' }] }} />
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
+    );
 
 }
 
 
 const registerStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  inputContainer: {
-    marginBottom: 15,
-    width: '100%',
-  },
-  label: {
-    fontSize: 16,
-    color: '#E1E1E1',
-    marginBottom: 5,
-    fontFamily: 'DMSans-Regular',
-    paddingTop: 10
-  },
-  textInput: {
-    backgroundColor: '#1D1D1D',
-    color: '#E1E1E1',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    fontFamily: 'DMSans-Regular',
-  },
-  button: {
-    backgroundColor: '#BB86FC',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#E1E1E1',
-    fontSize: 18,
-    fontFamily: 'DMSans-Regular',
-  },
+    inputContainer: {
+        paddingBottom: 20,
+        alignItems: 'center'
+    },
 });

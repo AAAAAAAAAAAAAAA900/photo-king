@@ -12,7 +12,7 @@ import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
 import { color } from "@rneui/themed/dist/config";
 
-export default function ProfileScreen({navigation}){
+export default function ProfileScreen({ navigation }) {
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
     const [userUpdated, setUserUpdated] = useState(false);
@@ -25,40 +25,40 @@ export default function ProfileScreen({navigation}){
     const nameRef = useRef(null);
 
     const getBio = async () => {
-        try{
+        try {
             const userBio = await userApi.getBio(user.id);
             setBio(userBio.data);
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
     }
 
     const setProfile = async (data) => {
-        try{
+        try {
             const response = await userApi.setProfile(user.id, data.username, data.name, data.bio);
             return response.data;
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
     }
 
-    useEffect(()=> {
+    useEffect(() => {
         getBio();
 
-        const onKeyboardClose = () =>{
+        const onKeyboardClose = () => {
             nameRef.current.blur();
             bioRef.current.blur();
         };
 
         const listener = Keyboard.addListener("keyboardDidHide", onKeyboardClose);
-        return () => {listener.remove();};
+        return () => { listener.remove(); };
     }, []);
 
-    useEffect(() =>{
-        if(bio !== undefined){
-            reset({username: user.username, name: user.name, bio:bio || ""});
+    useEffect(() => {
+        if (bio !== undefined) {
+            reset({ username: user.username, name: user.name, bio: bio || "" });
             setLoading(false);
         }
     }, [bio]);
@@ -73,16 +73,16 @@ export default function ProfileScreen({navigation}){
     }
 
     useEffect(() => {
-        if(userUpdated){
+        if (userUpdated) {
             setUserUpdated(false);
-            getGroups().then((groups) => setUser({...user, groups: groups}));
+            getGroups().then((groups) => setUser({ ...user, groups: groups }));
         }
     }, [userUpdated]);
 
-    const { 
+    const {
         control,
         handleSubmit,
-        formState: { 
+        formState: {
             errors
         },
         reset
@@ -90,7 +90,7 @@ export default function ProfileScreen({navigation}){
 
     const onSubmit = (data) => {
         setProfile(data);
-        setUser({...user, username: data.username, name: data.name});
+        setUser({ ...user, username: data.username, name: data.name });
         setBio(data.bio);
         setUserUpdated(true);
         setSubmitted(true);
@@ -101,100 +101,100 @@ export default function ProfileScreen({navigation}){
         });
     }
 
-    return(
-
+    return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{flex:1}}> 
-                <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user}/>}/>
+            <SafeAreaView style={{ flex: 1 , backgroundColor:colors.secondary}}>
+                <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user} />} />
+
                 {loading ?
-                    <View style={[styles.containerCenterAll, {backgroundColor:colors.greyWhite}]}>
+                    <View style={[styles.containerCenterAll, { backgroundColor: 'white' }]}>
                         <ActivityIndicator size="large" color="#0000ff" />
                     </View>
-                : 
-                    <View style={{flex:1, alignItems:"center", backgroundColor:colors.greyWhite}}>
-                        <View style={{alignSelf:"center", marginVertical:10}}>
-                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120} borderWidth={4}/>
-                            <View style={{position:'absolute', pointerEvents:"none", alignItems:"center", justifyContent:"center", borderRadius:5,backgroundColor: colors.greyWhite, borderWidth:4, bottom:0, right:0, height:40, width:40}}>
-                                <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')}/>
+                    :
+                    <View style={{ flex: 1, alignItems: "center", backgroundColor: 'white' }}>
+                        <View style={{ alignSelf: "center", marginVertical: 10 }}>
+                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120} borderWidth={4} />
+                            <View style={{ position: 'absolute', pointerEvents: "none", alignItems: "center", justifyContent: "center", borderRadius: 5, backgroundColor: colors.greyWhite, borderWidth: 4, bottom: 0, right: 0, height: 40, width: 40 }}>
+                                <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')} />
                             </View>
                         </View>
-                        <View style={{flex:1, width:'100%', alignItems:"center", justifyContent:"space-between"}}>
-                            { (bioFocussed || nameFocussed) && <View style={[(bioFocussed ? {zIndex:4} : {zIndex:3} ), {position:"absolute", height:'100%', width:'100%', backgroundColor: colors.greyWhite}]}/>}
+                        <View style={{ flex: 1, width: '100%', alignItems: "center", justifyContent: "space-between" }}>
+                            {(bioFocussed || nameFocussed) && <View style={[(bioFocussed ? { zIndex: 4 } : { zIndex: 3 }), { position: "absolute", height: '100%', width: '100%', backgroundColor: 'white' }]} />}
                             <View>
-                                <DefaultText style={{marginLeft:4}}>Username</DefaultText>
+                                <DefaultText style={{ marginLeft: 4 }}>Username</DefaultText>
                                 <Controller
                                     name="username"
                                     control={control}
                                     rules={{ required: "Username is required." }}
-                                    render={({ field : { onChange, value} }) => (
+                                    render={({ field: { onChange, value } }) => (
                                         <TextInput
-                                        placeholder={user.username}
-                                        maxLength={20}
-                                        autoCorrect={false}
-                                        value={value}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
+                                            placeholder={user.username}
+                                            maxLength={20}
+                                            autoCorrect={false}
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
                                         />
                                     )}
                                 />
                             </View>
-                            <KeyboardAvoidingView style={{zIndex:3}} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={300}>
-                                <DefaultText style={{marginLeft:4}}>Name</DefaultText>
+                            <KeyboardAvoidingView style={{ zIndex: 3 }} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={300}>
+                                <DefaultText style={{ marginLeft: 4 }}>Name</DefaultText>
                                 <Controller
                                     name="name"
                                     control={control}
                                     rules={{ required: "Name is required" }}
-                                    render={({ field : { onChange, value} }) => (
+                                    render={({ field: { onChange, value } }) => (
                                         <TextInput
-                                        ref={nameRef}
-                                        placeholder={user.name}
-                                        maxLength={30}
-                                        autoCorrect={false}
-                                        onFocus={()=> setNameFocussed(true)}
-                                        onEndEditing={()=> setNameFocussed(false)}
-                                        value={value}
-                                        onChangeText={onChange}
-                                        style={styles.textIn}
+                                            ref={nameRef}
+                                            placeholder={user.name}
+                                            maxLength={30}
+                                            autoCorrect={false}
+                                            onFocus={() => setNameFocussed(true)}
+                                            onEndEditing={() => setNameFocussed(false)}
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={styles.textIn}
                                         />
                                     )}
                                 />
                             </KeyboardAvoidingView>
-                            <KeyboardAvoidingView style={{zIndex:4}} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
-                                <DefaultText style={{marginLeft:4}}>Message</DefaultText>
+                            <KeyboardAvoidingView style={{ zIndex: 4 }} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
+                                <DefaultText style={{ marginLeft: 4 }}>Message</DefaultText>
                                 <Controller
                                     name="bio"
                                     control={control}
-                                    render={({ field : { onChange, value} }) => (
+                                    render={({ field: { onChange, value } }) => (
                                         <TextInput
-                                        ref={bioRef}
-                                        placeholder={bio ? bio : "Add bio..."}
-                                        maxLength={100}
-                                        multiline={true}
-                                        onFocus={()=> setBioFocussed(true)}
-                                        onEndEditing={()=> setBioFocussed(false)}
-                                        value={value}
-                                        onChangeText={onChange}
-                                        style={[styles.textIn, {height:100 , textAlignVertical:"top", marginBottom:5}]}
+                                            ref={bioRef}
+                                            placeholder={bio ? bio : "Add bio..."}
+                                            maxLength={100}
+                                            multiline={true}
+                                            onFocus={() => setBioFocussed(true)}
+                                            onEndEditing={() => setBioFocussed(false)}
+                                            value={value}
+                                            onChangeText={onChange}
+                                            style={[styles.textIn, { height: 100, textAlignVertical: "top", marginBottom: 5 }]}
                                         />
                                     )}
                                 />
                             </KeyboardAvoidingView>
-                            {errors.username && <DefaultText style={{color:"red"}}>{errors.username.message}</DefaultText>}
-                            {errors.name && <DefaultText style={{color:"red"}}>{errors.name.message}</DefaultText>}
-                            {submitted && <DefaultText style={{color:"green"}}>Profile Updated</DefaultText>}
+                            {errors.username && <DefaultText style={{ color: "red" }}>{errors.username.message}</DefaultText>}
+                            {errors.name && <DefaultText style={{ color: "red" }}>{errors.name.message}</DefaultText>}
+                            {submitted && <DefaultText style={{ color: "green" }}>Profile Updated</DefaultText>}
 
-                            <View style={{height:60, width:'100%', padding:8, justifyContent:"center", alignItems:"center", backgroundColor:colors.primary}}>
-                                <TouchableOpacity style={{height:'100%', width:'100%', borderRadius:10, borderWidth:2, alignItems:"center", justifyContent:"center",borderColor:colors.secondary, backgroundColor:colors.secondary}}
-                                onPress={()=> handleSubmit(onSubmit)}
+                            <View style={{ height: 60, width: '100%', padding: 8, justifyContent: "center", alignItems: "center", backgroundColor: colors.primary }}>
+                                <TouchableOpacity style={{ height: '100%', width: '100%', borderRadius: 10, borderWidth: 2, alignItems: "center", justifyContent: "center", borderColor: colors.secondary, backgroundColor: colors.secondary }}
+                                    onPress={() => handleSubmit(onSubmit)}
                                 >
-                                    <DefaultText style={[styles.bold, {color:'white'}]} >Submit</DefaultText>
+                                    <DefaultText style={styles.buttonText} >Submit</DefaultText>
                                 </TouchableOpacity>
                             </View>
 
                         </View>
                     </View>
-                } 
-                <NavBar navigation={navigation} user={user} screen='Profile'/>
+                }
+                <NavBar navigation={navigation} user={user} screen='Profile' />
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );

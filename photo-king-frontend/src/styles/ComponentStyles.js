@@ -25,17 +25,17 @@ export default styles = StyleSheet.create({
     urlText:{
         fontFamily: 'DMSans-Bold',
         fontSize: 16,
+        color: colors.secondary,
         textDecorationLine: 'underline'
     },
     textIn: {
         height: 40, 
-        width: 300,
+        width: 250,
         padding:5,
         color:'black',
         borderColor: 'black', 
         borderRadius:5,
         backgroundColor:colors.greyWhite,
-        borderWidth: 1,
         fontFamily: 'DMSans-Regular', 
         fontSize: 16,
     },
@@ -51,25 +51,34 @@ export default styles = StyleSheet.create({
         // alignSelf:'center'
     },
     inputContainer: {
-        alignSelf: 'baseline',
         backgroundColor: '#fff',
         justifyContent: 'space-between',
-        rowGap:10,
+        rowGap:20,
+        padding:30,
         alignItems: 'center',
+        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
+        borderRadius:10
     },
     button: {
         height:40, 
         width:90, 
         backgroundColor: colors.secondary,
-        borderWidth:1,
-        borderRadius:5,
+        borderRadius:10,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    buttonText: {
+        color:'white',
+        textAlign:'center',
+        fontFamily: 'DMSans-Bold',
     },
     listItem: {
         padding: 20, 
         margin: 10,
-        backgroundColor: colors.greyWhite, 
+        marginVertical:5,
+        backgroundColor:'white',
+        borderColor: colors.greyWhite, 
+        borderWidth: 1,
         borderRadius: 10,
         alignItems:'center',
         flexDirection:'row',
@@ -85,7 +94,7 @@ export default styles = StyleSheet.create({
         alignItems: 'center',
         width:'75%',
         height: 300,
-        backgroundColor: colors.greyWhite
+        backgroundColor: 'white'
     },
     picHolder: {
         flex:1,
