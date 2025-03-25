@@ -53,6 +53,7 @@ export default function LoginScreen({ navigation }) {
     }, []);
 
     const onSubmit = (data) => {
+        Keyboard.dismiss();
         login(data.username, data.password);
     };
 
