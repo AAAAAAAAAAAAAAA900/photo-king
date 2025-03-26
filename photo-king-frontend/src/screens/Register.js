@@ -49,6 +49,7 @@ export default function RegisterScreen({ navigation }) {
                                             placeholder="Enter username..."
                                             maxLength={20}
                                             value={value}
+                                            autoCapitalize='none'
                                             autoCorrect={false}
                                             onChangeText={onChange}
                                             style={styles.textIn}
@@ -68,6 +69,7 @@ export default function RegisterScreen({ navigation }) {
                                             placeholder="Enter password..."
                                             value={value}
                                             maxLength={128}
+                                            autoCapitalize='none'
                                             autoCorrect={false}
                                             secureTextEntry={true}
                                             onChangeText={onChange}
@@ -87,6 +89,9 @@ export default function RegisterScreen({ navigation }) {
                                         <TextInput
                                             placeholder="Enter email..."
                                             value={value}
+                                            autoCorrect={false}
+                                            maxLength={320}
+                                            autoCapitalize='none'
                                             onChangeText={onChange}
                                             style={styles.textIn}
                                         />
@@ -104,6 +109,9 @@ export default function RegisterScreen({ navigation }) {
                                         <TextInput
                                             placeholder="Enter name..."
                                             value={value}
+                                            maxLength={30}
+                                            autoCorrect={false}
+                                            autoCapitalize='none'
                                             onChangeText={onChange}
                                             style={styles.textIn}
                                         />
@@ -121,6 +129,9 @@ export default function RegisterScreen({ navigation }) {
                                         <TextInput
                                             placeholder="Enter phone number..."
                                             value={value}
+                                            autoCorrect={false}
+                                            autoCapitalize='none'
+                                            maxLength={20}
                                             onChangeText={onChange}
                                             keyboardType='numeric'
                                             style={styles.textIn}

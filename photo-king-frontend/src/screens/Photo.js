@@ -141,29 +141,6 @@ export default function PhotoScreen({ navigation }) {
         );
     }
 
-
-    const ZoomablePhoto = useCallback(({ url }) => {
-        const { width, height } = useWindowDimensions();
-        const { isFetching, resolution } = useImageResolution({ uri: url });
-        const heightOffset = //header height + bottom bar height + top safe area
-            100 + 60 + (Platform.OS == 'ios' ? useSafeAreaInsets().top : 0);
-
-        if (isFetching || resolution === undefined) {
-            return null;
-        }
-
-        const size = fitContainer(resolution.width / resolution.height, {
-            width,
-            height: height - heightOffset,
-        });
-
-        return (
-            <ResumableZoom maxScale={resolution}>
-                <Image source={{ uri: url }} style={{ ...size }} resizeMethod={'scale'} />
-            </ResumableZoom>
-        );
-    }, []);
-
     const FadingIcon = useCallback(() => {
         const fadeValue = useAnimatedValue(1);
 
@@ -181,7 +158,7 @@ export default function PhotoScreen({ navigation }) {
 
         return (
             <Animated.View pointerEvents="none" style={{
-                position: "absolute", backgroundColor: colors.secondary, borderRadius: 300, height: '15%', width: '25%', top: '42.5%', left: '37.5%', padding: 4, alignItems: "center",
+                position: "absolute", backgroundColor: colors.secondary, borderRadius: 300, height: '15%', width: '25%', top: '42.5%', left: '37.5%', padding: 4, alignItems: "center", boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
                 opacity: fadeValue
             }}>
                 <Image style={styles.iconStyle} source={require('../../assets/icons/spread.png')} />
@@ -208,58 +185,61 @@ export default function PhotoScreen({ navigation }) {
                         }} />
                     </View>
 
-                    {/* Comments Modal */}
-                    <Modal
-                        visible={commentsModalVisible}
-                        animationType="slide"
-                        transparent={true}
-                        onRequestClose={() => setCommentsModalVisible(false)}
-                    >
-                        <View style={{ flex: 1 }}>
-                            <TouchableOpacity activeOpacity={1} style={{ flex: 1 }} onPress={() => setCommentsModalVisible(false)} />
-                            <View style={{ position: "absolute", bottom: 0, height: '75%', borderTopLeftRadius: 40, borderTopRightRadius: 40, width: '100%', backgroundColor: 'white', borderTopWidth: 3, borderRightWidth: 3, borderLeftWidth: 3, borderColor: colors.secondary }}>
-                                <TouchableOpacity activeOpacity={1} onPress={() => setCommentsModalVisible(false)} style={{ height: 60, borderBottomWidth: 0.2, borderColor: colors.secondary, width: '100%', alignItems: "center", justifyContent: "center" }}>
-                                    <DefaultText style={styles.bold}>Comments</DefaultText>
-                                    <Image style={[styles.iconStyle, { height: '40%' }]} source={require('../../assets/icons/down.png')} />
-                                </TouchableOpacity>
-                                <View style={{ flex: 1 }}>
-                                    {photo.comments.length ?
-                                        <FlatList
-                                            data={[...photo.comments].sort((a, b) => { return (new Date(b.date).getTime() - new Date(a.date).getTime()); })}
-                                            keyExtractor={(item) => item.id}
-                                            inverted={true}
-                                            renderItem={(item) => <Comment comment={item.item} />}
-                                            keyboardShouldPersistTaps="handled"
-                                        />
-                                        :
-                                        <View style={styles.containerCenterAll}>
-                                            <DefaultText>Be the first to comment!</DefaultText>
-                                        </View>
-                                    }
-                                </View>
-                                <KeyboardAvoidingView
-                                    behavior={Platform.OS == "ios" ? "padding" : "height"}
-                                    keyboardVerticalOffset={Platform.OS == "ios" ? 200 : undefined}
-                                >
-                                    <View style={{ padding: 10, alignItems: "center", justifyContent: "center", gap: 5, flexDirection: "row", borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: colors.greyWhite }}>
-                                        <TextInput
-                                            ref={commentBoxRef}
-                                            style={[styles.textIn, { width: '70%', borderWidth: 0 }]}
-                                            onChangeText={(txt) => { commentRef.current = txt; }}
-                                            placeholder="Enter Comment..."
-                                        />
-                                        <TouchableOpacity style={styles.button} onPress={() => {
-                                            uploadComment(commentRef.current);
-                                            commentBoxRef.current.clear();
-                                            commentBoxRef.current.blur();
-                                        }}>
-                                            <DefaultText style={[{ color: 'white' }, styles.bold]}>Send</DefaultText>
-                                        </TouchableOpacity>
+                    {/* I do not understand but this view is required for the modal to work on android */}
+                    <View>
+                        {/* Comments Modal */}
+                        <Modal
+                            visible={commentsModalVisible}
+                            animationType="slide"
+                            transparent={true}
+                            onRequestClose={() => setCommentsModalVisible(false)}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity activeOpacity={1} style={{ flex: 1 }} onPress={() => setCommentsModalVisible(false)} />
+                                <View style={{ position: "absolute", bottom: 0, height: '75%', borderTopLeftRadius: 40, borderTopRightRadius: 40, width: '100%', backgroundColor: 'white', borderTopWidth: 3, borderRightWidth: 3, borderLeftWidth: 3, borderColor: colors.secondary }}>
+                                    <TouchableOpacity activeOpacity={1} onPress={() => setCommentsModalVisible(false)} style={{ height: 60, borderBottomWidth: 0.2, borderColor: colors.secondary, width: '100%', alignItems: "center", justifyContent: "center" }}>
+                                        <DefaultText style={styles.bold}>Comments</DefaultText>
+                                        <Image style={[styles.iconStyle, { height: '40%' }]} source={require('../../assets/icons/down.png')} />
+                                    </TouchableOpacity>
+                                    <View style={{ flex: 1 }}>
+                                        {photo.comments.length ?
+                                            <FlatList
+                                                data={[...photo.comments].sort((a, b) => { return (new Date(b.date).getTime() - new Date(a.date).getTime()); })}
+                                                keyExtractor={(item) => item.id}
+                                                inverted={true}
+                                                renderItem={(item) => <Comment comment={item.item} />}
+                                                keyboardShouldPersistTaps="handled"
+                                            />
+                                            :
+                                            <View style={styles.containerCenterAll}>
+                                                <DefaultText>Be the first to comment!</DefaultText>
+                                            </View>
+                                        }
                                     </View>
-                                </KeyboardAvoidingView>
+                                    <KeyboardAvoidingView
+                                        behavior={Platform.OS == "ios" ? "padding" : "height"}
+                                        keyboardVerticalOffset={Platform.OS == "ios" ? 200 : undefined}
+                                    >
+                                        <View style={{ padding: 10, alignItems: "center", justifyContent: "center", gap: 5, flexDirection: "row", borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: colors.greyWhite }}>
+                                            <TextInput
+                                                ref={commentBoxRef}
+                                                style={[styles.textIn, { width: '70%', borderWidth: 0 }]}
+                                                onChangeText={(txt) => { commentRef.current = txt; }}
+                                                placeholder="Enter Comment..."
+                                            />
+                                            <TouchableOpacity style={styles.button} onPress={() => {
+                                                uploadComment(commentRef.current);
+                                                commentBoxRef.current.clear();
+                                                commentBoxRef.current.blur();
+                                            }}>
+                                                <DefaultText style={[{ color: 'white' }, styles.bold]}>Send</DefaultText>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </KeyboardAvoidingView>
+                                </View>
                             </View>
-                        </View>
-                    </Modal>
+                        </Modal>
+                    </View>
 
                     {/* Photo */}
                     <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -306,3 +286,25 @@ export default function PhotoScreen({ navigation }) {
         </TouchableWithoutFeedback>
     );
 }
+
+const ZoomablePhoto = (({ url }) => {
+    const { width, height } = useWindowDimensions();
+    const { isFetching, resolution } = useImageResolution({ uri: url });
+    const heightOffset = //header height + bottom bar height + top safe area
+        100 + 60 + (Platform.OS == 'ios' ? useSafeAreaInsets().top : 0);
+
+    if (isFetching || resolution === undefined) {
+        return null;
+    }
+
+    const size = fitContainer(resolution.width / resolution.height, {
+        width,
+        height: height - heightOffset,
+    });
+
+    return (
+        <ResumableZoom maxScale={resolution}>
+            <Image source={{ uri: url }} style={{ ...size }} resizeMethod={'scale'} />
+        </ResumableZoom>
+    );
+});

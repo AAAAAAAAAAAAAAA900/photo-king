@@ -93,6 +93,7 @@ export default function LoginScreen({ navigation }) {
                                         <TextInput
                                             placeholder={'Enter username...'}
                                             maxLength={20}
+                                            autoCapitalize='none'
                                             autoCorrect={false}
                                             value={value}
                                             onChangeText={(txt) => { onChange(txt); setLoginError(""); }}
@@ -111,6 +112,7 @@ export default function LoginScreen({ navigation }) {
                                     render={({ field: { onChange, value } }) => (
                                         <TextInput
                                             placeholder={'Enter password...'}
+                                            autoCapitalize='none'
                                             maxLength={128}
                                             autoCorrect={false}
                                             secureTextEntry={true}

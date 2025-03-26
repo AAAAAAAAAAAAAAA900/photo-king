@@ -153,7 +153,7 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 ) : (
                     // No active groups message
-                    <View style={styles.containerCenterAll}>
+                    <View style={[styles.containerCenterAll, {backgroundColor:'white'}]}>
                         <DefaultText>You have no active groups!</DefaultText>
                     </View>
                 )
