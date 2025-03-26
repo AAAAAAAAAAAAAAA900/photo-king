@@ -32,8 +32,7 @@ export default function LoginScreen({ navigation }) {
 
             navigation.navigate("Home", { user: user_info.data });
         } catch (error) {
-            setLoginError("Check username or password");
-            console.log(error);
+            setLoginError(error.response.data ? "Check username or password" : "");
         }
     }
 
