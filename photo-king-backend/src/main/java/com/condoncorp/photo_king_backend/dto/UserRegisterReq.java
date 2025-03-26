@@ -1,9 +1,7 @@
 package com.condoncorp.photo_king_backend.dto;
 
 
-import com.condoncorp.photo_king_backend.model.User;
-
-public class UserRegisterDTO {
+public class UserRegisterReq {
     private String username;
     private String password;
     private String email;

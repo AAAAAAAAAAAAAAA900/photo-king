@@ -2,12 +2,13 @@ package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.TokenReq;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
-import com.condoncorp.photo_king_backend.dto.UserRegisterDTO;
+import com.condoncorp.photo_king_backend.dto.UserRegisterReq;
 import com.condoncorp.photo_king_backend.service.CustomUserDetailsService;
 import com.condoncorp.photo_king_backend.service.JwtService;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,8 +44,14 @@ public class AuthController {
     }
 
     @PostMapping(path = "/register")
-    public UserDTO registerUser(@RequestBody UserRegisterDTO userRegisterDTO) {
-        return userService.registerUser(userRegisterDTO);
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterReq userRegisterReq) {
+        try {
+            userService.registerUser(userRegisterReq);
+            return ResponseEntity.ok("User registered successfully!");
+        }
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping(path = "/refresh-token")
