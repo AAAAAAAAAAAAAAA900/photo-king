@@ -9,27 +9,33 @@ import styles, { colors } from '../styles/ComponentStyles.js';
 
 export default function RegisterScreen({ navigation }) {
     const screenWidth = Dimensions.get('window').width;
+    const [errorMsg, setErrorMsg] = useState('');
     const {
         control,
         handleSubmit,
         formState: {
             errors
-        }
-    } = useForm();
+        },
+        clearErrors
+    } = useForm({reValidateMode: 'onSubmit'});
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         try {
-            authApi.register(data).then(r => navigation.navigate("Login"));
+            const response = await authApi.register(data).then(r => navigation.navigate("Login"));
         } catch (e) {
-            console.log(e);
+            setErrorMsg(e.response.data);
         }
     }
 
+    const onChangeText = ()=>{
+        setErrorMsg("");
+        clearErrors();
+    }
 
     // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{ flex: 1, backgroundColor:colors.secondary}}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: colors.secondary }}>
                 <Header height={60} />
                 <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}>
 
@@ -51,7 +57,7 @@ export default function RegisterScreen({ navigation }) {
                                             value={value}
                                             autoCapitalize='none'
                                             autoCorrect={false}
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -72,7 +78,7 @@ export default function RegisterScreen({ navigation }) {
                                             autoCapitalize='none'
                                             autoCorrect={false}
                                             secureTextEntry={true}
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -92,7 +98,7 @@ export default function RegisterScreen({ navigation }) {
                                             autoCorrect={false}
                                             maxLength={320}
                                             autoCapitalize='none'
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -112,7 +118,7 @@ export default function RegisterScreen({ navigation }) {
                                             maxLength={30}
                                             autoCorrect={false}
                                             autoCapitalize='none'
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -132,7 +138,7 @@ export default function RegisterScreen({ navigation }) {
                                             autoCorrect={false}
                                             autoCapitalize='none'
                                             maxLength={20}
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             keyboardType='numeric'
                                             style={styles.textIn}
                                         />
@@ -143,12 +149,17 @@ export default function RegisterScreen({ navigation }) {
                     </KeyboardAvoidingView>
 
                     {/* SUBMIT BUTTON */}
-                    <TouchableOpacity style={{ width: 250, height: 40, marginVertical: 20, alignSelf: 'center', borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }}
-                        onPress={handleSubmit(onSubmit)}>
-                        <DefaultText style={styles.buttonText}>Register</DefaultText>
-                    </TouchableOpacity>
+                    <View style={{alignItems:'center'}}>
+                        {errorMsg && <DefaultText style={{color:'red'}}>{errorMsg}</DefaultText>}
+                        {(errors.username?.message || errors.password?.message || errors.email?.message || errors.name?.message || errors.phone?.message) &&
+                        <DefaultText style={{color:'red'}}>All fields are required.</DefaultText>}
+                        <TouchableOpacity style={{ width: 250, height: 40, marginVertical: 20, alignSelf: 'center', borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }}
+                            onPress={handleSubmit(onSubmit)}>
+                            <DefaultText style={styles.buttonText}>Register</DefaultText>
+                        </TouchableOpacity>
+                    </View>
 
-                    {/* LOG IN */}
+                    {/* NAVIGATE BACK TO LOG IN */}
                     <View style={{ flexDirection: 'row' }}>
                         <DefaultText style={{ color: '#999999' }}>Already have an accout? </DefaultText>
                         <TouchableOpacity onPress={() => { navigation.popToTop() }}>

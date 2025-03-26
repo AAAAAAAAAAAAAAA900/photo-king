@@ -17,7 +17,10 @@ export default function LoginScreen({ navigation }) {
     const {
         control,
         handleSubmit,
-    } = useForm();
+        formState: { errors },
+        clearErrors,
+    } = useForm({reValidateMode: "onSubmit" });
+
 
     // Login attempt
     const login = async (username, password) => {
@@ -29,7 +32,7 @@ export default function LoginScreen({ navigation }) {
 
             navigation.navigate("Home", { user: user_info.data });
         } catch (error) {
-            setLoginError("Check username or password.");
+            setLoginError("Check username or password");
             console.log(error);
         }
     }
@@ -66,19 +69,25 @@ export default function LoginScreen({ navigation }) {
         );
     }
 
+    const onChangeText = ()=>{
+        setLoginError("");
+        clearErrors();
+    };
+
+
     // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={[styles.container, {backgroundColor:colors.secondary}]}>
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.secondary }]}>
                 <ImageBackground
                     resizeMode='stretch'
                     source={require('../../assets/backgrounds/LoginBackground.png')}
                     style={styles.containerCenterAll}
                 >
-                    <KeyboardAvoidingView 
-                    keyboardVerticalOffset={-200}
-                    behavior='padding'
-                    style={styles.containerCenterAll}>
+                    <KeyboardAvoidingView
+                        keyboardVerticalOffset={-200}
+                        behavior='padding'
+                        style={styles.containerCenterAll}>
                         {/*<Image style={[styles.iconStyle, {height:60, width:300}]} source={require('../../assets/icons/title.png')}/>*/}
                         <View style={styles.inputContainer} >
 
@@ -96,7 +105,7 @@ export default function LoginScreen({ navigation }) {
                                             autoCapitalize='none'
                                             autoCorrect={false}
                                             value={value}
-                                            onChangeText={(txt) => { onChange(txt); setLoginError(""); }}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={[styles.textIn, { width: 200 }]}
                                         />
                                     )} />
@@ -117,7 +126,7 @@ export default function LoginScreen({ navigation }) {
                                             autoCorrect={false}
                                             secureTextEntry={true}
                                             value={value}
-                                            onChangeText={(txt) => { onChange(txt); setLoginError(""); }}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={[styles.textIn, { width: 200 }]}
                                         />
                                     )} />
@@ -125,12 +134,14 @@ export default function LoginScreen({ navigation }) {
 
                             {/* ERROR DISPLAY */}
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                {errors.username?.message && <DefaultText style={{ color: "red" }}>{errors.username.message}</DefaultText>}
+                                {errors.password?.message && <DefaultText style={{ color: "red" }}>{errors.password.message}</DefaultText>}
                                 {loginError && <DefaultText style={{ color: "red" }}>{loginError}</DefaultText>}
                             </View>
 
                             {/* SUBMIT BUTTON */}
                             <TouchableOpacity style={[
-                                loginError ? { marginTop: 10 } : { marginTop: 30 },
+                                loginError || errors.password?.message || errors.username?.message ? { marginTop: 10 } : { marginTop: 30 },
                                 { width: 250, height: 40, borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }]}
                                 onPress={handleSubmit(onSubmit)}>
                                 <DefaultText style={styles.buttonText}>Sign In</DefaultText>
@@ -169,8 +180,8 @@ export default function LoginScreen({ navigation }) {
                             }
 
                             {/* SIGN UP BUTTON */}
-                            <View style={{flexDirection:'row'}}>
-                                <DefaultText style={{color:'#999999'}}>Don't have an accout? </DefaultText>
+                            <View style={{ flexDirection: 'row' }}>
+                                <DefaultText style={{ color: '#999999' }}>Don't have an accout? </DefaultText>
                                 <TouchableOpacity onPress={() => { navigation.navigate("Register") }}>
                                     <DefaultText style={styles.urlText}>Sign up!</DefaultText>
                                 </TouchableOpacity>
