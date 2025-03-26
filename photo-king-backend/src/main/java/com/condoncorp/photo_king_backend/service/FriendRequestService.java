@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
 import com.condoncorp.photo_king_backend.model.FriendRequestStatus;
 import com.condoncorp.photo_king_backend.model.User;
@@ -22,6 +23,7 @@ public class FriendRequestService {
 
 
     public void sendFriendRequest(int senderId, int receiverId) {
+
         if (senderId == receiverId) {
             throw new RuntimeException("You can't send a friend request to yourself.");
         }
@@ -34,6 +36,10 @@ public class FriendRequestService {
         Optional<User> receiver = userRepository.findById(receiverId);
         if (receiver.isEmpty()) {
             throw new RuntimeException("Receiver not found.");
+        }
+
+        if (sender.get().getFriends().contains(receiver.get())) {
+            throw new RuntimeException("You are already friends.");
         }
 
         Optional<FriendRequest> existingRequest = friendRequestRepository.findBySenderAndReceiver(sender.get(), receiver.get());
@@ -52,13 +58,6 @@ public class FriendRequestService {
             throw new RuntimeException("Friend request not found.");
         }
 
-        if (friendRequest.get().getStatus() != FriendRequestStatus.PENDING) {
-            throw new RuntimeException("Friend request is already handled.");
-        }
-
-        friendRequest.get().setStatus(FriendRequestStatus.ACCEPTED);
-        friendRequestRepository.save(friendRequest.get());
-
         // ADD BOTH USERS TO FRIENDS LIST
         User sender = friendRequest.get().getSender();
         User receiver = friendRequest.get().getReceiver();
@@ -67,6 +66,7 @@ public class FriendRequestService {
 
         userRepository.save(sender);
         userRepository.save(receiver);
+        friendRequestRepository.deleteById(friendRequestId);
     }
 
     public void rejectFriendRequest(int friendRequestId) {
@@ -78,12 +78,13 @@ public class FriendRequestService {
         friendRequestRepository.deleteById(friendRequestId);
     }
 
-    public List<FriendRequest> getPendingFriendRequests(int receiverId) {
+    public List<FriendRequestDTO> getPendingFriendRequests(int receiverId) {
         Optional<User> user = userRepository.findById(receiverId);
         if (user.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
-        return friendRequestRepository.findByReceiverAndStatus(user.get(), FriendRequestStatus.PENDING);
+        List<FriendRequest> friendRequests = friendRequestRepository.findByReceiverAndStatus(user.get(), FriendRequestStatus.PENDING);
+        return friendRequests.stream().map(FriendRequestDTO::new).toList();
     }
 
 
