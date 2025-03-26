@@ -64,6 +64,16 @@ public class User implements UserDetails {
     @Cascade(CascadeType.ALL)
     private List<UserImage> userImages = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender", orphanRemoval = true)
+    @Cascade(CascadeType.ALL)
+    private Set<FriendRequest> sentRequests = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "receiver", orphanRemoval = true)
+    @Cascade(CascadeType.ALL)
+    private Set<FriendRequest> receivedRequests = new HashSet<>();
+
     public User(String username, String password, String phone, String email, String name) {
         this.username = username;
         this.password = password;
@@ -77,6 +87,8 @@ public class User implements UserDetails {
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.sentRequests = new HashSet<>();
+        this.receivedRequests = new HashSet<>();
     }
 
 
@@ -88,6 +100,8 @@ public class User implements UserDetails {
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.sentRequests = new HashSet<>();
+        this.receivedRequests = new HashSet<>();
     }
 
     public int getId() {
@@ -219,6 +233,22 @@ public class User implements UserDetails {
 
     public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public Set<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(Set<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public Set<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setReceivedRequests(Set<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
     }
 
     public void addFriend(User friend) {
