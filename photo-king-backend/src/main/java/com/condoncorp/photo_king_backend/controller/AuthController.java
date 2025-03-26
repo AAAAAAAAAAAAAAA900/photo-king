@@ -31,16 +31,22 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping(path = "/login")
-    public HashMap<String, String> authenticateUser(@RequestBody AuthRegReq authRegReq) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRegReq.getUsername(), authRegReq.getPassword()));
-        if (authentication.isAuthenticated()) {
-            HashMap<String, String> tokens = new HashMap<>();
-            tokens.put("accessToken", jwtService.generateToken(userDetailsService.loadUserByUsername(authRegReq.getUsername())));
-            tokens.put("refreshToken", jwtService.generateRefreshToken(authRegReq.getUsername()));
-            return tokens;
-        } else {
-            throw new UsernameNotFoundException("Invalid user request.");
+    public ResponseEntity<?> authenticateUser(@RequestBody AuthRegReq authRegReq) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRegReq.getUsername(), authRegReq.getPassword()));
+            if (authentication.isAuthenticated()) {
+                HashMap<String, String> tokens = new HashMap<>();
+                tokens.put("accessToken", jwtService.generateToken(userDetailsService.loadUserByUsername(authRegReq.getUsername())));
+                tokens.put("refreshToken", jwtService.generateRefreshToken(authRegReq.getUsername()));
+                return ResponseEntity.ok(tokens);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");
+            }
         }
+        catch(RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @PostMapping(path = "/register")
