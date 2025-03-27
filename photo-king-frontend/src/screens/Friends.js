@@ -1,4 +1,4 @@
-import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, StyleSheet } from "react-native";
 import DefaultText from "../components/DefaultText";
 import { useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
@@ -9,24 +9,27 @@ import userApi from "../api/userApi";
 import FriendModal from "../components/FriendModal.js";
 import Header from "../components/Header.js";
 import TitleButtons from "../components/TitleButtons.js";
-import { debounce } from "lodash";
+import { debounce, update } from "lodash";
+import requestApi from "../api/requestApi.js";
+import Pfp from "../components/Pfp.js";
+import { getUser } from "./Login.js";
 
 
 
 export default function FriendsScreen({ navigation }) {
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
-    const [loading, setLoading] = useState(false);
-    const [friendsList, setFriendsList] = useState(route.params?.user.friends);
     const [userSearch, setUserSearch] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [friendModalVisible, setFriendModalVisible] = useState(false);
     const [friendClicked, setFriendClicked] = useState(null);
     const [invitesTab, setInvitesTab] = useState(false);
+    const [invites, setInvites] = useState([]);
     const screenWidth = Dimensions.get("window").width;
     const slideAnim = useRef(new Animated.Value(0)).current; // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
 
+    // Queries users where username like search
     const getSearchData = async (search) => {
         if (search) {
             try {
@@ -41,14 +44,48 @@ export default function FriendsScreen({ navigation }) {
             setSearchResults([]);
         }
     }
-
     const debouncedSearch = useMemo(() => debounce(getSearchData, 500), []);
-
     useEffect(() => {
         debouncedSearch(userSearch);
         return () => debouncedSearch.cancel();
     }, [userSearch]);
 
+    // Friend request methods
+    const getFriendRequests = async () => {
+        try {
+            const response = await requestApi.getFriendRequests(user.id);
+            setInvites(response.data);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    };
+    useEffect(() => {
+        getFriendRequests();
+    }, []);
+
+    const acceptFriendRequest = async (requestId)=>{
+        try{
+            await requestApi.acceptFriendRequest(requestId).then(()=>{
+                getFriendRequests();
+                getUser(setUser, navigation);
+            });            
+        } catch (e){
+            console.log(e);
+        }
+    };
+    const rejectFriendRequest = async (requestId)=>{
+        try{
+            await requestApi.rejectFriendRequest(requestId).then(()=>{
+                getFriendRequests();
+                getUser(setUser, navigation);
+            });
+        } catch (e){
+            console.log(e);
+        }
+    };
+
+    // Methods for sending friend requests
     const addFriendPressed = async (username) => {
         // Check for user matching search
         let friend;
@@ -82,25 +119,21 @@ export default function FriendsScreen({ navigation }) {
     };
 
     const addFriend = async (friendId) => {
-        const response = await userApi.addFriend(user.id, friendId);
-        // Update friends lists stored in front end
-        setFriendsList([...response.data]);
-        setUser({
-            ...user,
-            friends: response.data
-        });
-        closeModal();
+        try {
+            const response = await requestApi.sendFriendRequest(user.id, friendId);
+        } catch (e) {
+            console.log(e);
+        }
+        finally {
+            closeModal();
+        }
     }
 
+    // Removes Friend
     const removeFriend = async (friendId) => {
         try {
-            const response = await userApi.removeFriend(user.id, friendId);
+            await userApi.removeFriend(user.id, friendId).then(()=> getUser(setUser, navigation));
             // Update friends lists stored in front end
-            setFriendsList([...response.data]);
-            setUser({
-                ...user,
-                friends: response.data
-            });
         }
         catch (error) {
             console.log(error);
@@ -113,6 +146,7 @@ export default function FriendsScreen({ navigation }) {
         setFriendModalVisible(true);
     }, [friendClicked]);
 
+    // Animates screen tabs
     useEffect(() => {
         if (invitesTab) {
             Animated.timing(slideAnim, {
@@ -133,6 +167,51 @@ export default function FriendsScreen({ navigation }) {
     const closeModal = () => {
         setAddFriendModalVisible(false);
         setUserSearch("");
+    };
+
+    // Invite list item
+    const InviteItem = ({ invite }) => {
+        const [inviter, setInviter] = useState(null);
+
+        const getInviter = async (inviterId) => {
+            try {
+                const response = await userApi.getFriendById(inviterId);
+                setInviter(response.data);
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
+        useEffect(() => {
+            if (!inviter) {
+                getInviter(invite.sender);
+            }
+        }, []);
+
+        return (
+            <View style={inviteStyles.container}>
+                {/* Invite sender info */}
+                <View style={inviteStyles.interiorContainer}>
+                    <Pfp url={inviter?.pfp} />
+                    <DefaultText numberOfLines={1} style={inviteStyles.username}>{inviter?.username}</DefaultText>
+                </View>
+
+                {/* Accept/reject buttons */}
+                <View style={inviteStyles.interiorContainer}>
+                    <TouchableOpacity style={inviteStyles.reject}
+                    onPress={()=>{rejectFriendRequest(invite.id);}}
+                    >
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/x.png')} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={inviteStyles.accept}
+                    onPress={()=>{acceptFriendRequest(invite.id);}}
+                    >
+                        <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
     };
 
     return (
@@ -166,7 +245,7 @@ export default function FriendsScreen({ navigation }) {
                         >
                             <View style={{ width: '100%', height: 30, backgroundColor: colors.secondary }} />
                             <View style={{ width: '100%', height: 10, backgroundColor: colors.primary }} />
-                            <View style={{ flex: 1, alignItems: "center" }}>
+                            <View style={{ flex: 1, alignItems: "center", }}>
                                 <View style={{ flexDirection: 'row', padding: 5, justifyContent: 'center' }}>
                                     <TextInput
                                         style={[styles.textIn, { width: '60%', marginRight: 5 }]}
@@ -180,7 +259,7 @@ export default function FriendsScreen({ navigation }) {
                                         <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')} />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flex:1 }}>
+                                <View style={{ flex: 1, width: '95%' }}>
                                     <FlatList
                                         data={searchResults}
                                         renderItem={({ item }) => <FriendPreview friend={item} press={() => { addFriendPressed(item.username); }} />}
@@ -226,15 +305,25 @@ export default function FriendsScreen({ navigation }) {
                     {/* FRIENDS TAB */}
                     <View style={{ flex: 1 }}>
                         <FriendSearch onSelect={(friend) => { setFriendClicked({ ...friend }); }}
-                            searchData={friendsList} />
+                            searchData={user.friends} />
                     </View>
 
 
                     {/* INVITES TAB */}
                     <View style={{ flex: 1 }}>
-                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                            <DefaultText>No pending invites</DefaultText>
-                        </View>
+                        {invites.length ?
+                            <View style={{ flex: 1, justifyContent: "center" }}>
+                                <FlatList
+                                    data={invites}
+                                    renderItem={({ item }) => <InviteItem invite={item} />}
+                                    keyExtractor={(item) => item.id}
+                                />
+                            </View>
+                            :
+                            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                                <DefaultText>No pending invites</DefaultText>
+                            </View>
+                        }
                     </View>
                 </Animated.View>
 
@@ -252,3 +341,39 @@ export default function FriendsScreen({ navigation }) {
         </TouchableWithoutFeedback>
     );
 }
+
+const inviteStyles = StyleSheet.create({
+    container: [
+        styles.listItem,
+        {
+            padding:10,
+            justifyContent: "space-between"
+        }],
+    interiorContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: "center"
+    },
+    username:[
+        styles.bold, 
+        { maxWidth: 115
+    }],
+    accept: {
+        height: 50,
+        width: 50,
+        borderRadius: 25,
+        backgroundColor: 'green',
+        padding: 4,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    reject: {
+        height: 50,
+        width: 50,
+        borderRadius: 25,
+        backgroundColor: colors.secondary,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 4,
+    }
+});

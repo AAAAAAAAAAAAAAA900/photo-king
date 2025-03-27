@@ -1,4 +1,4 @@
-import { SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, ImageBackground, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, Keyboard } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, { colors } from "../styles/ComponentStyles";
 import { useRoute } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import Header from '../components/Header.js';
 import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
 import DropDownMenu from '../components/DropDownMenu.js';
+import { getUser } from './Login.js';
 
 export default function HomeScreen({ navigation }) {
 
@@ -42,15 +43,14 @@ export default function HomeScreen({ navigation }) {
             const group_data = group_response.data;
             try {
                 const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
-                setUser({
-                    ...user,
-                    groups: [...user.groups, group_data]
-                });
             } catch (error) {
                 console.log(error);
             }
         } catch (error) {
             console.log(error);
+        }
+        finally{
+            getUser(setUser, navigation);
         }
     }
 

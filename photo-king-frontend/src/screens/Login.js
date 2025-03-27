@@ -9,6 +9,7 @@ import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
+import { StackActions } from '@react-navigation/native';
 
 
 export default function LoginScreen({ navigation }) {
@@ -29,7 +30,6 @@ export default function LoginScreen({ navigation }) {
             await SecureStore.setItemAsync("accessToken", response.data.accessToken);
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
-
             navigation.navigate("Home", { user: user_info.data });
         } catch (error) {
             setLoginError(error.response.data ? "Check username or password" : "");
@@ -192,4 +192,21 @@ export default function LoginScreen({ navigation }) {
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );
+}
+
+export async function getUser(setUser=null, navigation=null){
+    try{
+        const response = await userApi.getUserInfo();
+        if(setUser){
+            setUser(response.data);
+        }
+        return response.data;
+    }
+    catch (error){
+        console.log(error);
+        if(navigation){
+            navigation.dispatch(StackActions.popToTop());
+        }
+        return null;
+    }
 }

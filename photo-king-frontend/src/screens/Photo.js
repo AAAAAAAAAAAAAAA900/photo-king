@@ -60,7 +60,6 @@ export default function PhotoScreen({ navigation }) {
 
     const Comment = ({ comment }) => {
         const [commenter, setCommenter] = useState(null);
-        const [loading, setLoading] = useState(true);
 
         const getCommenter = async (commenterId) => {
             if (commenters.current[commenterId]) {
@@ -78,12 +77,8 @@ export default function PhotoScreen({ navigation }) {
         }
 
         useEffect(() => {
-            if (commenter) {
-                setLoading(false);
-            } else {
-                getCommenter(comment.userId);
-            }
-        }, [commenter]);
+            getCommenter(comment.userId);
+        }, []);
 
         const commentStyles = StyleSheet.create({
             commentContainer: {
