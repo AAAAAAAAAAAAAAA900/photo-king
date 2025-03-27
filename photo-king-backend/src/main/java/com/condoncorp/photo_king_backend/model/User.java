@@ -38,6 +38,8 @@ public class User implements UserDetails {
     private String role;
     @Column(name = "bio")
     private String bio;
+    @Column(name = "points")
+    private Integer points;
 
     @JsonIgnore
     @ManyToMany
@@ -84,6 +86,7 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.points = 0;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
@@ -97,6 +100,7 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.points = 0;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
@@ -209,6 +213,14 @@ public class User implements UserDetails {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 
     public Set<PhotoGroup> getPhotoGroups() {

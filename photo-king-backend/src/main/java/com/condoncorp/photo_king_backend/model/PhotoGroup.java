@@ -49,7 +49,7 @@ public class PhotoGroup {
         this.name = group.getName();
         this.ownerId = group.getOwnerId();
         LocalDateTime now = LocalDateTime.now();
-        if(now.getDayOfWeek().getValue() > group.getSelectedDay())
+        if (now.getDayOfWeek().getValue() > group.getSelectedDay())
             now = now.plusWeeks(1);
         this.setExpiresAt(now.with(TemporalAdjusters.next(DayOfWeek.of(group.getSelectedDay()))).with(LocalTime.of(23, 59, 59)));
         this.users = new HashSet<>();
