@@ -41,23 +41,15 @@ export default styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
+    },
+    safeAreaContainer: {    // matches color of header
+        flex:1, 
+        backgroundColor:colors.secondary
     },
     containerCenterAll: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // alignSelf:'center'
-    },
-    inputContainer: {
-        backgroundColor: '#fff',
-        justifyContent: 'space-between',
-        rowGap:20,
-        padding:30,
-        alignItems: 'center',
-        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
-        borderRadius:10
     },
     button: {
         height:40, 
@@ -84,17 +76,29 @@ export default styles = StyleSheet.create({
         flexDirection:'row',
         gap:10
     },
-    separator:{
-        height: 1,
-        backgroundColor: colors.grey,
-        marginHorizontal: 30,
-    },
     popupView: {
         justifyContent: 'center',
         alignItems: 'center',
         width:'75%',
         height: 300,
         backgroundColor: 'white'
+    },
+    modalBackground:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    redModalBanner:{ 
+        width: '75%', 
+        height: 30, 
+        backgroundColor: colors.secondary 
+
+    },
+    blueModalBanner:{
+        width: '75%', 
+        height: 10, 
+        backgroundColor: colors.primary
     },
     picHolder: {
         flex:1,
@@ -111,7 +115,8 @@ export default styles = StyleSheet.create({
         borderRadius:20,
         backgroundColor:'white'
     },
-    iconStyle : {height:'90%', 
+    iconStyle : {
+        height:'90%', 
         width:'90%', 
         resizeMode:'contain' 
     },
