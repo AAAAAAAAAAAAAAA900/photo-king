@@ -2,7 +2,7 @@ import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, A
 import DefaultText from "../components/DefaultText";
 import { useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FriendSearch, { FriendPreview } from "../components/FriendSearch";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import userApi from "../api/userApi";
@@ -19,14 +19,14 @@ import { getUser } from "./Login.js";
 export default function FriendsScreen({ navigation }) {
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
-    const [userSearch, setUserSearch] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
+    const [userSearch, setUserSearch] = useState("");           // searching all users
+    const [searchResults, setSearchResults] = useState([]);     // query search results
     const [friendModalVisible, setFriendModalVisible] = useState(false);
-    const [friendClicked, setFriendClicked] = useState(null);
-    const [invitesTab, setInvitesTab] = useState(false);
-    const [invites, setInvites] = useState([]);
+    const [friendClicked, setFriendClicked] = useState(null);   // tracks which profile clicked on
+    const [invitesTab, setInvitesTab] = useState(false);        // toggling animated tab
+    const [invites, setInvites] = useState([]);                 // pending invites list
     const screenWidth = Dimensions.get("window").width;
-    const slideAnim = useRef(new Animated.Value(0)).current; // for sliding invite tab off screen
+    const slideAnim = useRef(new Animated.Value(0)).current;    // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
 
     // Queries users where username like search
@@ -64,23 +64,23 @@ export default function FriendsScreen({ navigation }) {
         getFriendRequests();
     }, []);
 
-    const acceptFriendRequest = async (requestId)=>{
-        try{
-            await requestApi.acceptFriendRequest(requestId).then(()=>{
-                getFriendRequests();
-                getUser(setUser, navigation);
-            });            
-        } catch (e){
-            console.log(e);
-        }
-    };
-    const rejectFriendRequest = async (requestId)=>{
-        try{
-            await requestApi.rejectFriendRequest(requestId).then(()=>{
+    const acceptFriendRequest = async (requestId) => {
+        try {
+            await requestApi.acceptFriendRequest(requestId).then(() => {
                 getFriendRequests();
                 getUser(setUser, navigation);
             });
-        } catch (e){
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    const rejectFriendRequest = async (requestId) => {
+        try {
+            await requestApi.rejectFriendRequest(requestId).then(() => {
+                getFriendRequests();
+                getUser(setUser, navigation);
+            });
+        } catch (e) {
             console.log(e);
         }
     };
@@ -132,7 +132,7 @@ export default function FriendsScreen({ navigation }) {
     // Removes Friend
     const removeFriend = async (friendId) => {
         try {
-            await userApi.removeFriend(user.id, friendId).then(()=> getUser(setUser, navigation));
+            await userApi.removeFriend(user.id, friendId).then(() => getUser(setUser, navigation));
             // Update friends lists stored in front end
         }
         catch (error) {
@@ -170,7 +170,7 @@ export default function FriendsScreen({ navigation }) {
     };
 
     // Invite list item
-    const InviteItem = ({ invite }) => {
+    const InviteItem = useCallback(({ invite }) => {
         const [inviter, setInviter] = useState(null);
 
         const getInviter = async (inviterId) => {
@@ -200,23 +200,23 @@ export default function FriendsScreen({ navigation }) {
                 {/* Accept/reject buttons */}
                 <View style={inviteStyles.interiorContainer}>
                     <TouchableOpacity style={inviteStyles.reject}
-                    onPress={()=>{rejectFriendRequest(invite.id);}}
+                        onPress={() => { rejectFriendRequest(invite.id); }}
                     >
                         <Image style={styles.iconStyle} source={require('../../assets/icons/x.png')} />
                     </TouchableOpacity>
                     <TouchableOpacity style={inviteStyles.accept}
-                    onPress={()=>{acceptFriendRequest(invite.id);}}
+                        onPress={() => { acceptFriendRequest(invite.id); }}
                     >
                         <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')} />
                     </TouchableOpacity>
                 </View>
             </View>
         );
-    };
+    }, []);
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{ flex: 1, backgroundColor: colors.secondary }}>
+            <SafeAreaView style={styles.safeAreaContainer}>
                 <Header border={true} title={'Friends'} buttons={<TitleButtons navigation={navigation} user={user} />} />
 
                 {/* friend clicked modal */}
@@ -235,20 +235,22 @@ export default function FriendsScreen({ navigation }) {
                     transparent={true}
                     animationType="fade"
                 >
-                    <TouchableOpacity style={[styles.containerCenterAll, { backgroundColor: 'rgba(0,0,0,.5)' }]}
+                    <TouchableOpacity style={styles.modalBackground}
                         activeOpacity={1}
                         onPress={() => closeModal()}
                     >
-                        <TouchableOpacity style={{ height: 400, width: '90%', backgroundColor: 'white', }}
+                        <TouchableOpacity style={friendsStyles.modalContainer}
                             onPress={() => Keyboard.dismiss()}
                             activeOpacity={1}
                         >
-                            <View style={{ width: '100%', height: 30, backgroundColor: colors.secondary }} />
-                            <View style={{ width: '100%', height: 10, backgroundColor: colors.primary }} />
-                            <View style={{ flex: 1, alignItems: "center", }}>
-                                <View style={{ flexDirection: 'row', padding: 5, justifyContent: 'center' }}>
+                            <View style={friendsStyles.redBanner} />
+                            <View style={friendsStyles.blueBanner} />
+                            <View style={{ flex: 1, alignItems: "center",}}>
+
+                                {/* SEARCH BAR */}
+                                <View style={friendsStyles.searchBarContainer}>
                                     <TextInput
-                                        style={[styles.textIn, { width: '60%', marginRight: 5 }]}
+                                        style={friendsStyles.modalSearchBar}
                                         onChangeText={(text) => setUserSearch(text)}
                                         autoCapitalize='none'
                                         autoCorrect={false}
@@ -259,60 +261,64 @@ export default function FriendsScreen({ navigation }) {
                                         <Image style={styles.iconStyle} source={require('../../assets/icons/addFriend.png')} />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flex: 1, width: '95%' }}>
+
+                                {/* RESULTS LIST */}
+                                <View style={friendsStyles.modalSearchResultsContainer}>
                                     <FlatList
                                         data={searchResults}
                                         renderItem={({ item }) => <FriendPreview friend={item} press={() => { addFriendPressed(item.username); }} />}
                                         keyExtractor={(item) => item.username}
                                     />
                                 </View>
-                                <View style={{ backgroundColor: colors.primary, height: 50, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+
+                                {/* CLOSE BUTTON */}
+                                <View style={friendsStyles.modalCloseButtonContainer}>
                                     <TouchableOpacity
-                                        style={[styles.button, { width: '70%' }]}
+                                        style={friendsStyles.modalCloseButton}
                                         onPress={() => { closeModal(); }}
                                     >
                                         <DefaultText style={styles.buttonText}>Close</DefaultText>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            <View style={{ width: '100%', height: 30, backgroundColor: colors.secondary }} />
+                            <View style={friendsStyles.redBanner} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 </Modal>
 
                 {/* TAB BAR */}
-                <View style={{ height: 50, flexDirection: "row", width: '100%', backgroundColor: colors.secondary, padding: 8 }}>
-                    <TouchableOpacity style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+                <View style={friendsStyles.tabBarContainer}>
+                    <TouchableOpacity style={styles.containerCenterAll}
                         onPress={() => setInvitesTab(false)}
                     >
-                        <View style={[{ width: '50%', height: '100%', borderRadius: 10, alignItems: "center", justifyContent: "center" }, (invitesTab ? {} : { backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 5 })]}>
+                        <View style={[friendsStyles.tabBarButton, (invitesTab ? {} : { backgroundColor: 'rgba(0,0,0,0.1)' })]}>
                             <DefaultText style={styles.buttonText}>Friends</DefaultText>
                         </View>
                     </TouchableOpacity>
-                    <View style={{ width: 1, height: '90%', backgroundColor: 'black' }} />
-                    <TouchableOpacity style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+                    <View style={friendsStyles.tabBarDivider} />
+                    <TouchableOpacity style={styles.containerCenterAll}
                         onPress={() => { Keyboard.dismiss(); setInvitesTab(true); }}
                     >
-                        <View style={[{ width: '50%', height: '100%', borderRadius: 5, alignItems: "center", justifyContent: "center" }, (invitesTab ? { backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 5 } : {})]}>
+                        <View style={[friendsStyles.tabBarButton, (invitesTab ? { backgroundColor: 'rgba(0,0,0,0.1)' } : {})]}>
                             <DefaultText style={styles.buttonText}>Invites</DefaultText>
                         </View>
                     </TouchableOpacity>
                 </View>
-                <View style={{ backgroundColor: colors.primary, width: '100%', height: 10 }} />
+                <View style={friendsStyles.blueBanner} />
 
 
-                <Animated.View style={{ flex: 1, width: '200%', flexDirection: "row", backgroundColor: 'white', transform: [{ translateX: slideAnim }] }}>
+                <Animated.View style={[{transform: [{ translateX: slideAnim }]}, friendsStyles.animatedContainer]}>
+                    
                     {/* FRIENDS TAB */}
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.container}>
                         <FriendSearch onSelect={(friend) => { setFriendClicked({ ...friend }); }}
                             searchData={user.friends} />
                     </View>
 
-
                     {/* INVITES TAB */}
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.container}>
                         {invites.length ?
-                            <View style={{ flex: 1, justifyContent: "center" }}>
+                            <View style={friendsStyles.invitesContainer}>
                                 <FlatList
                                     data={invites}
                                     renderItem={({ item }) => <InviteItem invite={item} />}
@@ -320,15 +326,16 @@ export default function FriendsScreen({ navigation }) {
                                 />
                             </View>
                             :
-                            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                            <View style={styles.containerCenterAll}>
                                 <DefaultText>No pending invites</DefaultText>
                             </View>
                         }
                     </View>
                 </Animated.View>
 
-                <View style={{ height: 60, width: '100%', padding: 8, justifyContent: "center", alignItems: "center", backgroundColor: colors.primary }}>
-                    <TouchableOpacity style={{ height: '100%', width: '100%', borderRadius: 10, borderWidth: 2, alignItems: "center", justifyContent: "center", borderColor: colors.secondary, backgroundColor: colors.secondary }}
+                {/* ADD FRIEND BUTTON */}
+                <View style={friendsStyles.addButtonContainer}>
+                    <TouchableOpacity style={friendsStyles.addFriendButton}
                         onPress={() => setAddFriendModalVisible(true)}
                     >
                         <DefaultText style={styles.buttonText} >Add Friend</DefaultText>
@@ -342,11 +349,106 @@ export default function FriendsScreen({ navigation }) {
     );
 }
 
+const friendsStyles = StyleSheet.create({
+    modalContainer:{ 
+        height: 400, 
+        width: '90%', 
+        backgroundColor: 'white', 
+    },
+    redBanner:{ 
+        width: '100%', 
+        height: 30, 
+        backgroundColor: colors.secondary 
+    },
+    blueBanner:{ 
+        width: '100%', 
+        height: 10,
+        backgroundColor: colors.primary 
+    },
+    searchBarContainer:{ 
+        flexDirection: 'row', 
+        padding: 5, 
+        justifyContent: 'center' 
+    },
+    modalSearchBar:[
+        styles.textIn, 
+        { 
+            width: '60%', 
+            marginRight: 5 
+        }
+    ],
+    modalSearchResultsContainer:{ 
+        flex: 1, 
+        width: '95%' 
+    },
+    modalCloseButtonContainer:{ 
+        backgroundColor: colors.primary, 
+        height: 50, 
+        width: '100%', 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    modalCloseButton:[
+        styles.button, 
+        { 
+            width: '70%' 
+        }
+    ],
+    tabBarContainer:{ 
+        height: 50, 
+        flexDirection: 
+        "row", 
+        width: '100%', 
+        backgroundColor: colors.secondary, 
+        padding: 8 
+    },
+    tabBarButton:{ 
+        width: '50%', 
+        height: '100%', 
+        borderRadius: 10,
+        alignItems: "center", 
+        justifyContent: "center" 
+    },
+    tabBarDivider:{ 
+        width: 1, 
+        height: '90%', 
+        backgroundColor: 'black' 
+    },
+    animatedContainer:{
+        flex: 1, 
+        width: '200%', 
+        flexDirection: "row", 
+        backgroundColor: 'white'
+    },
+    invitesContainer:{ 
+        flex: 1, 
+        justifyContent: "center" 
+    },
+    addButtonContainer:{ 
+        height: 60, 
+        width: '100%', 
+        padding: 8, 
+        justifyContent: "center", 
+        alignItems: "center", 
+        backgroundColor: colors.primary 
+    },
+    addFriendButton:{ 
+        height: '100%', 
+        width: '100%', 
+        borderRadius: 10, 
+        borderWidth: 2, 
+        alignItems: "center", 
+        justifyContent: "center", 
+        borderColor: colors.secondary, 
+        backgroundColor: colors.secondary 
+    },
+});
+
 const inviteStyles = StyleSheet.create({
     container: [
         styles.listItem,
         {
-            padding:10,
+            padding: 10,
             justifyContent: "space-between"
         }],
     interiorContainer: {
@@ -354,10 +456,11 @@ const inviteStyles = StyleSheet.create({
         gap: 10,
         alignItems: "center"
     },
-    username:[
-        styles.bold, 
-        { maxWidth: 115
-    }],
+    username: [
+        styles.bold,
+        {
+            maxWidth: 115
+        }],
     accept: {
         height: 50,
         width: 50,
