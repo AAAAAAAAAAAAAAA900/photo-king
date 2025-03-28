@@ -595,7 +595,7 @@ const groupStyles = StyleSheet.create({
     },
 });
 
-const picStyles = StyleSheet.create({
+export const picStyles = StyleSheet.create({
     firstBorder:{
         borderWidth: 4,
         borderColor: '#FFD700'

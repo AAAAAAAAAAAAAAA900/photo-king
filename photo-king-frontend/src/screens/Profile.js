@@ -1,20 +1,19 @@
 import { useRoute } from "@react-navigation/native";
 import DefaultText from "../components/DefaultText";
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, SafeAreaView, TextInput, TouchableOpacity, View, Keyboard, Modal } from "react-native";
+import { ActivityIndicator, Image, KeyboardAvoidingView, TouchableWithoutFeedback, SafeAreaView, TextInput, TouchableOpacity, View, Keyboard, StyleSheet } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import NavBar from "../components/NavBar";
 import Pfp from "../components/Pfp";
 import { useState, useEffect, useRef } from "react";
 import TitleButtons from "../components/TitleButtons";
 import Header from "../components/Header";
-import photoGroupApi from "../api/photoGroupApi";
 import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
+import { getUser } from "./Login";
 
 export default function ProfileScreen({ navigation }) {
     const route = useRoute();
     const [user, setUser] = useState(route.params?.user);
-    const [userUpdated, setUserUpdated] = useState(false);
     const [bio, setBio] = useState(undefined);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -35,8 +34,8 @@ export default function ProfileScreen({ navigation }) {
 
     const setProfile = async (data) => {
         try {
-            const response = await userApi.setProfile(user.id, data.username, data.name, data.bio);
-            return response.data;
+            await userApi.setProfile(user.id, data.username, data.name, data.bio);
+            await getUser(setUser, navigation);
         }
         catch (error) {
             console.log(error);
@@ -46,6 +45,7 @@ export default function ProfileScreen({ navigation }) {
     useEffect(() => {
         getBio();
 
+        // unselect text inputs on keyboard close because keyboard avoid persists until unselect
         const onKeyboardClose = () => {
             nameRef.current.blur();
             bioRef.current.blur();
@@ -62,36 +62,19 @@ export default function ProfileScreen({ navigation }) {
         }
     }, [bio]);
 
-    const getGroups = async () => {
-        try {
-            let groups = await photoGroupApi.getGroupsByUserId(user.id);
-            return groups.data;
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    useEffect(() => {
-        if (userUpdated) {
-            setUserUpdated(false);
-            getGroups().then((groups) => setUser({ ...user, groups: groups }));
-        }
-    }, [userUpdated]);
-
     const {
         control,
         handleSubmit,
         formState: {
             errors
         },
+        clearErrors,
         reset
-    } = useForm();
+    } = useForm({reValidateMode:'onSubmit'});
 
     const onSubmit = (data) => {
         setProfile(data);
-        setUser({ ...user, username: data.username, name: data.name });
         setBio(data.bio);
-        setUserUpdated(true);
         setSubmitted(true);
         reset({
             username: data.username,
@@ -100,27 +83,36 @@ export default function ProfileScreen({ navigation }) {
         });
     }
 
+    const onChangeText = ()=>{
+        setSubmitted(false);
+        clearErrors();
+    };
+
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{ flex: 1 , backgroundColor:colors.secondary}}>
+            <SafeAreaView style={styles.safeAreaContainer}>
                 <Header border={true} title={'Profile'} buttons={<TitleButtons navigation={navigation} user={user} />} />
 
                 {loading ?
-                    <View style={[styles.containerCenterAll, { backgroundColor: 'white' }]}>
+                    <View style={profileStyles.loadingContainer}>
                         <ActivityIndicator size="large" color="#0000ff" />
                     </View>
                     :
-                    <View style={{ flex: 1, alignItems: "center", backgroundColor: 'white' }}>
-                        <View style={{ alignSelf: "center", marginVertical: 10 }}>
-                            <Pfp user={user} setUser={setUser} setUserUpdated={setUserUpdated} url={user.profileUrl} size={120} borderWidth={4} />
-                            <View style={{ position: 'absolute', pointerEvents: "none", alignItems: "center", justifyContent: "center", borderRadius: 5, backgroundColor: colors.greyWhite, borderWidth: 4, bottom: 0, right: 0, height: 40, width: 40 }}>
+                    <View style={profileStyles.profileContainer}>
+                        <View style={profileStyles.pfpContainer}>
+                            {/* PROFILE PHOTO */}
+                            <Pfp user={user} setUser={setUser} url={user.profileUrl} size={120} borderWidth={4} />
+                            <View style={profileStyles.pfpEditableIconContainer}>
                                 <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')} />
                             </View>
                         </View>
-                        <View style={{ flex: 1, width: '100%', alignItems: "center", justifyContent: "space-between" }}>
-                            {(bioFocussed || nameFocussed) && <View style={[(bioFocussed ? { zIndex: 4 } : { zIndex: 3 }), { position: "absolute", height: '100%', width: '100%', backgroundColor: 'white' }]} />}
+                        <View style={profileStyles.textInputsContainer}>
+                            {/* background blocks pfp for text inputs to slide up and avoid keyboard */}
+                            {(bioFocussed || nameFocussed) && <View style={[(bioFocussed ? { zIndex: 4 } : { zIndex: 3 }), profileStyles.toggleableBackground]} />}
                             <View>
-                                <DefaultText style={{ marginLeft: 4 }}>Username</DefaultText>
+
+                                {/* USERNAME INPUT */}
+                                <DefaultText style={profileStyles.textLabel}>Username</DefaultText>
                                 <Controller
                                     name="username"
                                     control={control}
@@ -131,14 +123,16 @@ export default function ProfileScreen({ navigation }) {
                                             maxLength={20}
                                             autoCorrect={false}
                                             value={value}
-                                            onChangeText={onChange}
+                                            onChangeText={(text) => {onChange(text); onChangeText();}}
                                             style={styles.textIn}
                                         />
                                     )}
                                 />
                             </View>
-                            <KeyboardAvoidingView style={{ zIndex: 3 }} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={300}>
-                                <DefaultText style={{ marginLeft: 4 }}>Name</DefaultText>
+
+                            {/* NAME INPUT */}
+                            <KeyboardAvoidingView style={profileStyles.nameKeyboardAvoidingView} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={300}>
+                                <DefaultText style={profileStyles.textLabel}>Name</DefaultText>
                                 <Controller
                                     name="name"
                                     control={control}
@@ -152,14 +146,16 @@ export default function ProfileScreen({ navigation }) {
                                             onFocus={() => setNameFocussed(true)}
                                             onEndEditing={() => setNameFocussed(false)}
                                             value={value}
-                                            onChangeText={onChange}
+                                            onChangeText={(text) => {onChange(text); onChangeText();}}
                                             style={styles.textIn}
                                         />
                                     )}
                                 />
                             </KeyboardAvoidingView>
-                            <KeyboardAvoidingView style={{ zIndex: 4 }} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
-                                <DefaultText style={{ marginLeft: 4 }}>Message</DefaultText>
+
+                            {/* BIO INPUT */}
+                            <KeyboardAvoidingView style={profileStyles.bioKeyboardAvoidingView} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
+                                <DefaultText style={profileStyles.textLabel}>Message</DefaultText>
                                 <Controller
                                     name="bio"
                                     control={control}
@@ -172,19 +168,22 @@ export default function ProfileScreen({ navigation }) {
                                             onFocus={() => setBioFocussed(true)}
                                             onEndEditing={() => setBioFocussed(false)}
                                             value={value}
-                                            onChangeText={onChange}
-                                            style={[styles.textIn, { height: 100, textAlignVertical: "top", marginBottom: 5 }]}
+                                            onChangeText={(text) => {onChange(text); onChangeText();}}
+                                            style={profileStyles.largeTextInput}
                                         />
                                     )}
                                 />
                             </KeyboardAvoidingView>
-                            {errors.username && <DefaultText style={{ color: "red" }}>{errors.username.message}</DefaultText>}
-                            {errors.name && <DefaultText style={{ color: "red" }}>{errors.name.message}</DefaultText>}
-                            {submitted && <DefaultText style={{ color: "green" }}>Profile Updated</DefaultText>}
 
-                            <View style={{ height: 60, width: '100%', padding: 8, justifyContent: "center", alignItems: "center", backgroundColor: colors.primary }}>
-                                <TouchableOpacity style={{ height: '100%', width: '100%', borderRadius: 10, borderWidth: 2, alignItems: "center", justifyContent: "center", borderColor: colors.secondary, backgroundColor: colors.secondary }}
-                                    onPress={() => handleSubmit(onSubmit)}
+                            {/* ERROR/SUCCESS MESSAGES */}
+                            {errors.username && <DefaultText style={profileStyles.errorMsg}>{errors.username.message}</DefaultText>}
+                            {errors.name && <DefaultText style={profileStyles.errorMsg}>{errors.name.message}</DefaultText>}
+                            {submitted && <DefaultText style={profileStyles.successMsg}>Profile Updated</DefaultText>}
+
+                            {/* SUBMIT BUTTON */}
+                            <View style={profileStyles.submitButtonContainer}>
+                                <TouchableOpacity style={profileStyles.submitButton}
+                                    onPress={handleSubmit(onSubmit)}
                                 >
                                     <DefaultText style={styles.buttonText} >Submit</DefaultText>
                                 </TouchableOpacity>
@@ -198,3 +197,87 @@ export default function ProfileScreen({ navigation }) {
         </TouchableWithoutFeedback>
     );
 }
+
+const profileStyles = StyleSheet.create({
+    loadingContainer:[
+        styles.containerCenterAll, 
+        { 
+            backgroundColor: 'white' 
+        }
+    ],
+    profileContainer:{ 
+        flex: 1,
+        alignItems: "center", 
+        backgroundColor: 'white' 
+    },
+    pfpContainer:{ 
+        alignSelf: "center", 
+        marginVertical: 10 
+    },
+    pfpEditableIconContainer:{ 
+        position: 'absolute', 
+        pointerEvents: "none", 
+        alignItems: "center", 
+        justifyContent: "center",
+        borderRadius: 5, 
+        backgroundColor: colors.greyWhite, 
+        borderWidth: 4, 
+        bottom: 0, 
+        right: 0, 
+        height: 40,
+        width: 40 
+    },
+    textInputsContainer:{ 
+        flex: 1, 
+        width: '100%', 
+        alignItems: "center", 
+        justifyContent: "space-between" 
+    },
+    toggleableBackground:{ 
+        position: "absolute", 
+        height: '100%', 
+        width: '100%', 
+        backgroundColor: 'white' 
+    },
+    textLabel:{ 
+        marginLeft: 4 
+    },
+    nameKeyboardAvoidingView:{ 
+        zIndex: 3 
+    },
+    bioKeyboardAvoidingView:{ 
+        zIndex: 4 
+    },
+    largeTextInput:[
+        styles.textIn, 
+        { 
+            height: 100, 
+            textAlignVertical: "top", 
+            marginBottom: 5 
+        }
+    ],
+    errorMsg:{ 
+        color: "red" 
+    },
+    successMsg:{ 
+        color: "green" 
+    },
+    submitButtonContainer:{ 
+        height: 60, 
+        width: '100%', 
+        padding: 8, 
+        justifyContent: "center", 
+        alignItems: "center", 
+        backgroundColor: colors.primary 
+    },
+    submitButton:{ 
+        height: '100%', 
+        width: '100%', 
+        borderRadius: 10, 
+        borderWidth: 2, 
+        alignItems: "center", 
+        justifyContent: "center", 
+        borderColor: colors.secondary, 
+        backgroundColor: colors.secondary 
+    }
+});

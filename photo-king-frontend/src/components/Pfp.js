@@ -10,9 +10,10 @@ import DefaultText from './DefaultText.js';
 import * as SecureStore from "expo-secure-store";
 import { clearTokens } from "../api/apiClient";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getUser } from '../screens/Login.js';
 
 
-export default function Pfp({ navigation, user, setUser, setUserUpdated, url, size = 50, borderWidth = 0 }) {
+export default function Pfp({ navigation, user, setUser, url, size = 50, borderWidth = 0 }) {
 
     const pfpRef = useRef(null);
     const [modalHeight, setModalHeight] = useState(0);
@@ -120,8 +121,8 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
 
         try {
             const response = await imageApi.uploadProfile(formData);
-            setUser({ ...user, profileUrl: response.data });
-            setUserUpdated(true);
+            await getUser(setUser);
+            
             console.log('Upload Success');
             console.log(response.data);
         } catch (error) {
