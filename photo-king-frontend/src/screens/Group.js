@@ -373,10 +373,13 @@ export default function GroupScreen({ navigation }) {
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members users={[...group.users].filter((u) => u.id != user.id)}
+            <Members 
+                users={group.users}
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
+                ownerId={group.ownerId}
+                points={group.userPoints}
             />
 
             {/* Group options bar */}
@@ -441,6 +444,7 @@ export default function GroupScreen({ navigation }) {
                 friendModalVisible={friendModalVisible}
                 setFriendModalVisible={setFriendModalVisible}
                 removeFriendFromGroup={user.id == group.ownerId ? removeUserFromGroup : null}
+                ownerId={group.ownerId}
             />
 
             {/* Photo list */}

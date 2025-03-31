@@ -48,11 +48,31 @@ export default function FriendSearch({ searchData, onSelect }) {
     );
 }
 
-export function FriendPreview({ friend, press }) {
+export function FriendPreview({ friend, press, points, isOwner, isWinner }) {
     return (
         <TouchableOpacity style={searchStyles.listItem} onPress={press}>
             <Pfp url={friend.pfp} />
-            <DefaultText style={styles.bold}>{friend.username}</DefaultText>
+            {/* If given points, display them below the username */}
+            { points !== undefined ?
+                <View style={searchStyles.pointsContainer}>
+                    <DefaultText numberOfLines={1} style={styles.bold}>{friend.username}</DefaultText>
+                    <DefaultText>Points: {points}</DefaultText>
+                </View>
+                :
+                <DefaultText numberOfLines={1} style={searchStyles.username}>{friend.username}</DefaultText>
+            }
+            {/* If displaying owner of a group, add a tag */}
+            {isOwner &&
+                <View style={searchStyles.ownerTag}>
+                    <DefaultText>Owner</DefaultText>
+                </View>
+            }
+            {/* If displaying winner of a group, add crown icon */}
+            {isWinner &&
+                <View style={searchStyles.iconContainer}>
+                    <Image style={styles.iconStyle} source={require('../../assets/icons/crown.png')} />
+                </View>
+            }
         </TouchableOpacity>
     );
 }
@@ -87,5 +107,27 @@ const searchStyles = StyleSheet.create({
             gap: 20 
         }
     ],
+    username:[
+        styles.bold,
+        {
+            width:'75%'
+        }
+    ],
+    pointsContainer:{
+        flex:1,
+        justifyContent: 'center',
+    },
+    ownerTag:{
+        position:"absolute",
+        bottom:1,
+        right:4,
+    },
+    iconContainer:{
+        position:"absolute",
+        top:0,
+        right:0,
+        height:23,
+        width:25
+    }
 
 });

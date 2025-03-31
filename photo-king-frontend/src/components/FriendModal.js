@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import userApi from "../api/userApi";
 
 
-export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup }) {
+export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup, ownerId }) {
 
     const [bio, setBio] = useState("");
 
@@ -26,16 +26,22 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
         }
     }, [friendClicked]);
 
+    const closeModal = ()=>{
+        setBio("");
+        setFriendModalVisible(false); 
+        setFriendClicked(null); 
+    };
+
     return (
         friendClicked && (    // prevents instant rendering and friendClicked null errors
             <Modal
                 animationType="fade"
                 transparent={true}
                 visible={friendModalVisible}
-                onRequestClose={() => { setFriendModalVisible(false); setFriendClicked(null); }}
+                onRequestClose={() => {closeModal();}}
             >
                 <TouchableOpacity activeOpacity={1} 
-                onPress={() => { setFriendModalVisible(false); setFriendClicked(null); }} 
+                onPress={() => { closeModal(); }} 
                 style={styles.modalBackground}>
                     <View style={styles.redModalBanner} />
                     <TouchableOpacity activeOpacity={1} style={friendStyles.popUpContainer}>
@@ -78,7 +84,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                 </TouchableOpacity>
                             }
 
-                            {removeFriendFromGroup &&
+                            {(friendClicked.id !== ownerId && removeFriendFromGroup) &&
                                 <TouchableOpacity
                                     style={friendStyles.button}
                                     onPress={() => {
@@ -97,7 +103,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                             }
                             <TouchableOpacity
                                 style={friendStyles.button}
-                                onPress={() => { setFriendClicked(null); setFriendModalVisible(false); }}
+                                onPress={() => { closeModal(); }}
                             >
                                 <DefaultText style={styles.buttonText}>Close</DefaultText>
                             </TouchableOpacity>
@@ -113,8 +119,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
 
 const friendStyles= StyleSheet.create({
     button:{
-        height: 40, 
-        width: '45%', 
+        flex:1,
         borderRadius: 10, 
         backgroundColor: colors.secondary, 
         alignItems: "center", 
@@ -164,6 +169,8 @@ const friendStyles= StyleSheet.create({
         flexDirection: 'row', 
         width: '100%', 
         padding: 10, 
+        height: 60,
+        gap:15,
         backgroundColor: colors.primary, 
         justifyContent: 'space-between' 
     },
