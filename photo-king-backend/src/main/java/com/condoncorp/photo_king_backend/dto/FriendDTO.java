@@ -9,6 +9,7 @@ public class FriendDTO {
     private int id;
     private String username;
     private String pfp;
+    private int points;
 
     public FriendDTO(User user){
         this.id = user.getId();

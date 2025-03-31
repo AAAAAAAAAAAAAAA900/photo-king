@@ -33,4 +33,5 @@ public class UserGroupController {
     public List<PhotoGroupDTO> getGroupsByUserId(@PathVariable int id) {
         return userGroupService.getGroupsByUserId(id);
     }
+
 }
