@@ -38,11 +38,16 @@ public class PhotoGroup {
     @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserImage> userImages = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
+
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
         this.users = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.photoGroupPoints = new ArrayList<>();
     }
 
     public PhotoGroup(PhotoGroupReq group) {
@@ -54,6 +59,7 @@ public class PhotoGroup {
         this.setExpiresAt(now.with(TemporalAdjusters.next(DayOfWeek.of(group.getSelectedDay()))).with(LocalTime.of(23, 59, 59)));
         this.users = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.photoGroupPoints = new ArrayList<>();
     }
 
     public PhotoGroup() {
@@ -106,5 +112,13 @@ public class PhotoGroup {
 
     public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public List<PhotoGroupPoints> getPhotoGroupPoints() {
+        return photoGroupPoints;
+    }
+
+    public void setPhotoGroupPoints(List<PhotoGroupPoints> photoGroupPoints) {
+        this.photoGroupPoints = photoGroupPoints;
     }
 }
