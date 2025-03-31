@@ -1,6 +1,5 @@
-import { View, Text, SafeAreaView, Platform, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, ImageBackground, Keyboard, TouchableWithoutFeedback, TextInput, Image } from 'react-native';
+import { View, SafeAreaView, Platform, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, ImageBackground, Keyboard, TouchableWithoutFeedback, TextInput, Image, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import DefaultText from '../components/DefaultText.js';
 import * as SecureStore from "expo-secure-store";
@@ -20,7 +19,7 @@ export default function LoginScreen({ navigation }) {
         handleSubmit,
         formState: { errors },
         clearErrors,
-    } = useForm({reValidateMode: "onSubmit" });
+    } = useForm({ reValidateMode: "onSubmit" });
 
 
     // Login attempt
@@ -68,16 +67,14 @@ export default function LoginScreen({ navigation }) {
         );
     }
 
-    const onChangeText = ()=>{
+    const onChangeText = () => {
         setLoginError("");
         clearErrors();
     };
 
-
-    // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={[styles.container, { backgroundColor: colors.secondary }]}>
+            <SafeAreaView style={styles.safeAreaContainer}>
                 <ImageBackground
                     resizeMode='stretch'
                     source={require('../../assets/backgrounds/LoginBackground.png')}
@@ -88,11 +85,11 @@ export default function LoginScreen({ navigation }) {
                         behavior='padding'
                         style={styles.containerCenterAll}>
                         {/*<Image style={[styles.iconStyle, {height:60, width:300}]} source={require('../../assets/icons/title.png')}/>*/}
-                        <View style={styles.inputContainer} >
+                        <View style={loginStyles.inputContainer} >
 
                             {/* USERNAME INPUT */}
-                            <View style={{ flexDirection: 'row', width: 250, height: 40, alignItems: 'center', backgroundColor: colors.greyWhite, borderRadius: 5 }}>
-                                <Image style={[styles.iconStyle, { width: '10%', marginLeft: 5 }]} source={require('../../assets/icons/username.png')} />
+                            <View style={loginStyles.inputWithIcon}>
+                                <Image style={loginStyles.inLineIcon} source={require('../../assets/icons/username.png')} />
                                 <Controller
                                     name="username"
                                     control={control}
@@ -105,14 +102,14 @@ export default function LoginScreen({ navigation }) {
                                             autoCorrect={false}
                                             value={value}
                                             onChangeText={(txt) => { onChange(txt); onChangeText(); }}
-                                            style={[styles.textIn, { width: 200 }]}
+                                            style={loginStyles.textIn}
                                         />
                                     )} />
                             </View>
 
                             {/* PASSWORD INPUT */}
-                            <View style={{ flexDirection: 'row', width: 250, height: 40, alignItems: 'center', backgroundColor: colors.greyWhite, borderRadius: 5 }}>
-                                <Image style={[styles.iconStyle, { width: '10%', marginLeft: 5 }]} source={require('../../assets/icons/password.png')} />
+                            <View style={loginStyles.inputWithIcon}>
+                                <Image style={loginStyles.inLineIcon} source={require('../../assets/icons/password.png')} />
                                 <Controller
                                     name="password"
                                     control={control}
@@ -126,31 +123,31 @@ export default function LoginScreen({ navigation }) {
                                             secureTextEntry={true}
                                             value={value}
                                             onChangeText={(txt) => { onChange(txt); onChangeText(); }}
-                                            style={[styles.textIn, { width: 200 }]}
+                                            style={loginStyles.textIn}
                                         />
                                     )} />
                             </View>
 
                             {/* ERROR DISPLAY */}
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                {errors.username?.message && <DefaultText style={{ color: "red" }}>{errors.username.message}</DefaultText>}
-                                {errors.password?.message && <DefaultText style={{ color: "red" }}>{errors.password.message}</DefaultText>}
-                                {loginError && <DefaultText style={{ color: "red" }}>{loginError}</DefaultText>}
+                            <View style={loginStyles.errorTextContainer}>
+                                {errors.username?.message && <DefaultText style={loginStyles.errorText}>{errors.username.message}</DefaultText>}
+                                {errors.password?.message && <DefaultText style={loginStyles.errorText}>{errors.password.message}</DefaultText>}
+                                {loginError && <DefaultText style={loginStyles.errorText}>{loginError}</DefaultText>}
                             </View>
 
                             {/* SUBMIT BUTTON */}
                             <TouchableOpacity style={[
                                 loginError || errors.password?.message || errors.username?.message ? { marginTop: 10 } : { marginTop: 30 },
-                                { width: 250, height: 40, borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }]}
+                                loginStyles.loginButton]}
                                 onPress={handleSubmit(onSubmit)}>
                                 <DefaultText style={styles.buttonText}>Sign In</DefaultText>
                             </TouchableOpacity>
 
                             {/* DIVIDERS */}
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: 250, padding: 10 }}>
-                                <View style={{ height: 1, flex: 1, backgroundColor: '#999999' }} />
-                                <DefaultText style={{ color: '#999999' }}>OR</DefaultText>
-                                <View style={{ height: 1, flex: 1, backgroundColor: '#999999' }} />
+                            <View style={loginStyles.dividerContainer}>
+                                <View style={loginStyles.divider} />
+                                <DefaultText style={loginStyles.greyText}>OR</DefaultText>
+                                <View style={loginStyles.divider} />
                             </View>
 
                             {/* 'SIGN IN WITH...' OPTIONS */}
@@ -159,7 +156,7 @@ export default function LoginScreen({ navigation }) {
                                     buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                                     buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
                                     cornerRadius={20}
-                                    style={{ width: 250, height: 40 }}
+                                    style={loginStyles.signInWith}
                                     onPress={async () => {
                                         try {
                                             const credential = await AppleAuthentication.signInAsync();
@@ -179,8 +176,8 @@ export default function LoginScreen({ navigation }) {
                             }
 
                             {/* SIGN UP BUTTON */}
-                            <View style={{ flexDirection: 'row' }}>
-                                <DefaultText style={{ color: '#999999' }}>Don't have an accout? </DefaultText>
+                            <View style={loginStyles.signUpContainer}>
+                                <DefaultText style={loginStyles.greyText}>Don't have an accout? </DefaultText>
                                 <TouchableOpacity onPress={() => { navigation.navigate("Register") }}>
                                     <DefaultText style={styles.urlText}>Sign up!</DefaultText>
                                 </TouchableOpacity>
@@ -194,19 +191,89 @@ export default function LoginScreen({ navigation }) {
     );
 }
 
-export async function getUser(setUser=null, navigation=null){
-    try{
+export async function getUser(setUser = null, navigation = null) {
+    try {
         const response = await userApi.getUserInfo();
-        if(setUser){
+        if (setUser) {
             setUser(response.data);
         }
         return response.data;
     }
-    catch (error){
+    catch (error) {
         console.log(error);
-        if(navigation){
+        if (navigation) {
             navigation.dispatch(StackActions.popToTop());
         }
         return null;
     }
 }
+
+const loginStyles = StyleSheet.create({
+    inputContainer: {
+        backgroundColor: '#fff',
+        justifyContent: 'space-between',
+        rowGap: 20,
+        padding: 30,
+        alignItems: 'center',
+        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
+        borderRadius: 10
+    },
+    inputWithIcon:{ 
+        flexDirection: 'row', 
+        width: 250, 
+        height: 40, 
+        alignItems: 'center', 
+        backgroundColor: colors.greyWhite, 
+        borderRadius: 5 
+    },
+    inLineIcon:[
+        styles.iconStyle, 
+        { 
+            width: '10%', 
+            marginLeft: 5 
+        }
+    ],
+    textIn:[
+        styles.textIn, 
+        { width: 200 
+
+        }
+    ],
+    errorTextContainer:{ 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    errorText:{
+        color:'red'
+    },
+    loginButton:{
+        width: 250, 
+        height: 40, 
+        borderRadius: 20, 
+        backgroundColor: colors.secondary, 
+        alignItems: 'center', 
+        justifyContent: 'center'
+    },
+    dividerContainer:{
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: 10, 
+        width: 250, 
+        padding: 10
+    },
+    divider:{ 
+        height: 1, 
+        flex: 1, 
+        backgroundColor: '#999999' 
+    },
+    greyText:{
+        color: '#999999'
+    },
+    signInWith:{
+        width: 250, 
+        height: 40 
+    },
+    signUpContainer:{
+        flexDirection:'row'
+    }
+});
