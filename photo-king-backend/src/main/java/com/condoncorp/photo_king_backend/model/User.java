@@ -211,6 +211,7 @@ public class User implements UserDetails {
         this.bio = bio;
     }
 
+
     public Set<PhotoGroup> getPhotoGroups() {
         return photoGroups;
     }

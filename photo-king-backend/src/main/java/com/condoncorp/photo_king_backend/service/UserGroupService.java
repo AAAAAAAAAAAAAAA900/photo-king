@@ -3,7 +3,9 @@ package com.condoncorp.photo_king_backend.service;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
+import com.condoncorp.photo_king_backend.model.PhotoGroupPoints;
 import com.condoncorp.photo_king_backend.model.User;
+import com.condoncorp.photo_king_backend.repository.PhotoGroupPointsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ public class UserGroupService {
     private UserService userService;
     @Autowired
     private PhotoGroupService photoGroupService;
+    @Autowired
+    private PhotoGroupPointsRepository photoGroupPointsRepository;
 
     public PhotoGroupDTO addUserToGroup(int userId, int groupId) {
         User user = userService.getUserById(userId);
@@ -26,6 +30,11 @@ public class UserGroupService {
 
         // UPDATE RANKINGS
         photoGroupService.setUserRank(user.getId(), photoGroup.getId());
+
+        // SET POINTS
+        PhotoGroupPoints photoGroupPoints = new PhotoGroupPoints(photoGroup, user, 0);
+        photoGroup.getPhotoGroupPoints().add(photoGroupPoints);
+        photoGroupPointsRepository.save(photoGroupPoints);
 
         userService.saveUser(user);
         photoGroupService.saveGroup(photoGroup);
