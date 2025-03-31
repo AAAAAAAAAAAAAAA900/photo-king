@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.service.FriendRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +14,12 @@ public class FriendRequestController {
 
     @PostMapping("/send/{senderId}/{receiverId}")
     public ResponseEntity<String> sendFriendRequest(@PathVariable int senderId, @PathVariable int receiverId) {
-        friendRequestService.sendFriendRequest(senderId, receiverId);
-        return ResponseEntity.ok("Friend request sent successfully.");
+        try {
+            friendRequestService.sendFriendRequest(senderId, receiverId);
+            return ResponseEntity.ok("Friend request sent successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/accept/{friendRequestId}")
