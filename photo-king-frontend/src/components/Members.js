@@ -1,6 +1,6 @@
 import { Animated, FlatList, TouchableWithoutFeedback, View, Dimensions, Platform, StyleSheet } from "react-native";
 import { FriendPreview } from "./FriendSearch";
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import DefaultText from "./DefaultText";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import styles, { colors } from "../styles/ComponentStyles";

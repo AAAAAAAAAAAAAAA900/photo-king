@@ -121,6 +121,7 @@ export default function GroupScreen({ navigation }) {
                 <Image
                     style={[styles.pic, winningBorder]}
                     source={{ uri: photo.url }}
+                    progressiveRenderingEnabled={true}
                 />
                 <View style={picStyles.points}>
                     <DefaultText>{photo.points}</DefaultText>
