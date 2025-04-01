@@ -1,16 +1,34 @@
-import { FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import Header from "../components/Header";
-import { useRoute } from "@react-navigation/native";
+import { CommonActions, useRoute } from "@react-navigation/native";
 import Pfp from "../components/Pfp";
 import DefaultText from "../components/DefaultText";
-import { picStyles } from "./Group";
-import { useCallback } from "react";
+import { loadPictures, picStyles } from "./Group";
+import { useCallback, useEffect, useState } from "react";
 
 export default function SummaryScreen({ navigation }) {
     const route = useRoute();
-    const user = route.params?.user
-    const group = route.params?.group
+    const user = route.params?.user;
+    const group = route.params?.group;
+    const [pictures, setPictures] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [placings, setPlacings] = useState([]);
+
+    // useEffect to get group pictures on load
+    useEffect(() => {
+        loadPictures(setPictures, group, setLoading);
+    }, []);
+
+    useEffect(()=>{
+        if(pictures.length){
+            setPlacings([
+                group.users.find((value) => value.id == pictures[0].userId),
+                group.users.find((value) => value.id == pictures[1].userId),
+                group.users.find((value) => value.id == pictures[2].userId)
+            ]);
+        }
+    }, [pictures]);
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -21,7 +39,7 @@ export default function SummaryScreen({ navigation }) {
                 routes
             });
         });
-        navigation.navigate('Group', route.params);
+        navigation.navigate('Group', { user: user, group: group });
     }
 
     // FlatList element's view
@@ -52,7 +70,7 @@ export default function SummaryScreen({ navigation }) {
         return (
             <TouchableOpacity
                 onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo })}
-                style={styles.picHolder}>
+                style={summaryStyles.picHolder}>
                 <Image
                     style={[styles.pic, winningBorder]}
                     source={{ uri: photo.url }}
@@ -102,15 +120,19 @@ export default function SummaryScreen({ navigation }) {
             </View>
 
             {/* IMAGES */}
-            <View style={styles.container}>
-                <FlatList
-                    keyExtractor={(item) => item.id}
-                    numColumns={1}
-                    renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
-                    data={pictures}
-                />
-
-            </View>
+            {loading ?
+                <ActivityIndicator size="large" color="#0000ff" />
+                :
+                <View style={summaryStyles.picturesContainer}>
+                    <FlatList
+                        keyExtractor={(item) => item.id}
+                        numColumns={1}
+                        renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
+                        data={pictures}
+                        ItemSeparatorComponent={<View style={summaryStyles.separator}/>}
+                    />
+                </View>
+            }
         </SafeAreaView>
     );
 }
@@ -157,5 +179,21 @@ const summaryStyles = StyleSheet.create({
         {
             textAlign: 'center'
         }
-    ]
+    ],
+    picHolder:[
+        styles.picHolder,
+        {
+            maxWidth:'100%',
+            margin:0,
+            
+        }
+    ],
+    picturesContainer:{
+        flex:1,
+        marginHorizontal:10,
+        marginTop:5
+    },
+    separator:{
+        height:20
+    }
 });

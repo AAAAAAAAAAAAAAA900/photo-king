@@ -31,6 +31,7 @@ export default function GroupScreen({ navigation }) {
     const [friendClicked, setFriendClicked] = useState(null);
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
+    const summary = true;
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -381,6 +382,10 @@ export default function GroupScreen({ navigation }) {
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
                 ownerId={group.ownerId}
                 points={group.userPoints}
+                summaryNavigation={summary? 
+                    ()=>{navigation.navigate("Summary", { user: user, group: group });} 
+                    : 
+                    undefined}
             />
 
             {/* Group options bar */}
