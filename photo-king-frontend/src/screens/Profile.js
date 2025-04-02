@@ -131,7 +131,7 @@ export default function ProfileScreen({ navigation }) {
                             </View>
 
                             {/* NAME INPUT */}
-                            <KeyboardAvoidingView style={profileStyles.nameKeyboardAvoidingView} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={300}>
+                            <KeyboardAvoidingView style={profileStyles.nameKeyboardAvoidingView} enabled={nameFocussed} behavior="position" keyboardVerticalOffset={310}>
                                 <DefaultText style={profileStyles.textLabel}>Name</DefaultText>
                                 <Controller
                                     name="name"
@@ -154,7 +154,7 @@ export default function ProfileScreen({ navigation }) {
                             </KeyboardAvoidingView>
 
                             {/* BIO INPUT */}
-                            <KeyboardAvoidingView style={profileStyles.bioKeyboardAvoidingView} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={265}>
+                            <KeyboardAvoidingView style={profileStyles.bioKeyboardAvoidingView} enabled={bioFocussed} behavior="position" keyboardVerticalOffset={270}>
                                 <DefaultText style={profileStyles.textLabel}>Message</DefaultText>
                                 <Controller
                                     name="bio"

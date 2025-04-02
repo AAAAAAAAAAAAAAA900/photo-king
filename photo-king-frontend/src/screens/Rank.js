@@ -79,7 +79,8 @@ export default function RankScreen({ navigation }) {
                 images: ranks.filter((element) => element !== null)
             };
 
-            await photoGroupApi.updateUserRank(data).then(navigateBack());
+            await photoGroupApi.updateUserRank(data);
+            navigateBack();
         } catch (error) {
             console.log(error);
         }

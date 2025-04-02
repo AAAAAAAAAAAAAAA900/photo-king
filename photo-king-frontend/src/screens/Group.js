@@ -31,6 +31,7 @@ export default function GroupScreen({ navigation }) {
     const [friendClicked, setFriendClicked] = useState(null);
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
+    const summary = true;
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -121,6 +122,7 @@ export default function GroupScreen({ navigation }) {
                 <Image
                     style={[styles.pic, winningBorder]}
                     source={{ uri: photo.url }}
+                    progressiveRenderingEnabled={true}
                 />
                 <View style={picStyles.points}>
                     <DefaultText>{photo.points}</DefaultText>
@@ -373,10 +375,17 @@ export default function GroupScreen({ navigation }) {
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members users={[...group.users].filter((u) => u.id != user.id)}
+            <Members 
+                users={group.users}
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
+                ownerId={group.ownerId}
+                points={group.userPoints}
+                summaryNavigation={summary? 
+                    ()=>{navigation.navigate("Summary", { user: user, group: group });} 
+                    : 
+                    undefined}
             />
 
             {/* Group options bar */}
@@ -441,6 +450,7 @@ export default function GroupScreen({ navigation }) {
                 friendModalVisible={friendModalVisible}
                 setFriendModalVisible={setFriendModalVisible}
                 removeFriendFromGroup={user.id == group.ownerId ? removeUserFromGroup : null}
+                ownerId={group.ownerId}
             />
 
             {/* Photo list */}
