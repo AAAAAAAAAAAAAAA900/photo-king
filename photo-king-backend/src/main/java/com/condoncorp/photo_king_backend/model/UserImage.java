@@ -27,16 +27,21 @@ public class UserImage {
     private int points;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_image_user", foreignKeyDefinition = "ON DELETE CASCADE"))
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_image_user"))
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false, foreignKey = @ForeignKey(name = "fk_image_group", foreignKeyDefinition = "ON DELETE CASCADE"))
+    @JoinColumn(name = "group_id", foreignKey = @ForeignKey(name = "fk_image_group"))
     private PhotoGroup photoGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "summary_id", foreignKey = @ForeignKey(name = "fk_image_summary"))
+    private PhotoGroupSummary summary;
 
     @JsonIgnore
     @OneToMany(mappedBy = "userImage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserImageComment> comments = new ArrayList<>();
+
 
     public UserImage(String url, String publicId, String image_name, User user, PhotoGroup photoGroup) {
         this.url = url;
@@ -116,4 +121,11 @@ public class UserImage {
         this.comments = comments;
     }
 
+    public PhotoGroupSummary getSummary() {
+        return summary;
+    }
+
+    public void setSummary(PhotoGroupSummary summary) {
+        this.summary = summary;
+    }
 }

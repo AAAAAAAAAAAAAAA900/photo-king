@@ -71,4 +71,5 @@ public class PhotoGroupDTO {
     public Map<Integer, Integer> getUserPoints() {
         return userPoints;
     }
+
 }

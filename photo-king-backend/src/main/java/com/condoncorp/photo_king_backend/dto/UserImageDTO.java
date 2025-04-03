@@ -20,7 +20,7 @@ public class UserImageDTO {
         this.publicId = userImage.getPublicId();
         this.imageName = userImage.getImageName();
         this.userId = userImage.getUser().getId();
-        this.groupId = userImage.getPhotoGroup().getId();
+        this.groupId = (userImage.getPhotoGroup() != null) ? userImage.getPhotoGroup().getId() : 0;
         this.points = userImage.getPoints();
         this.comments = userImage.getComments().stream().map(UserImageCommentDTO::new).toList();
     }

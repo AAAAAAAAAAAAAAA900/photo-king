@@ -16,11 +16,11 @@ public class UserImageComment {
     private String comment;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user", foreignKeyDefinition = "ON DELETE CASCADE"))
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user"))
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "user_image_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user_image", foreignKeyDefinition = "ON DELETE CASCADE"))
+    @JoinColumn(name = "user_image_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user_image"))
     private UserImage userImage;
 
     @Column(name = "created_at", nullable = false, updatable = false)

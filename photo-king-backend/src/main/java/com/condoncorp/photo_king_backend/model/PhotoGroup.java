@@ -35,12 +35,13 @@ public class PhotoGroup {
     private Set<User> users = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL)
     private List<UserImage> userImages = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
+
 
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
@@ -120,5 +121,45 @@ public class PhotoGroup {
 
     public void setPhotoGroupPoints(List<PhotoGroupPoints> photoGroupPoints) {
         this.photoGroupPoints = photoGroupPoints;
+    }
+
+
+    public UserImage getCurrentFirstPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return userImages.get(0);
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(0);
+    }
+
+    public UserImage getCurrentSecondPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return null;
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(1);
+    }
+
+    public UserImage getCurrentThirdPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return null;
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(2);
     }
 }

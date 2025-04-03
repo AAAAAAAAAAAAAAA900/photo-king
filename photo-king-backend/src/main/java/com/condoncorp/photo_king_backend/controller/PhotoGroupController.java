@@ -2,7 +2,9 @@ package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
+import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,6 +74,28 @@ public class PhotoGroupController {
     @PutMapping(path="/update-name/{id}/{name}")
     public PhotoGroupDTO updateName(@PathVariable int id, @PathVariable String name) {
         return photoGroupService.updateGroupName(id, name);
+    }
+
+    @GetMapping(path="/get-summary/{id}")
+    public ResponseEntity<?> getSummary(@PathVariable int id) {
+        try {
+            return ResponseEntity.ok(photoGroupService.getGroupSummary(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path="/test/{id}")
+    public void test(@PathVariable int id) {
+        PhotoGroup photoGroup = photoGroupService.getGroupById(id);
+        LocalDateTime newExpirationTest = LocalDateTime.now().plusMinutes(1);
+        photoGroup.setExpiresAt(newExpirationTest);
+        photoGroupRepository.save(photoGroup);
+    }
+
+    @PostMapping(path="/summary")
+    public void summaryTest() throws IOException {
+        photoGroupService.resetGroups();
     }
 
 
