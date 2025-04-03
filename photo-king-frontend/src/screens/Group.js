@@ -383,7 +383,7 @@ export default function GroupScreen({ navigation }) {
                 ownerId={group.ownerId}
                 points={group.userPoints}
                 summaryNavigation={summary? 
-                    ()=>{navigation.navigate("Summary", { user: user, group: group });} 
+                    ()=>{navigation.navigate("Summary", { user: user, group: group});} 
                     : 
                     undefined}
             />
@@ -552,7 +552,7 @@ const groupStyles = StyleSheet.create({
     },
     timeContainer:{ 
         height: 50, 
-        width: 154, 
+        width: 156, 
         alignItems: 'center', 
         backgroundColor: '#CCCCCC', 
         alignSelf: 'flex-start', 
