@@ -6,6 +6,7 @@ import Pfp from "../components/Pfp";
 import DefaultText from "../components/DefaultText";
 import { loadPictures, picStyles } from "./Group";
 import { useCallback, useEffect, useState } from "react";
+import photoGroupApi from "../api/photoGroupApi";
 
 export default function SummaryScreen({ navigation }) {
     const route = useRoute();
@@ -15,20 +16,30 @@ export default function SummaryScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [placings, setPlacings] = useState([]);
 
+    const getSummary = async () => {
+        try {
+            const response = await photoGroupApi.getGroupSummary(group.id);
+            const images = response.data.userImages.sort((a, b) => b.points - a.points);
+            setPictures(images);
+            if (images.length) {
+                if (images[0].points != 0) {
+                    const podium = [];
+                    for (let i = 0; i < 3 && i < images.length; ++i) {
+                        podium.push(group.users.find((member) => member.id === images[i].userId));
+                    }
+                    setPlacings(podium);
+                }
+            }
+            setLoading(false);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     // useEffect to get group pictures on load
     useEffect(() => {
-        loadPictures(setPictures, group, setLoading);
+        getSummary();
     }, []);
-
-    useEffect(()=>{
-        if(pictures.length){
-            setPlacings([
-                group.users.find((value) => value.id == pictures[0].userId),
-                group.users.find((value) => value.id == pictures[1].userId),
-                group.users.find((value) => value.id == pictures[2].userId)
-            ]);
-        }
-    }, [pictures]);
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -93,47 +104,64 @@ export default function SummaryScreen({ navigation }) {
                 backFunction={() => { navigateBack(); }}
             />
 
-            {/* USER PODIUM */}
-            <View style={summaryStyles.podiumContainer}>
-
-                {/* SILVER */}
-                <View style={summaryStyles.podiumPlace}>
-                    <DefaultText numberOfLines={3} style={summaryStyles.username}>username</DefaultText>
-                    <Pfp />
-                    <View style={summaryStyles.silver} />
-                </View>
-
-                {/* GOLD */}
-                <View style={summaryStyles.podiumPlace}>
-                    <DefaultText numberOfLines={2} style={summaryStyles.username}>username</DefaultText>
-                    <Pfp />
-                    <View style={summaryStyles.gold} />
-                </View>
-
-                {/* BRONZE */}
-                <View style={summaryStyles.podiumPlace}>
-                    <DefaultText numberOfLines={4} style={summaryStyles.username}>username</DefaultText>
-                    <Pfp />
-                    <View style={summaryStyles.bronze} />
-                </View>
-
-            </View>
-
-            {/* IMAGES */}
             {loading ?
-                <ActivityIndicator size="large" color="#0000ff" />
+                <View style={styles.containerCenterAll}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
                 :
-                <View style={summaryStyles.picturesContainer}>
-                    <FlatList
-                        keyExtractor={(item) => item.id}
-                        numColumns={1}
-                        renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
-                        data={pictures}
-                        ItemSeparatorComponent={<View style={summaryStyles.separator}/>}
-                    />
+
+                <View style={styles.container}>
+
+                    {/* USER PODIUM */}
+                    {placings.length ?
+                        <View style={summaryStyles.podiumContainer}>
+
+                            {/* SILVER */}
+                            {placings[1] &&
+                                < View style={summaryStyles.podiumPlace}>
+                                    <DefaultText numberOfLines={3} style={summaryStyles.username}>{placings[1].username}</DefaultText>
+                                    <Pfp url={placings[1].pfp} />
+                                    <View style={summaryStyles.silver} />
+                                </View>
+                            }
+
+                            {/* GOLD */}
+                            {placings[0] &&
+                                <View style={summaryStyles.podiumPlace}>
+                                    <DefaultText numberOfLines={2} style={summaryStyles.username}>{placings[0].username}</DefaultText>
+                                    <Pfp url={placings[0].pfp} />
+                                    <View style={summaryStyles.gold} />
+                                </View>
+                            }
+
+                            {/* BRONZE */}
+                            {placings[2] &&
+                                <View style={summaryStyles.podiumPlace}>
+                                    <DefaultText numberOfLines={4} style={summaryStyles.username}>{placings[2].username}</DefaultText>
+                                    <Pfp url={placings[2].pfp} />
+                                    <View style={summaryStyles.bronze} />
+                                </View>
+                            }
+                        </View>
+                        :
+                        <View style={summaryStyles.messageContainer}>
+                            <DefaultText style={styles.titleText}>LAST WEEKS PHOTOS:</DefaultText>
+                        </View>
+                    }
+
+                    {/* IMAGES */}
+                    <View style={summaryStyles.picturesContainer}>
+                        <FlatList
+                            keyExtractor={(item) => item.id}
+                            numColumns={1}
+                            renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
+                            data={pictures}
+                            ItemSeparatorComponent={<View style={summaryStyles.separator} />}
+                        />
+                    </View>
                 </View>
             }
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
@@ -145,7 +173,9 @@ const summaryStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: "space-between",
         paddingHorizontal: 20,
-        gap: 20
+        gap: 20,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
     },
     podiumPlace: {
         flex: 1,
@@ -180,20 +210,31 @@ const summaryStyles = StyleSheet.create({
             textAlign: 'center'
         }
     ],
-    picHolder:[
+    picHolder: [
         styles.picHolder,
         {
-            maxWidth:'100%',
-            margin:0,
-            
+            maxWidth: '100%',
+            margin: 0,
+
         }
     ],
-    picturesContainer:{
-        flex:1,
-        marginHorizontal:10,
-        marginTop:5
+    picturesContainer: {
+        flex: 1,
+        marginHorizontal: 10,
+        marginVertical: 5
     },
-    separator:{
-        height:20
-    }
+    separator: {
+        height: 20
+    },
+    messageContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: 'white',
+        width: '100%',
+        height: 70,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        borderWidth: 3,
+        borderColor: colors.greyWhite
+    },
 });

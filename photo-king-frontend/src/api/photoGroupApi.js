@@ -23,7 +23,11 @@ const photoGroupApi = {
 
     getGroupsByUserId: async (userId) => {
         return apiClient.get(`/user-groups/get-groups/${userId}`);
-    }
+    },
+
+    getGroupSummary: async (groupId) => {
+        return apiClient.get(`/photo-group/get-summary/${groupId}`);
+    },
 }
 
 export default photoGroupApi;
