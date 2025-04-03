@@ -65,6 +65,7 @@ public class PhotoGroupService {
             for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
                 userImageService.deleteImage(userImage.getId());
             }
+            photoGroupSummary.get().getUserImages().clear();
             photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
         }
 
@@ -166,7 +167,6 @@ public class PhotoGroupService {
         Optional<PhotoGroupSummary> existingPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId()); // CHECKS IF GROUP SUMMARY EXISTS
         List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
         if (existingPhotoGroupSummary.isPresent()) {
-            System.out.println("SUMMARY PRESENT");
             PhotoGroupSummary photoGroupSummary = existingPhotoGroupSummary.get();
 
             for (UserImage image : new ArrayList<>(photoGroupSummary.getUserImages())) {
@@ -183,7 +183,6 @@ public class PhotoGroupService {
             photoGroupSummaryRepository.save(photoGroupSummary);
         }
         else {
-            System.out.println("SUMMARY NOT PRESENT");
             PhotoGroupSummary newPhotoGroupSummary = new PhotoGroupSummary(); // CREATES NEW GROUP SUMMARY
             newPhotoGroupSummary.setGroupId(photoGroup.getId());
             for (UserImage image : userImages) {
@@ -219,7 +218,7 @@ public class PhotoGroupService {
         // CLEAR IMAGES
         for (UserImage image : new ArrayList<>(photoGroup.getUserImages())) {
             image.setPhotoGroup(null);  // Remove association
-            userImageService.saveImage(image);  // Persist change
+            userImageService.saveImage(image);
         }
         photoGroupRepository.save(photoGroup);
     }

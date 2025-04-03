@@ -16,7 +16,7 @@ public class PhotoGroupSummary {
     private int id;
 
     @Column(name = "group_id")
-    private int groupId;
+    private Integer groupId;
 
     @JsonIgnore
     @OneToMany(mappedBy = "summary", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -37,11 +37,11 @@ public class PhotoGroupSummary {
         this.id = id;
     }
 
-    public int getGroupId() {
+    public Integer getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(Integer groupId) {
         this.groupId = groupId;
     }
 
