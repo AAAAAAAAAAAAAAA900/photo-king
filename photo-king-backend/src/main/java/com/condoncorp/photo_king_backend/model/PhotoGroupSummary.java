@@ -1,8 +1,10 @@
 package com.condoncorp.photo_king_backend.model;
 
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -13,12 +15,16 @@ public class PhotoGroupSummary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name = "photo_group_id", nullable = false, foreignKey = @ForeignKey(name = "fk_summary_photo_group"))
-    private PhotoGroup photoGroup;
+    @Column(name = "group_id")
+    private int groupId;
 
-    public PhotoGroupSummary(PhotoGroup photoGroup) {
-        this.photoGroup = photoGroup;
+    @JsonIgnore
+    @OneToMany(mappedBy = "summary", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserImage> userImages = new ArrayList<>();
+
+    public PhotoGroupSummary(List<UserImage> userImages, int groupId) {
+        this.userImages = userImages;
+        this.groupId = groupId;
     }
 
     public PhotoGroupSummary() {}
@@ -31,58 +37,19 @@ public class PhotoGroupSummary {
         this.id = id;
     }
 
-    public PhotoGroup getPhotoGroup() {
-        return photoGroup;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setPhotoGroup(PhotoGroup photoGroup) {
-        this.photoGroup = photoGroup;
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
-    public List<UserImage> getImages() {
-        return photoGroup.getUserImages();
+    public List<UserImage> getUserImages() {
+        return userImages;
     }
 
-    public UserImage getFirstPlaceImage() {
-        List<UserImage> userImages = photoGroup.getUserImages();
-        if (userImages.isEmpty()) {
-            return null;
-        }
-
-        if (userImages.size() == 1) {
-            return userImages.get(0);
-        }
-
-        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
-        return userImages.get(0);
+    public void setUserImages(List<UserImage> userImages) {
+        this.userImages = userImages;
     }
-
-    public UserImage getSecondPlaceImage() {
-        List<UserImage> userImages = photoGroup.getUserImages();
-        if (userImages.isEmpty()) {
-            return null;
-        }
-
-        if (userImages.size() == 1) {
-            return null;
-        }
-
-        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
-        return userImages.get(1);
-    }
-
-    public UserImage getThirdPlaceImage() {
-        List<UserImage> userImages = photoGroup.getUserImages();
-        if (userImages.isEmpty()) {
-            return null;
-        }
-
-        if (userImages.size() == 1) {
-            return null;
-        }
-
-        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
-        return userImages.get(2);
-    }
-
 }

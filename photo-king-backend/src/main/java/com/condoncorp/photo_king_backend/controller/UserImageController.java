@@ -3,8 +3,6 @@ package com.condoncorp.photo_king_backend.controller;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
-import com.condoncorp.photo_king_backend.model.UserImage;
-import com.condoncorp.photo_king_backend.model.UserImageComment;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
 import com.condoncorp.photo_king_backend.service.UserService;

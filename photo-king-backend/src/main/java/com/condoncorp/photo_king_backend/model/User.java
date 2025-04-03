@@ -3,8 +3,6 @@ package com.condoncorp.photo_king_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,38 +38,33 @@ public class User implements UserDetails {
     private String bio;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_group",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    @Cascade(CascadeType.ALL)
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "friends_list",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
-    @Cascade(CascadeType.ALL)
     private Set<User> friends = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    @Cascade(CascadeType.ALL)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<UserImage> userImages = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "sender", orphanRemoval = true)
-    @Cascade(CascadeType.ALL)
+    @OneToMany(mappedBy = "sender", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<FriendRequest> sentRequests = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "receiver", orphanRemoval = true)
-    @Cascade(CascadeType.ALL)
+    @OneToMany(mappedBy = "receiver", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<FriendRequest> receivedRequests = new HashSet<>();
 
     public User(String username, String password, String phone, String email, String name) {
