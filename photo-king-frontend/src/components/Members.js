@@ -13,16 +13,16 @@ export default function Members({ membersPopUpVisible, setMembersPopUpVisible, u
         100 + (Platform.OS == 'ios' ? useSafeAreaInsets().top : 0);
 
     // gets first place ID. 
-    const winnerId = useMemo((points) => {
-        let lowest = 0;
-        let lowestId = '';
+    const winnerId = useMemo(() => {
+        let highest = 0;
+        let highestId = '';
         for (const member in points) {
-            if (points[member] > lowest) {
-                lowestId = member;
-                lowest = points[member];
+            if (points[member] > highest) {
+                highestId = member;
+                highest = points[member];
             }
         }
-        return lowestId;
+        return highestId;
     }, [points]);
 
     useEffect(() => {
@@ -130,6 +130,7 @@ const membersStyles = StyleSheet.create({
         backgroundColor:colors.secondary,
         borderRadius:5,
         alignItems:'center',
-        justifyContent:'center'
+        justifyContent:'center',
+        marginBottom:5
     }
 });
