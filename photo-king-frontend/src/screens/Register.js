@@ -20,6 +20,17 @@ export default function RegisterScreen({ navigation }) {
     } = useForm({ reValidateMode: 'onSubmit' });
 
     const onSubmit = async (data) => {
+        const hasSpaces = (str) => /\s/.test(str);
+
+        if (
+            hasSpaces(data.username) ||
+            hasSpaces(data.password) ||
+            hasSpaces(data.email)
+        ) {
+            setErrorMsg("Username, password, and email must not contain spaces.");
+            return;
+        }
+
         try {
             await authApi.register(data).then(r => navigation.navigate("Login"));
         } catch (e) {
