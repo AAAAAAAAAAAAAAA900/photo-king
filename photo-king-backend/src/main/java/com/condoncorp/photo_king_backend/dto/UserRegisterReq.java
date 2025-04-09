@@ -5,7 +5,6 @@ public class UserRegisterReq {
     private String username;
     private String password;
     private String email;
-    private String phone;
     private String name;
 
     public String getUsername() {
@@ -18,10 +17,6 @@ public class UserRegisterReq {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public String getName() {

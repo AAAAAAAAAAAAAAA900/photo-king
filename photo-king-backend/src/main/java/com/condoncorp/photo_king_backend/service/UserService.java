@@ -84,7 +84,6 @@ public class UserService {
         User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setEmail(user.getEmail());
-        newUser.setPhone(user.getPhone());
         newUser.setName(user.getName());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
