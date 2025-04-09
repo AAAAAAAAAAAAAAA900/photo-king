@@ -1,24 +1,26 @@
-import { View, Image, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Image, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import * as ImagePicker from 'expo-image-picker';
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import imageApi from "../api/imageApi";
 import { lookup } from 'react-native-mime-types';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { StackActions } from '@react-navigation/native';
 import DefaultText from './DefaultText.js';
-import * as SecureStore from "expo-secure-store";
 import { clearTokens } from "../api/apiClient";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getUser } from '../screens/Login.js';
 
 
-export default function Pfp({ navigation, user, setUser, setUserUpdated, url, size = 50, borderWidth = 0 }) {
+export default function Pfp({ navigation, user, setUser, url, size = 50, borderWidth = 0 }) {
 
     const pfpRef = useRef(null);
     const [modalHeight, setModalHeight] = useState(0);
     const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
-    
-    const style = {
+    const [optionsVisible, setOptionsVisible] = useState(false);
+    const { showActionSheetWithOptions } = useActionSheet();
+
+    const imageStyle = {
         height: size,
         width: size,
         borderRadius: size / 2,
@@ -26,8 +28,8 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         backgroundColor: 'white',
         borderColor: 'black'
     };
-    const [optionsVisible, setOptionsVisible] = useState(false);
 
+    // Determines if it should update pfp or open logout menu
     const press = () => {
         if (user) {
             onPressPhoto();
@@ -36,8 +38,7 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         }
     };
 
-    const { showActionSheetWithOptions } = useActionSheet();
-
+    // Determine pfp upload method
     const onPressPhoto = () => {
         const options = ['Gallery', 'Camera', 'Cancel']
         const cancelButtonIndex = 2;
@@ -59,6 +60,7 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         })
     };
 
+    // upload from gallery
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         // useMediaLibraryPermissions?
@@ -84,6 +86,7 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         }
     };
 
+    // take photo
     const takeImage = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
@@ -107,6 +110,7 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         }
     };
 
+    // update pfp
     const uploadPfp = async (pfp) => {
         const formData = new FormData();
 
@@ -120,8 +124,8 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
 
         try {
             const response = await imageApi.uploadProfile(formData);
-            setUser({ ...user, profileUrl: response.data });
-            setUserUpdated(true);
+            await getUser(setUser);
+            
             console.log('Upload Success');
             console.log(response.data);
         } catch (error) {
@@ -129,22 +133,31 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         }
     };
 
-    const logoutButton = async () => {
+
+    const logoutButtonPressed = async () => {
         await clearTokens();
         navigation.dispatch(StackActions.popToTop());
     }
 
     return (
         <View>
-
+            {/* LOGOUT MENU */}
             <Modal
                 visible={optionsVisible}
                 onRequestClose={() => setOptionsVisible(false)}
                 animationType="fade"
                 transparent={true}
             >
-                <TouchableOpacity activeOpacity={1} style={{ flex: 1 }} onPress={() => setOptionsVisible(false)}>
-                    <TouchableOpacity onPress={logoutButton} style={{ position: 'absolute', top: modalHeight+54, right: 10, height: 45, width: 85, backgroundColor: 'white', borderRadius: 20, alignItems: 'center', justifyContent: 'center', boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)' }}>
+                {/* MODAL CLOSE CLICK AREA */}
+                <TouchableOpacity 
+                activeOpacity={1} 
+                style={styles.container} 
+                onPress={() => setOptionsVisible(false)}
+                >
+                    {/* LOGOUT BUTTON */}
+                    <TouchableOpacity 
+                    onPress={logoutButtonPressed} 
+                    style={[pfpStyles.logoutButton, {top: modalHeight+54}]}>
                         <DefaultText>Logout</DefaultText>
                     </TouchableOpacity>
                 </TouchableOpacity>
@@ -152,12 +165,12 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
 
             {/* If no function for press, make its container a view */}
             {user || navigation ?
-                <TouchableOpacity style={{ alignSelf: 'baseline' }}
+                <TouchableOpacity style={pfpStyles.pfpContainer}
                     onPress={press}
                 >
                     <Image
                         ref={pfpRef}
-                        style={style}
+                        style={imageStyle}
                         source={url? { uri: url } : require('../../assets/icons/pfp.png')}
                         onLayout={() => {
                             pfpRef.current.measureInWindow((x, y, width, height) => {
@@ -167,9 +180,9 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
                     />
                 </TouchableOpacity>
                  : 
-                <View style={{ alignSelf: 'baseline' }}>
+                <View style={pfpStyles.pfpContainer}>
                     <Image
-                        style={style}
+                        style={imageStyle}
                         source={url? { uri: url } : require('../../assets/icons/pfp.png')}
                     />
                 </View>
@@ -177,3 +190,21 @@ export default function Pfp({ navigation, user, setUser, setUserUpdated, url, si
         </View>
     );
 }
+
+const pfpStyles = StyleSheet.create({
+    logoutButton:{ 
+        position: 'absolute', 
+        right: 10, 
+        height: 45, 
+        width: 85, 
+        backgroundColor: 'white', 
+        borderRadius: 20, 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)' 
+    },
+    pfpContainer:{ 
+        alignSelf: 'baseline' 
+    },
+                    
+});

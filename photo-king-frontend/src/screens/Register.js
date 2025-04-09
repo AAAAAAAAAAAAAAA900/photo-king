@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Button, ScrollView, TouchableWithoutFeedback, Keyboard, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, SafeAreaView, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Dimensions, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import authApi from "../api/authApi";
@@ -9,35 +9,51 @@ import styles, { colors } from '../styles/ComponentStyles.js';
 
 export default function RegisterScreen({ navigation }) {
     const screenWidth = Dimensions.get('window').width;
+    const [errorMsg, setErrorMsg] = useState('');
     const {
         control,
         handleSubmit,
         formState: {
             errors
-        }
-    } = useForm();
+        },
+        clearErrors
+    } = useForm({ reValidateMode: 'onSubmit' });
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+        const hasSpaces = (str) => /\s/.test(str);
+
+        if (
+            hasSpaces(data.username) ||
+            hasSpaces(data.password) ||
+            hasSpaces(data.email)
+        ) {
+            setErrorMsg("Username, password, and email must not contain spaces.");
+            return;
+        }
+
         try {
-            authApi.register(data).then(r => navigation.navigate("Login"));
+            await authApi.register(data).then(r => navigation.navigate("Login"));
         } catch (e) {
-            console.log(e);
+            setErrorMsg(e.response.data);
         }
     }
 
+    const onChangeText = () => {
+        setErrorMsg("");
+        clearErrors();
+    }
 
-    // Login screen view
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{ flex: 1, backgroundColor:colors.secondary}}>
+            <SafeAreaView style={styles.safeAreaContainer}>
                 <Header height={60} />
-                <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}>
+                <View style={registerStyles.container}>
 
                     {/* PAGE TITLE */}
-                    <DefaultText style={[styles.bold, { fontSize: 40, paddingVertical: 30 }]}>Register</DefaultText>
+                    <DefaultText style={registerStyles.titleText}>Register</DefaultText>
 
                     <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={80}>
-                        <View style={{ alignItems: 'center', backgroundColor: 'white' }}>
+                        <View style={registerStyles.fieldsContainer}>
                             {/* USERNAME */}
                             <View style={registerStyles.inputContainer}>
                                 <Controller
@@ -49,8 +65,9 @@ export default function RegisterScreen({ navigation }) {
                                             placeholder="Enter username..."
                                             maxLength={20}
                                             value={value}
+                                            autoCapitalize='none'
                                             autoCorrect={false}
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -68,9 +85,10 @@ export default function RegisterScreen({ navigation }) {
                                             placeholder="Enter password..."
                                             value={value}
                                             maxLength={128}
+                                            autoCapitalize='none'
                                             autoCorrect={false}
                                             secureTextEntry={true}
-                                            onChangeText={onChange}
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -87,7 +105,10 @@ export default function RegisterScreen({ navigation }) {
                                         <TextInput
                                             placeholder="Enter email..."
                                             value={value}
-                                            onChangeText={onChange}
+                                            autoCorrect={false}
+                                            maxLength={320}
+                                            autoCapitalize='none'
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -104,48 +125,47 @@ export default function RegisterScreen({ navigation }) {
                                         <TextInput
                                             placeholder="Enter name..."
                                             value={value}
-                                            onChangeText={onChange}
+                                            maxLength={30}
+                                            autoCorrect={false}
+                                            autoCapitalize='none'
+                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
                                 />
                             </View>
 
-                            {/* PHONE NUMBER */}
-                            <View style={registerStyles.inputContainer}>
-                                <Controller
-                                    name="phone"
-                                    control={control}
-                                    rules={{ required: "This field is required" }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <TextInput
-                                            placeholder="Enter phone number..."
-                                            value={value}
-                                            onChangeText={onChange}
-                                            keyboardType='numeric'
-                                            style={styles.textIn}
-                                        />
-                                    )}
-                                />
-                            </View>
                         </View>
                     </KeyboardAvoidingView>
 
-                    {/* SUBMIT BUTTON */}
-                    <TouchableOpacity style={{ width: 250, height: 40, marginVertical: 20, alignSelf: 'center', borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' }}
-                        onPress={handleSubmit(onSubmit)}>
-                        <DefaultText style={styles.buttonText}>Register</DefaultText>
-                    </TouchableOpacity>
+                    {/* submit area */}
+                    <View style={registerStyles.buttonContainer}>
 
-                    {/* LOG IN */}
-                    <View style={{ flexDirection: 'row' }}>
-                        <DefaultText style={{ color: '#999999' }}>Already have an accout? </DefaultText>
+                        {/* Error messages */}
+                        {errorMsg && <DefaultText style={registerStyles.errorText}>{errorMsg}</DefaultText>}
+                        {(errors.username?.message || errors.password?.message ||
+                            errors.email?.message || errors.name?.message || errors.phone?.message) &&
+                            <DefaultText style={registerStyles.errorText}>All fields are required.</DefaultText>
+                        }
+
+                        {/* SUBMIT BUTTON */}
+                        <TouchableOpacity style={registerStyles.registerButton}
+                            onPress={handleSubmit(onSubmit)}>
+                            <DefaultText style={styles.buttonText}>Register</DefaultText>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* NAVIGATE BACK TO LOG IN */}
+                    <View style={registerStyles.signInContainer}>
+                        <DefaultText style={registerStyles.greyText}>Already have an accout? </DefaultText>
                         <TouchableOpacity onPress={() => { navigation.popToTop() }}>
                             <DefaultText style={styles.urlText}>Sign in!</DefaultText>
                         </TouchableOpacity>
                     </View>
 
                 </View>
+
+                {/* Decorative triangles */}
                 <View style={{ position: 'absolute', bottom: -100, left: -screenWidth / 2, backgroundColor: colors.primary, width: screenWidth, height: 200, transform: [{ rotate: '20deg' }] }} />
                 <View style={{ position: 'absolute', bottom: -100, right: -screenWidth / 2, backgroundColor: colors.primary, width: screenWidth, height: 200, transform: [{ rotate: '-20deg' }] }} />
             </SafeAreaView>
@@ -156,8 +176,46 @@ export default function RegisterScreen({ navigation }) {
 
 
 const registerStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
+        alignItems: 'center'
+    },
+    titleText: [
+        styles.bold,
+        {
+            fontSize: 40,
+            paddingVertical: 30
+        }
+    ],
+    fieldsContainer: {
+        alignItems: 'center',
+        backgroundColor: 'white'
+    },
     inputContainer: {
         paddingBottom: 20,
         alignItems: 'center'
+    },
+    buttonContainer: {
+        alignItems: 'center'
+    },
+    errorText: {
+        color: 'red'
+    },
+    registerButton:{ 
+        width: 250, 
+        height: 40, 
+        marginVertical: 20, 
+        alignSelf: 'center', 
+        borderRadius: 20, 
+        backgroundColor: colors.secondary, 
+        alignItems: 'center', 
+        justifyContent: 'center' 
+    },
+    signInContainer:{ 
+        flexDirection: 'row' 
+    },
+    greyText:{ 
+        color: '#999999' 
     },
 });

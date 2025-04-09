@@ -1,4 +1,4 @@
-import { Animated, useAnimatedValue, View } from "react-native";
+import { View } from "react-native";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { useEffect, useRef, useState } from "react";
 import DefaultText from "./DefaultText.js";
@@ -9,6 +9,7 @@ export default function Timer({startTime = 60, onComplete}){
     const [time, setTime] = useState(startTime);
     const numberFormat = new Intl.NumberFormat(undefined, {minimumIntegerDigits:2});
 
+    // Time in seconds to formatted string
     const formatTime = (seconds) => {
         let m = Math.floor(seconds/60);
         let s = seconds%60;
@@ -18,7 +19,7 @@ export default function Timer({startTime = 60, onComplete}){
     }
 
     useEffect(() => {
-        // update timer text every second
+        // start interval updating timer every second
         interval.current = setInterval(()=>{
             setTime((prev)=>{
                 if (prev <= 1) {    // timer complete check
@@ -37,7 +38,7 @@ export default function Timer({startTime = 60, onComplete}){
 
     return(
         <View>
-            <DefaultText style={{fontFamily: 'DMSans-Bold'}}>
+            <DefaultText style={styles.bold}>
                 {formatTime(time)}
             </DefaultText>
         </View>
