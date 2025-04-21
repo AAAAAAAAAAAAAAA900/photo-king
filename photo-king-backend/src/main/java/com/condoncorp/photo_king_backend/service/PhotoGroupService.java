@@ -198,7 +198,7 @@ public class PhotoGroupService {
     public void updateExpiredGroups(PhotoGroup photoGroup) {
 
         // UDPATES EXPIRATION DATE
-        LocalDateTime newExpiresAt = photoGroup.getExpiresAt().plusDays(7);
+        LocalDateTime newExpiresAt = photoGroup.getExpiresAt().plusDays(7).with(LocalTime.of(23, 59, 59));
         photoGroup.setExpiresAt(newExpiresAt);
 
         // UPDATE POINTS
