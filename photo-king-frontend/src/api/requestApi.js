@@ -1,6 +1,6 @@
 import {apiClient} from "./apiClient";
 
-requestApi = {
+const requestApi = {
     getFriendRequests: async (userId)=>{
         return apiClient.get(`/friend-request/pending/${userId}`);
     },
