@@ -3,9 +3,12 @@ package com.condoncorp.photo_king_backend.controller;
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.TokenReq;
 import com.condoncorp.photo_king_backend.dto.UserRegisterReq;
+import com.condoncorp.photo_king_backend.service.AppleService;
 import com.condoncorp.photo_king_backend.service.CustomUserDetailsService;
 import com.condoncorp.photo_king_backend.service.JwtService;
 import com.condoncorp.photo_king_backend.service.UserService;
+import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,8 @@ public class AuthController {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private AppleService appleService;
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> authenticateUser(@RequestBody AuthRegReq authRegReq) {
@@ -57,6 +62,16 @@ public class AuthController {
         }
         catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/login/apple")
+    public ResponseEntity<?> loginWithApple(@RequestBody TokenReq token) {
+        try {
+            return ResponseEntity.ok(appleService.verifyAppleUser(token.getToken()));
+        }
+        catch (InvalidJwtException | MalformedClaimException e) {
+            throw new RuntimeException(e);
         }
     }
 
