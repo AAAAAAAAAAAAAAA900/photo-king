@@ -34,6 +34,8 @@ public class User implements UserDetails {
     private String role;
     @Column(name = "bio")
     private String bio;
+    @Column(name = "apple_id")
+    private String appleId;
 
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
@@ -193,6 +195,13 @@ public class User implements UserDetails {
         this.bio = bio;
     }
 
+    public String getAppleId() {
+        return appleId;
+    }
+
+    public void setAppleId(String appleId) {
+        this.appleId = appleId;
+    }
 
     public Set<PhotoGroup> getPhotoGroups() {
         return photoGroups;
