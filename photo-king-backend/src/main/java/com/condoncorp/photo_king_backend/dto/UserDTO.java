@@ -13,7 +13,6 @@ public class UserDTO {
     private final int id;
     private final String username;
     private final String email;
-    private final String phone;
     private final String name;
     private final String profileUrl;
     private final String profilePublicId;
@@ -26,7 +25,6 @@ public class UserDTO {
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
-        this.phone = user.getPhone();
         this.name = user.getName();
         this.profileUrl = user.getProfileUrl();
         this.profilePublicId = user.getProfilePublicId();
@@ -45,9 +43,6 @@ public class UserDTO {
         return email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
 
     public String getName() {
         return name;

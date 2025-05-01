@@ -20,12 +20,10 @@ public class User implements UserDetails {
 
     @Column(unique = true, nullable = false, length = 20, name = "username")
     private String username;
-    @Column(nullable = false, length = 128, name = "password")
+    @Column(length = 128, name = "password")
     private String password;
     @Column(unique = true, nullable = false, length = 320, name = "email")
     private String email;
-    @Column(unique = true, nullable = false, length = 20, name = "phone")
-    private String phone;
     @Column(nullable = false, length = 30, name = "name")
     private String name;
     @Column(name = "profile_url")
@@ -36,6 +34,8 @@ public class User implements UserDetails {
     private String role;
     @Column(name = "bio")
     private String bio;
+    @Column(name = "apple_id")
+    private String appleId;
 
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
@@ -67,10 +67,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "receiver", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<FriendRequest> receivedRequests = new HashSet<>();
 
-    public User(String username, String password, String phone, String email, String name) {
+    public User(String username, String password, String email, String name) {
         this.username = username;
         this.password = password;
-        this.phone = phone;
         this.email = email;
         this.name = name;
         this.profileUrl = "";
@@ -156,14 +155,6 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getName() {
         return name;
     }
@@ -204,6 +195,13 @@ public class User implements UserDetails {
         this.bio = bio;
     }
 
+    public String getAppleId() {
+        return appleId;
+    }
+
+    public void setAppleId(String appleId) {
+        this.appleId = appleId;
+    }
 
     public Set<PhotoGroup> getPhotoGroups() {
         return photoGroups;

@@ -20,6 +20,17 @@ export default function RegisterScreen({ navigation }) {
     } = useForm({ reValidateMode: 'onSubmit' });
 
     const onSubmit = async (data) => {
+        const hasSpaces = (str) => /\s/.test(str);
+
+        if (
+            hasSpaces(data.username) ||
+            hasSpaces(data.password) ||
+            hasSpaces(data.email)
+        ) {
+            setErrorMsg("Username, password, and email must not contain spaces.");
+            return;
+        }
+
         try {
             await authApi.register(data).then(r => navigation.navigate("Login"));
         } catch (e) {
@@ -124,26 +135,6 @@ export default function RegisterScreen({ navigation }) {
                                 />
                             </View>
 
-                            {/* PHONE NUMBER */}
-                            <View style={registerStyles.inputContainer}>
-                                <Controller
-                                    name="phone"
-                                    control={control}
-                                    rules={{ required: "This field is required" }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <TextInput
-                                            placeholder="Enter phone number..."
-                                            value={value}
-                                            autoCorrect={false}
-                                            autoCapitalize='none'
-                                            maxLength={20}
-                                            onChangeText={(txt) => { onChange(txt); onChangeText(); }}
-                                            keyboardType='numeric'
-                                            style={styles.textIn}
-                                        />
-                                    )}
-                                />
-                            </View>
                         </View>
                     </KeyboardAvoidingView>
 

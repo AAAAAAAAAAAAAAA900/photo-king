@@ -19,7 +19,7 @@ public class FriendRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FriendRequestStatus status = FriendRequestStatus.PENDING;
+    private FriendRequestStatus status;
 
     public FriendRequest() {}
 

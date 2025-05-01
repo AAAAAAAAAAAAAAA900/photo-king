@@ -10,7 +10,6 @@ import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
 import { StackActions } from '@react-navigation/native';
 
-
 export default function LoginScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [loginError, setLoginError] = useState("");
@@ -24,8 +23,23 @@ export default function LoginScreen({ navigation }) {
 
     // Login attempt
     const login = async (username, password) => {
+        if (password.length === 0 || password === "") {
+            setLoginError("Please enter a password.");
+        }
         try {
             const response = await authApi.login(username, password);
+            await SecureStore.setItemAsync("accessToken", response.data.accessToken);
+            await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
+            const user_info = await userApi.getUserInfo();
+            navigation.navigate("Home", { user: user_info.data });
+        } catch (error) {
+            setLoginError(error.response.data ? "Check username or password" : "");
+        }
+    }
+
+    const appleLogin = async (token) => {
+        try {
+            const response = await authApi.appleLogin(token);
             await SecureStore.setItemAsync("accessToken", response.data.accessToken);
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
@@ -161,9 +175,10 @@ export default function LoginScreen({ navigation }) {
                                         try {
                                             const credential = await AppleAuthentication.signInAsync();
                                             const { identityToken } = credential;
-                                            console.log(identityToken);
 
-                                            // signed in
+                                            // send identity token to backend
+                                            await appleLogin(identityToken);
+
                                         } catch (e) {
                                             if (e.code === 'ERR_REQUEST_CANCELED') {
                                                 // handle that the user canceled the sign-in flow
@@ -177,7 +192,7 @@ export default function LoginScreen({ navigation }) {
 
                             {/* SIGN UP BUTTON */}
                             <View style={loginStyles.signUpContainer}>
-                                <DefaultText style={loginStyles.greyText}>Don't have an accout? </DefaultText>
+                                <DefaultText style={loginStyles.greyText}>Don't have an account? </DefaultText>
                                 <TouchableOpacity onPress={() => { navigation.navigate("Register") }}>
                                     <DefaultText style={styles.urlText}>Sign up!</DefaultText>
                                 </TouchableOpacity>
