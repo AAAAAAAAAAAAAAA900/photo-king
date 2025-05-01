@@ -8,6 +8,7 @@ import imageApi from "../api/imageApi";
 import Header from "../components/Header";
 import userApi from "../api/userApi";
 import Pfp from "../components/Pfp";
+import * as FileSystem from 'expo-file-system';
 
 import {
     fitContainer,
@@ -15,6 +16,7 @@ import {
     useImageResolution,
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as MediaLibrary from "expo-media-library";
 
 
 export default function PhotoScreen({ navigation }) {
@@ -47,6 +49,32 @@ export default function PhotoScreen({ navigation }) {
             console.log(error);
         }
     };
+
+    const downloadPhoto = async () => {
+        try {
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission denied to access media library');
+                return;
+            }
+
+            const fileName = photo.url.split('/').pop();
+            const localUri = FileSystem.documentDirectory + fileName;
+
+            const downloadedFile = await FileSystem.downloadAsync(photo.url, localUri);
+            console.log('Downloaded to:', downloadedFile.uri);
+
+            if (downloadedFile && downloadedFile.uri) {
+                await MediaLibrary.saveToLibraryAsync(downloadedFile.uri);
+                Alert.alert('Success', 'Image saved to gallery!');
+            } else {
+                throw new Error('File URI is invalid.');
+            }
+        } catch (err) {
+            console.error('Save failed:', err);
+            Alert.alert('Error', 'Could not save image.');
+        }
+    }
 
     const uploadComment = async (comment) => {
         if (!comment.trim()) {
@@ -239,7 +267,7 @@ export default function PhotoScreen({ navigation }) {
                     {/* Bottom bar */}
                     <View style={photoStyles.bottomBar}>
                         <TouchableOpacity
-                            onPress={() => { Keyboard.dismiss(); }}
+                            onPress={() => { downloadPhoto() }}
                             style={photoStyles.bottomButton}
                         >
                             <Image style={styles.iconStyle} source={require('../../assets/icons/download.png')} />
