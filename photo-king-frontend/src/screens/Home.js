@@ -114,7 +114,7 @@ export default function HomeScreen({ navigation }) {
 
                         {/* Buttons */}
                         <View style={homeStyles.modalButtonContainer}>
-                            <TouchableOpacity style={homeStyles.cancelButton}
+                            <TouchableOpacity style={homeStyles.modalCancelButton}
                                 onPress={() => { closeModal(); }}
                             >
                                 <DefaultText>Cancel</DefaultText>

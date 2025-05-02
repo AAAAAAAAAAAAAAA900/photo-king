@@ -42,6 +42,7 @@ export default function SummaryScreen({ navigation }) {
     }, []);
 
     const navigateBack = () => {
+        
         navigation.dispatch((state) => {
             const routes = state.routes.slice(0, -2); // Pop 1 screen from stack
             return CommonActions.reset({
