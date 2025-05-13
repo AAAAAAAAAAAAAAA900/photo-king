@@ -85,5 +85,10 @@ public class AuthController {
         return userService.isTokenNonExpired(token.getToken());
     }
 
+    @GetMapping(path = "/health-check")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
+    }
+
 
 }
