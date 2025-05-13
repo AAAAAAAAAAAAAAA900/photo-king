@@ -10,7 +10,6 @@ import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
 import { StackActions } from '@react-navigation/native';
 
-
 export default function LoginScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [loginError, setLoginError] = useState("");

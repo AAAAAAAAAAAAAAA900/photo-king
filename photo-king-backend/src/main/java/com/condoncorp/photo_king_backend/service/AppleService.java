@@ -61,6 +61,11 @@ public class AppleService {
         else {
             String[] parts = jwtClaims.getClaimValueAsString("email").split("@");
             String username = parts[0];
+            Optional<User> usernameExists = userRepository.findByUsername(username);
+            if (usernameExists.isPresent()) {
+                int random = (int) (Math.random() * 90000) + 10000;
+                username = username + random;
+            }
             User newUser = new User();
             newUser.setAppleId(appleId);
             newUser.setUsername(username);

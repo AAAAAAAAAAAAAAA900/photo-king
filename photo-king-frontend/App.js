@@ -18,7 +18,8 @@ import PhotoScreen from './src/screens/Photo.js';
 import RankScreen from './src/screens/Rank.js';
 import { navigationRef } from "./src/utilities/RootNavigation";
 import SummaryScreen from './src/screens/Summary.js';
-
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 
 const Stack = createNativeStackNavigator();
 
