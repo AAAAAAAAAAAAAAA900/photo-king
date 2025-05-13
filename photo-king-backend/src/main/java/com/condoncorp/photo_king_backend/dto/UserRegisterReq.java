@@ -1,13 +1,10 @@
 package com.condoncorp.photo_king_backend.dto;
 
 
-import com.condoncorp.photo_king_backend.model.User;
-
-public class UserRegisterDTO {
+public class UserRegisterReq {
     private String username;
     private String password;
     private String email;
-    private String phone;
     private String name;
 
     public String getUsername() {
@@ -20,10 +17,6 @@ public class UserRegisterDTO {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public String getName() {

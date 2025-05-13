@@ -21,4 +21,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT(?1, '%'))")
     List<User> findUsernamesLike(String username, Pageable pageable);
 
+    @Query("SELECT u FROM User u WHERE u.appleId = ?1")
+    Optional<User> findByAppleId(String appleId);
+
 }

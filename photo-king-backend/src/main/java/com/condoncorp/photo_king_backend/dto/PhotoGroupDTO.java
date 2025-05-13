@@ -3,7 +3,9 @@ package com.condoncorp.photo_king_backend.dto;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,7 @@ public class PhotoGroupDTO {
     private Set<FriendDTO> users;
     private List<UserImageDTO> userImages;
     private LocalDateTime expiresAt;
+    private Map<Integer, Integer> userPoints = new HashMap<>();
 
     // SENDING DATA TO FRONTEND
     public PhotoGroupDTO(PhotoGroup photoGroup) {
@@ -23,6 +26,8 @@ public class PhotoGroupDTO {
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.userImages = photoGroup.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
         this.expiresAt = photoGroup.getExpiresAt();
+        this.userPoints = new HashMap<>();
+        photoGroup.getPhotoGroupPoints().forEach(photoGroupPoint -> userPoints.put(photoGroupPoint.getUser().getId(), photoGroupPoint.getPoints()));
     }
 
     public PhotoGroupDTO() {}
@@ -62,4 +67,9 @@ public class PhotoGroupDTO {
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
+
+    public Map<Integer, Integer> getUserPoints() {
+        return userPoints;
+    }
+
 }

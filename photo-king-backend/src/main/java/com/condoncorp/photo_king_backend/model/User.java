@@ -3,8 +3,6 @@ package com.condoncorp.photo_king_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,12 +20,10 @@ public class User implements UserDetails {
 
     @Column(unique = true, nullable = false, length = 20, name = "username")
     private String username;
-    @Column(nullable = false, length = 128, name = "password")
+    @Column(length = 128, name = "password")
     private String password;
     @Column(unique = true, nullable = false, length = 320, name = "email")
     private String email;
-    @Column(unique = true, nullable = false, length = 20, name = "phone")
-    private String phone;
     @Column(nullable = false, length = 30, name = "name")
     private String name;
     @Column(name = "profile_url")
@@ -38,36 +34,42 @@ public class User implements UserDetails {
     private String role;
     @Column(name = "bio")
     private String bio;
+    @Column(name = "apple_id")
+    private String appleId;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_group",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    @Cascade(CascadeType.ALL)
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "friends_list",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
-    @Cascade(CascadeType.ALL)
     private Set<User> friends = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    @Cascade(CascadeType.ALL)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<UserImage> userImages = new ArrayList<>();
 
-    public User(String username, String password, String phone, String email, String name) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<FriendRequest> sentRequests = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "receiver", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<FriendRequest> receivedRequests = new HashSet<>();
+
+    public User(String username, String password, String email, String name) {
         this.username = username;
         this.password = password;
-        this.phone = phone;
         this.email = email;
         this.name = name;
         this.profileUrl = "";
@@ -77,6 +79,8 @@ public class User implements UserDetails {
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.sentRequests = new HashSet<>();
+        this.receivedRequests = new HashSet<>();
     }
 
 
@@ -88,6 +92,8 @@ public class User implements UserDetails {
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.sentRequests = new HashSet<>();
+        this.receivedRequests = new HashSet<>();
     }
 
     public int getId() {
@@ -149,14 +155,6 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getName() {
         return name;
     }
@@ -197,6 +195,14 @@ public class User implements UserDetails {
         this.bio = bio;
     }
 
+    public String getAppleId() {
+        return appleId;
+    }
+
+    public void setAppleId(String appleId) {
+        this.appleId = appleId;
+    }
+
     public Set<PhotoGroup> getPhotoGroups() {
         return photoGroups;
     }
@@ -219,6 +225,22 @@ public class User implements UserDetails {
 
     public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public Set<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(Set<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public Set<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setReceivedRequests(Set<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
     }
 
     public void addFriend(User friend) {

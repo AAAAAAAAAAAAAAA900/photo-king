@@ -2,13 +2,11 @@ package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
-import com.condoncorp.photo_king_backend.model.User;
-import com.condoncorp.photo_king_backend.model.UserImage;
-import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
-import com.condoncorp.photo_king_backend.repository.PhotoGroupUserRankingRepository;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
+import com.condoncorp.photo_king_backend.model.*;
+import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,6 +14,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,10 +26,20 @@ public class PhotoGroupService {
     @Autowired
     private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PhotoGroupSummaryRepository photoGroupSummaryRepository;
+    @Autowired
+    private PhotoGroupPointsRepository photoGroupPointsRepository;
+    @Autowired
     private UserImageService userImageService;
 
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
+        Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
         PhotoGroup photoGroup = new PhotoGroup(photoGroupReq);
         photoGroupRepository.save(photoGroup);
         return new PhotoGroupDTO(photoGroup);
@@ -43,11 +53,6 @@ public class PhotoGroupService {
         return photoGroup.get();
     }
 
-    public PhotoGroupDTO getGroupByIdDTO(int groupId) {
-        PhotoGroup photoGroup = getGroupById(groupId);
-        return new PhotoGroupDTO(photoGroup);
-    }
-
     public void saveGroup(PhotoGroup photoGroup) {
         photoGroupRepository.save(photoGroup);
     }
@@ -55,6 +60,14 @@ public class PhotoGroupService {
     public void deleteGroup(int groupId) throws IOException {
 
         PhotoGroup photoGroup = getGroupById(groupId);
+        Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
+        if (photoGroupSummary.isPresent()) {
+            for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
+                userImageService.deleteImage(userImage.getId());
+            }
+            photoGroupSummary.get().getUserImages().clear();
+            photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
+        }
 
         // REMOVES GROUP FROM ALL USERS
         for (User user : photoGroup.getUsers()) {
@@ -71,6 +84,15 @@ public class PhotoGroupService {
         photoGroupRepository.deleteById(groupId);
     }
 
+    public PhotoGroupDTO updateGroupName(int groupId, String name) {
+        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
+        if (photoGroup.isEmpty()) {
+            throw new RuntimeException("Group not found");
+        }
+        photoGroup.get().setName(name);
+        photoGroupRepository.save(photoGroup.get());
+        return new PhotoGroupDTO(photoGroup.get());
+    }
 
 
     // ALL IMAGE RANKING FUNCTIONS
@@ -128,6 +150,93 @@ public class PhotoGroupService {
         }
         return photoGroup.get().getExpiresAt().isBefore(LocalDateTime.now());
     }
+
+    // RESET GROUP METHODS =============================================================================================
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetGroups() throws IOException {
+        List<PhotoGroup> photoGroups = photoGroupRepository.findAll();
+        for (PhotoGroup photoGroup : photoGroups) {
+            if (isExpired(photoGroup.getId())) {
+                createPhotoGroupSummary(photoGroup);
+                updateExpiredGroups(photoGroup);
+            }
+        }
+    }
+
+    public void createPhotoGroupSummary(PhotoGroup photoGroup) throws IOException {
+        Optional<PhotoGroupSummary> existingPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId()); // CHECKS IF GROUP SUMMARY EXISTS
+        List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
+        if (existingPhotoGroupSummary.isPresent()) {
+            PhotoGroupSummary photoGroupSummary = existingPhotoGroupSummary.get();
+
+            for (UserImage image : new ArrayList<>(photoGroupSummary.getUserImages())) {
+                userImageService.deleteImage(image.getId());
+            }
+
+            photoGroupSummary.getUserImages().clear();
+
+            for (UserImage image : userImages) {
+                image.setSummary(photoGroupSummary);
+            }
+
+            photoGroupSummary.getUserImages().addAll(userImages);
+            photoGroupSummaryRepository.save(photoGroupSummary);
+        }
+        else {
+            PhotoGroupSummary newPhotoGroupSummary = new PhotoGroupSummary(); // CREATES NEW GROUP SUMMARY
+            newPhotoGroupSummary.setGroupId(photoGroup.getId());
+            for (UserImage image : userImages) {
+                image.setSummary(newPhotoGroupSummary);
+            }
+            newPhotoGroupSummary.getUserImages().addAll(userImages);
+            photoGroupSummaryRepository.save(newPhotoGroupSummary);
+        }
+
+        userImageService.saveAllImages(userImages);
+    }
+
+    public void updateExpiredGroups(PhotoGroup photoGroup) {
+
+        // UDPATES EXPIRATION DATE
+        LocalDateTime newExpiresAt = photoGroup.getExpiresAt().plusDays(7).with(LocalTime.of(23, 59, 59));
+        photoGroup.setExpiresAt(newExpiresAt);
+
+        // UPDATE POINTS
+        UserImage first = photoGroup.getCurrentFirstPlaceImage();
+        UserImage second = photoGroup.getCurrentSecondPlaceImage();
+        UserImage third = photoGroup.getCurrentThirdPlaceImage();
+
+        if (first.getPoints() > 0) {
+            photoGroupPointsRepository.findByGroupAndUser(photoGroup, first.getUser())
+                    .ifPresent(p -> p.setPoints(p.getPoints() + 3));
+            photoGroupPointsRepository.findByGroupAndUser(photoGroup, second.getUser())
+                    .ifPresent(p -> p.setPoints(p.getPoints() + 2));
+            photoGroupPointsRepository.findByGroupAndUser(photoGroup, third.getUser())
+                    .ifPresent(p -> p.setPoints(p.getPoints() + 1));
+        }
+
+        // CLEAR IMAGES
+        for (UserImage image : new ArrayList<>(photoGroup.getUserImages())) {
+            image.setPhotoGroup(null);  // Remove association
+            userImageService.saveImage(image);
+        }
+        photoGroupRepository.save(photoGroup);
+    }
+    // =================================================================================================================
+
+    public PhotoGroupSummaryDTO getGroupSummary(int groupId) {
+        PhotoGroup photoGroup = getGroupById(groupId);
+        Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId());
+        if (photoGroupSummary.isEmpty()) {
+            throw new RuntimeException("Group summary will appear after expiration date.");
+        }
+        return new PhotoGroupSummaryDTO(photoGroupSummary.get());
+    }
+
+
+
+
+
 
 
 

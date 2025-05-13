@@ -10,6 +10,10 @@ const authApi = {
     // REGISTER API
     register: async (data) => {
         return apiClient.post("/auth/register", data);
+    },
+
+    appleLogin: async (token) => {
+        return apiClient.post("/auth/login/apple", {token: token});
     }
 }
 

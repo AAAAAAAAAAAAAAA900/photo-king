@@ -18,11 +18,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("Username or password is incorrect.");
         }
 
         if (!user.get().getUsername().equals(username)) {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("Username or password is incorrect.");
         }
 
 

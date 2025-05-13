@@ -53,7 +53,12 @@ public class UserImageService {
         userImage.setPublicId((String) result.get("public_id"));
         userImage.setUser(user.get());
         userImage.setPhotoGroup(photoGroup.get());
+        userImage.setSummary(null);
         userImageRepository.save(userImage);
+
+
+
+
 
         return userImage.getUrl();
     }
@@ -111,10 +116,11 @@ public class UserImageService {
 
         try {
             cloudinaryService.delete(userImage.get().getPublicId());
-            userImageRepository.deleteById(id);
         } catch (Exception e) {
             throw new IOException("Failed to delete image: " + userImage.get().getPublicId());
         }
+        userImageRepository.deleteById(id);
+
     }
     // DELETES USER'S PROFILE PICTURE
     public void deleteProfileImage(int id) throws IOException {
@@ -236,5 +242,15 @@ public class UserImageService {
         Optional<UserImage> image = userImageRepository.findById(photoId);
         return image.map(userImage -> userImage.getComments().stream().map(UserImageCommentDTO::new).toList()).orElse(Collections.emptyList());
     }
+
+    public void saveImage(UserImage userImage) {
+        userImageRepository.save(userImage);
+    }
+
+    public void saveAllImages(List<UserImage> userImages) {
+        userImageRepository.saveAll(userImages);
+    }
+
+
 
 }

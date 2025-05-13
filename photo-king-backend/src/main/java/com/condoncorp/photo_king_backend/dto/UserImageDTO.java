@@ -10,7 +10,8 @@ public class UserImageDTO {
     private final String publicId;
     private final String imageName;
     private final int userId;
-    private final int groupId;
+    private final Integer groupId;
+    private final Integer summaryId;
     private final int points;
     private final List<UserImageCommentDTO> comments;
 
@@ -20,7 +21,8 @@ public class UserImageDTO {
         this.publicId = userImage.getPublicId();
         this.imageName = userImage.getImageName();
         this.userId = userImage.getUser().getId();
-        this.groupId = userImage.getPhotoGroup().getId();
+        this.groupId = (userImage.getPhotoGroup() != null) ? userImage.getPhotoGroup().getId() : 0;
+        this.summaryId = (userImage.getSummary() != null) ? userImage.getSummary().getId() : 0;
         this.points = userImage.getPoints();
         this.comments = userImage.getComments().stream().map(UserImageCommentDTO::new).toList();
     }
@@ -47,6 +49,10 @@ public class UserImageDTO {
 
     public int getGroupId() {
         return groupId;
+    }
+
+    public Integer getSummaryId() {
+        return summaryId;
     }
 
     public int getPoints() {

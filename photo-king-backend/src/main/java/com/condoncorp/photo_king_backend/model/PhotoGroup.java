@@ -35,25 +35,32 @@ public class PhotoGroup {
     private Set<User> users = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL)
     private List<UserImage> userImages = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
+
 
     public PhotoGroup(String name, int ownerId) {
         this.name = name;
         this.ownerId = ownerId;
         this.users = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.photoGroupPoints = new ArrayList<>();
     }
 
     public PhotoGroup(PhotoGroupReq group) {
         this.name = group.getName();
         this.ownerId = group.getOwnerId();
         LocalDateTime now = LocalDateTime.now();
-        if(now.getDayOfWeek().getValue() > group.getSelectedDay())
+        if (now.getDayOfWeek().getValue() > group.getSelectedDay())
             now = now.plusWeeks(1);
         this.setExpiresAt(now.with(TemporalAdjusters.next(DayOfWeek.of(group.getSelectedDay()))).with(LocalTime.of(23, 59, 59)));
         this.users = new HashSet<>();
         this.userImages = new ArrayList<>();
+        this.photoGroupPoints = new ArrayList<>();
     }
 
     public PhotoGroup() {
@@ -106,5 +113,53 @@ public class PhotoGroup {
 
     public void setUserImages(List<UserImage> userImages) {
         this.userImages = userImages;
+    }
+
+    public List<PhotoGroupPoints> getPhotoGroupPoints() {
+        return photoGroupPoints;
+    }
+
+    public void setPhotoGroupPoints(List<PhotoGroupPoints> photoGroupPoints) {
+        this.photoGroupPoints = photoGroupPoints;
+    }
+
+
+    public UserImage getCurrentFirstPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return userImages.get(0);
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(0);
+    }
+
+    public UserImage getCurrentSecondPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return null;
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(1);
+    }
+
+    public UserImage getCurrentThirdPlaceImage() {
+        if (userImages.isEmpty()) {
+            return null;
+        }
+
+        if (userImages.size() == 1) {
+            return null;
+        }
+
+        userImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return userImages.get(2);
     }
 }
