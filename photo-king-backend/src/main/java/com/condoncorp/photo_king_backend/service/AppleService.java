@@ -28,7 +28,7 @@ public class AppleService {
 
     private static final String APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
     private static final String APPLE_ISSUER = "https://appleid.apple.com";
-    private static final String BUNDLE_ID = "host.exp.Exponent";  // WILL CHANGE AFTER CONVERTING TO DEVELOPMENT BUILD
+    private static final String BUNDLE_ID = "com.condoncorp.photoking";
 
     public JwtClaims verifyIdentityToken(String identityToken) throws InvalidJwtException {
         HttpsJwks httpsJkws = new HttpsJwks(APPLE_KEYS_URL);
@@ -39,11 +39,9 @@ public class AppleService {
                 .setVerificationKeyResolver(httpsJwksKeyResolver)
                 .setExpectedIssuer(APPLE_ISSUER)
                 .setExpectedAudience(BUNDLE_ID)
-                .build();
+                .build(); 
 
-        JwtClaims jwtClaims = jwtConsumer.processToClaims(identityToken);
-
-        return jwtClaims;
+        return jwtConsumer.processToClaims(identityToken);
     }
 
     public Map<String, String> verifyAppleUser(String identityToken) throws InvalidJwtException, MalformedClaimException {
