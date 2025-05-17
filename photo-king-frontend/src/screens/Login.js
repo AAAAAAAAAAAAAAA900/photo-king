@@ -173,7 +173,12 @@ export default function LoginScreen({ navigation }) {
                                     style={loginStyles.signInWith}
                                     onPress={async () => {
                                         try {
-                                            const credential = await AppleAuthentication.signInAsync();
+                                            const credential = await AppleAuthentication.signInAsync({
+                                                requestedScopes: [
+                                                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                                                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                                                ],
+                                            });
                                             const { identityToken } = credential;
 
                                             // send identity token to backend
