@@ -1,6 +1,6 @@
-import { useRoute } from "@react-navigation/native";
+import { StackActions, useRoute } from "@react-navigation/native";
 import DefaultText from "../components/DefaultText";
-import { ActivityIndicator, Image, KeyboardAvoidingView, TouchableWithoutFeedback, SafeAreaView, TextInput, TouchableOpacity, View, Keyboard, StyleSheet } from "react-native";
+import { ActivityIndicator, Image, KeyboardAvoidingView, TouchableWithoutFeedback, SafeAreaView, TextInput, TouchableOpacity, View, Keyboard, StyleSheet, BackHandler, Alert } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import NavBar from "../components/NavBar";
 import Pfp from "../components/Pfp";
@@ -43,6 +43,20 @@ export default function ProfileScreen({ navigation }) {
     }
 
     useEffect(() => {
+        // Android back handler
+        const backAction = () => {
+            Alert.alert(
+                'Log out?',
+                'Navigating back will return to login screen.',
+                [
+                    { text: 'Cancel', style: 'Cancel' },
+                    { text: 'Log Out', onPress: () => { navigation.dispatch(StackActions.popToTop()); } },
+                ]);
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // Load user bio
         getBio();
 
         // unselect text inputs on keyboard close because keyboard avoid persists until unselect
@@ -50,9 +64,10 @@ export default function ProfileScreen({ navigation }) {
             nameRef.current.blur();
             bioRef.current.blur();
         };
-
         const listener = Keyboard.addListener("keyboardDidHide", onKeyboardClose);
-        return () => { listener.remove(); };
+
+        // Remove listeners 
+        return () => { backHandler.remove(); listener.remove(); };
     }, []);
 
     useEffect(() => {
@@ -70,7 +85,7 @@ export default function ProfileScreen({ navigation }) {
         },
         clearErrors,
         reset
-    } = useForm({reValidateMode:'onSubmit'});
+    } = useForm({ reValidateMode: 'onSubmit' });
 
     const onSubmit = (data) => {
         setProfile(data);
@@ -83,7 +98,7 @@ export default function ProfileScreen({ navigation }) {
         });
     }
 
-    const onChangeText = ()=>{
+    const onChangeText = () => {
         setSubmitted(false);
         clearErrors();
     };
@@ -123,7 +138,7 @@ export default function ProfileScreen({ navigation }) {
                                             maxLength={20}
                                             autoCorrect={false}
                                             value={value}
-                                            onChangeText={(text) => {onChange(text); onChangeText();}}
+                                            onChangeText={(text) => { onChange(text); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -146,7 +161,7 @@ export default function ProfileScreen({ navigation }) {
                                             onFocus={() => setNameFocussed(true)}
                                             onEndEditing={() => setNameFocussed(false)}
                                             value={value}
-                                            onChangeText={(text) => {onChange(text); onChangeText();}}
+                                            onChangeText={(text) => { onChange(text); onChangeText(); }}
                                             style={styles.textIn}
                                         />
                                     )}
@@ -168,7 +183,7 @@ export default function ProfileScreen({ navigation }) {
                                             onFocus={() => setBioFocussed(true)}
                                             onEndEditing={() => setBioFocussed(false)}
                                             value={value}
-                                            onChangeText={(text) => {onChange(text); onChangeText();}}
+                                            onChangeText={(text) => { onChange(text); onChangeText(); }}
                                             style={profileStyles.largeTextInput}
                                         />
                                     )}
@@ -199,85 +214,85 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const profileStyles = StyleSheet.create({
-    loadingContainer:[
-        styles.containerCenterAll, 
-        { 
-            backgroundColor: 'white' 
+    loadingContainer: [
+        styles.containerCenterAll,
+        {
+            backgroundColor: 'white'
         }
     ],
-    profileContainer:{ 
+    profileContainer: {
         flex: 1,
-        alignItems: "center", 
-        backgroundColor: 'white' 
+        alignItems: "center",
+        backgroundColor: 'white'
     },
-    pfpContainer:{ 
-        alignSelf: "center", 
-        marginVertical: 10 
+    pfpContainer: {
+        alignSelf: "center",
+        marginVertical: 10
     },
-    pfpEditableIconContainer:{ 
-        position: 'absolute', 
-        pointerEvents: "none", 
-        alignItems: "center", 
+    pfpEditableIconContainer: {
+        position: 'absolute',
+        pointerEvents: "none",
+        alignItems: "center",
         justifyContent: "center",
-        borderRadius: 5, 
-        backgroundColor: colors.greyWhite, 
-        borderWidth: 4, 
-        bottom: 0, 
-        right: 0, 
+        borderRadius: 5,
+        backgroundColor: colors.greyWhite,
+        borderWidth: 4,
+        bottom: 0,
+        right: 0,
         height: 40,
-        width: 40 
+        width: 40
     },
-    textInputsContainer:{ 
-        flex: 1, 
-        width: '100%', 
-        alignItems: "center", 
-        justifyContent: "space-between" 
+    textInputsContainer: {
+        flex: 1,
+        width: '100%',
+        alignItems: "center",
+        justifyContent: "space-between"
     },
-    toggleableBackground:{ 
-        position: "absolute", 
-        height: '100%', 
-        width: '100%', 
-        backgroundColor: 'white' 
+    toggleableBackground: {
+        position: "absolute",
+        height: '100%',
+        width: '100%',
+        backgroundColor: 'white'
     },
-    textLabel:{ 
-        marginLeft: 4 
+    textLabel: {
+        marginLeft: 4
     },
-    nameKeyboardAvoidingView:{ 
-        zIndex: 3 
+    nameKeyboardAvoidingView: {
+        zIndex: 3
     },
-    bioKeyboardAvoidingView:{ 
-        zIndex: 4 
+    bioKeyboardAvoidingView: {
+        zIndex: 4
     },
-    largeTextInput:[
-        styles.textIn, 
-        { 
-            height: 100, 
-            textAlignVertical: "top", 
-            marginBottom: 5 
+    largeTextInput: [
+        styles.textIn,
+        {
+            height: 100,
+            textAlignVertical: "top",
+            marginBottom: 5
         }
     ],
-    errorMsg:{ 
-        color: "red" 
+    errorMsg: {
+        color: "red"
     },
-    successMsg:{ 
-        color: "green" 
+    successMsg: {
+        color: "green"
     },
-    submitButtonContainer:{ 
-        height: 60, 
-        width: '100%', 
-        padding: 8, 
-        justifyContent: "center", 
-        alignItems: "center", 
-        backgroundColor: colors.primary 
+    submitButtonContainer: {
+        height: 60,
+        width: '100%',
+        padding: 8,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: colors.primary
     },
-    submitButton:{ 
-        height: '100%', 
-        width: '100%', 
-        borderRadius: 10, 
-        borderWidth: 2, 
-        alignItems: "center", 
-        justifyContent: "center", 
-        borderColor: colors.secondary, 
-        backgroundColor: colors.secondary 
+    submitButton: {
+        height: '100%',
+        width: '100%',
+        borderRadius: 10,
+        borderWidth: 2,
+        alignItems: "center",
+        justifyContent: "center",
+        borderColor: colors.secondary,
+        backgroundColor: colors.secondary
     }
 });

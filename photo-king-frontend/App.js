@@ -11,7 +11,6 @@ import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
 import GroupScreen from './src/screens/Group.js';
 import ProfileScreen from './src/screens/Profile.js';
-import SettingsScreen from './src/screens/Settings.js';
 import FriendsScreen from './src/screens/Friends.js';
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import PhotoScreen from './src/screens/Photo.js';
@@ -77,11 +76,6 @@ export default function App() {
                                 name='Profile'
                                 options={{ headerShown: false }}
                                 component={ProfileScreen}
-                            />
-                            <Stack.Screen
-                                name='Settings'
-                                options={{ headerShown: false }}
-                                component={SettingsScreen}
                             />
                             <Stack.Screen
                                 name='Friends'

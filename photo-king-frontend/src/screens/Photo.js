@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Animated, FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, useAnimatedValue } from "react-native";
+import { Animated, FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, useAnimatedValue, BackHandler } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
 import { CommonActions } from "@react-navigation/native";
@@ -38,8 +38,21 @@ export default function PhotoScreen({ navigation }) {
                 routes
             });
         });
-        navigation.navigate('Group', route.params);
+        navigation.navigate(route.params.from, route.params);
     }
+
+    // Adds back action listener
+    useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            navigateBack();
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // Remove handler
+        return () => backHandler.remove();
+    }, []);
 
     const deletePhoto = async () => {
         try {
@@ -406,7 +419,7 @@ const photoStyles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    commentsButton:{
+    commentsButton: {
         flexDirection: "row",
         gap: 5,
         backgroundColor: colors.secondary,

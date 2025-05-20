@@ -1,7 +1,7 @@
-import { SafeAreaView, Image, FlatList, View, ActivityIndicator, Text, TouchableOpacity, TextInput, Modal, Keyboard, StyleSheet } from 'react-native';
+import { SafeAreaView, Image, FlatList, View, ActivityIndicator, TouchableOpacity, TextInput, Modal, Keyboard, StyleSheet, Alert, BackHandler } from 'react-native';
 import GroupPreview from '../components/GroupPreview.js';
 import styles, { colors } from "../styles/ComponentStyles";
-import { useRoute } from '@react-navigation/native';
+import { StackActions, useRoute } from '@react-navigation/native';
 import { useEffect, useState } from "react";
 import DefaultText from '../components/DefaultText.js';
 import NavBar from '../components/NavBar.js';
@@ -24,7 +24,24 @@ export default function HomeScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            Alert.alert(
+                'Log out?',
+                'Navigating back will return to login screen.' ,
+            [
+                { text: 'Cancel', style: 'Cancel' },
+                { text: 'Log Out', onPress: () => {navigation.dispatch(StackActions.popToTop());} },
+            ]);
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        
+        // load thumbnail images for groups
         getGroupThumbnails();
+
+        // Remove handler
+        return ()=> backHandler.remove();
     }, []);
 
     const addGroup = async () => {
@@ -117,7 +134,7 @@ export default function HomeScreen({ navigation }) {
                             <TouchableOpacity style={homeStyles.modalCancelButton}
                                 onPress={() => { closeModal(); }}
                             >
-                                <DefaultText>Cancel</DefaultText>
+                                <DefaultText style={styles.bold} >Cancel</DefaultText>
                             </TouchableOpacity>
                             <TouchableOpacity style={homeStyles.modalSubmitButton}
                                 onPress={() => {
@@ -127,7 +144,7 @@ export default function HomeScreen({ navigation }) {
                                     setDaySelected("Monday");
                                 }}
                             >
-                                <DefaultText>Submit</DefaultText>
+                                <DefaultText style={styles.buttonText}>Submit</DefaultText>
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
@@ -169,7 +186,7 @@ export default function HomeScreen({ navigation }) {
                 onPress={() => setGroupModalVisible(true)}>
                 <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')} />
             </TouchableOpacity>
-            
+
             <NavBar navigation={navigation} user={user} screen='Home' />
         </SafeAreaView>
     );
@@ -214,17 +231,18 @@ const homeStyles = StyleSheet.create({
             width: '40%'
         }
     ],
+
     centerContainer: [
         styles.containerCenterAll,
         {
             backgroundColor: 'white'
         }
     ],
-    container:{ 
-        flex: 1, 
-        backgroundColor: 'white' 
+    container: {
+        flex: 1,
+        backgroundColor: 'white'
     },
-    addButton:{
+    addButton: {
         position: 'absolute',
         right: '8%',
         bottom: '15%',
