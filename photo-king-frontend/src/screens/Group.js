@@ -31,7 +31,7 @@ export default function GroupScreen({ navigation }) {
     const [friendClicked, setFriendClicked] = useState(null);
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-    const summary = true;
+    const [hasSummary, setHasSummary] = useState(false);
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -235,6 +235,17 @@ export default function GroupScreen({ navigation }) {
         navigation.navigate('Home', { user });
     };
 
+    // Makes api request to check if should render summary button
+    const checkSummary = async () => {
+        try {
+            const response = await photoGroupApi.getGroupSummary(group.id);
+            if(response.body){
+                setHasSummary(true);
+            }
+        }
+        catch (e) {
+        }
+    };
 
     // useEffect to get group pictures on load
     useEffect(() => {
@@ -247,6 +258,8 @@ export default function GroupScreen({ navigation }) {
 
         // load group images
         loadPictures(setPictures, group, setLoading);
+        // Check for summary
+        checkSummary();
 
         // Remove handler
         return () => backHandler.remove();
@@ -393,7 +406,7 @@ export default function GroupScreen({ navigation }) {
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
                 ownerId={group.ownerId}
                 points={group.userPoints}
-                summaryNavigation={summary ?
+                summaryNavigation={hasSummary ?
                     () => { navigation.navigate("Summary", { user: user, group: group }); }
                     :
                     undefined}
