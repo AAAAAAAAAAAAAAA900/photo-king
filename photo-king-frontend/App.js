@@ -18,6 +18,7 @@ import RankScreen from './src/screens/Rank.js';
 import { navigationRef } from "./src/utilities/RootNavigation";
 import SummaryScreen from './src/screens/Summary.js';
 import { enableScreens } from 'react-native-screens';
+import { StatusBar } from 'expo-status-bar';
 enableScreens();
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,9 @@ export default function App() {
             <ActionSheetProvider>
                 <SafeAreaProvider>
                     <NavigationContainer ref={navigationRef}>
+                        <StatusBar
+                            translucent={true}
+                        />
                         <Stack.Navigator initialRouteName="Login">
                             {/* Headers replaced with custom component because of expo go bug on android */}
                             <Stack.Screen
