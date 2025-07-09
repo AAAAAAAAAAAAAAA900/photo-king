@@ -34,6 +34,13 @@ public class UserImageComment {
         this.createdAt = LocalDateTime.now();
     }
 
+    public UserImageComment(Comment comment) {
+        this.comment = comment.getMessage();
+        this.user = comment.getSender();
+        this.userImage = comment.getUserImage();
+        this.createdAt = comment.getCreatedAt();
+    }
+
     public UserImageComment() {}
 
     public int getId() {
