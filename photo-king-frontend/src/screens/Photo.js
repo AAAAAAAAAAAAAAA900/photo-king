@@ -29,7 +29,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
-    const stompClient = new StompJs.Client({brokerURL: 'ws://' + API_URL + '/websocket'});
+    const webSocket = new WebSocket('ws://photo-king.onrender.com/websocket');
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -45,9 +45,6 @@ export default function PhotoScreen({ navigation }) {
 
     // Adds back action listener
     useEffect(() => {
-        //Open websocket connection 
-        stompClient.activate();
-
         // Create Android back action handler
         const backAction = () => {
             navigateBack();
@@ -55,11 +52,24 @@ export default function PhotoScreen({ navigation }) {
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
-        // Remove back handler and close socket 
-        return () => {
-            stompClient.deactivate();
-            backHandler.remove();
-        }
+        // Websocket events for comments
+        webSocket.onopen = () => {
+            console.log("socket open");
+        };
+        webSocket.onmessage = (e) => {
+            // a message was received
+            console.log(e.data);
+        };
+        webSocket.onerror = (e) => {
+            // an error occurred
+            console.log(e.message);
+        };
+        webSocket.onclose = (e) => {
+            console.log('uh-oh');
+        };
+
+        // Remove back handler
+        return () => { backHandler.remove(); }
     }, []);
 
     const deletePhoto = async () => {
@@ -102,15 +112,7 @@ export default function PhotoScreen({ navigation }) {
             return;
         }
         try {
-            stompClient.publish({
-                destination: "/app/comments",
-                body: JSON.stringify({
-                    'message': comment,
-                    'createdAt': Date.now(),
-                    'sender': user,
-                    'userImage': photo
-                })
-            });
+            webSocket.send(comment);
         } catch (e) {
             console.log(e);
         }
