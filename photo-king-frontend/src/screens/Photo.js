@@ -17,6 +17,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
+import { API_URL } from "../api/utils";
 
 
 export default function PhotoScreen({ navigation }) {
@@ -28,6 +29,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
+    const stompClient = new StompJs.Client({brokerURL: 'ws://' + API_URL + '/websocket'});
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -43,6 +45,9 @@ export default function PhotoScreen({ navigation }) {
 
     // Adds back action listener
     useEffect(() => {
+        //Open websocket connection 
+        stompClient.activate();
+
         // Create Android back action handler
         const backAction = () => {
             navigateBack();
@@ -50,8 +55,11 @@ export default function PhotoScreen({ navigation }) {
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
-        // Remove handler
-        return () => backHandler.remove();
+        // Remove back handler and close socket 
+        return () => {
+            stompClient.deactivate();
+            backHandler.remove();
+        }
     }, []);
 
     const deletePhoto = async () => {
@@ -94,9 +102,15 @@ export default function PhotoScreen({ navigation }) {
             return;
         }
         try {
-            await imageApi.uploadComment(comment, user.id, photo.id);
-            const getResponse = await imageApi.getComments(photo.id);
-            setPhoto({ ...photo, comments: getResponse.data });
+            stompClient.publish({
+                destination: "/app/comments",
+                body: JSON.stringify({
+                    'message': comment,
+                    'createdAt': Date.now(),
+                    'sender': user,
+                    'userImage': photo
+                })
+            });
         } catch (e) {
             console.log(e);
         }
