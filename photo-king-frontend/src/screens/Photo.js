@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import userApi from "../api/userApi";
 import Pfp from "../components/Pfp";
 import * as FileSystem from 'expo-file-system';
+import { Client } from '@stomp/stompjs';
 
 import {
     fitContainer,
@@ -29,7 +30,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
-    const webSocket = new WebSocket('ws://photo-king.onrender.com/websocket');
+    // const webSocket = new WebSocket('wss://worthy-present-ladybug.ngrok-free.app/websocket');
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -51,7 +52,29 @@ export default function PhotoScreen({ navigation }) {
             return true;
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        const stompClient = new Client({
+            debug: function (str) {
+                console.log('STOMP: ' + str);
+            },
+            brokerURL: 'wss://worthy-present-ladybug.ngrok-free.app/websocket',
+            reconnectDelay: 1000,
+            onConnect: (frame) => {
+                console.log('Connected YAY');
+            },
+            onStompError: (frame) => {
+                console.log('Broker reported error: ' + frame.headers.message);
+                console.log('Additional headers: ' + frame.headers);
+            },
+            onWebSocketError: (error) => {
+                console.log('WebSocket error: ' + error);
+            },
+            forceBinaryWSFrames: true,
+            appendMissingNULLonIncoming: true,
+        });
 
+        stompClient.activate();
+        
+        /*
         // Websocket events for comments
         webSocket.onopen = () => {
             console.log("socket open");
@@ -68,8 +91,13 @@ export default function PhotoScreen({ navigation }) {
             console.log('uh-oh');
         };
 
+         */
+
         // Remove back handler
-        return () => { backHandler.remove(); }
+        return () => {
+            backHandler.remove();
+            stompClient.deactivate();
+        }
     }, []);
 
     const deletePhoto = async () => {
@@ -107,12 +135,13 @@ export default function PhotoScreen({ navigation }) {
         }
     }
 
+
     const uploadComment = async (comment) => {
         if (!comment.trim()) {
             return;
         }
         try {
-            webSocket.send(comment);
+            // webSocket.send(comment);
         } catch (e) {
             console.log(e);
         }
