@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/websocket/**").permitAll()
                         .requestMatchers("/api/**").hasRole("user")
                         .anyRequest().authenticated()
                 )
