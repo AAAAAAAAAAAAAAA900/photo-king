@@ -2,7 +2,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import {navigate} from "../utilities/RootNavigation";
 
-const API_URL = "https://worthy-present-ladybug.ngrok-free.app";
+const API_URL = "https://honestly-live-rhino.ngrok-free.app";
 
 const apiClient = axios.create({
     baseURL: `${API_URL}/api`,
