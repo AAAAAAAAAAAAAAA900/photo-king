@@ -11,7 +11,6 @@ import RegisterScreen from './src/screens/Register.js';
 import HomeScreen from './src/screens/Home.js';
 import GroupScreen from './src/screens/Group.js';
 import ProfileScreen from './src/screens/Profile.js';
-import SettingsScreen from './src/screens/Settings.js';
 import FriendsScreen from './src/screens/Friends.js';
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import PhotoScreen from './src/screens/Photo.js';
@@ -19,6 +18,7 @@ import RankScreen from './src/screens/Rank.js';
 import { navigationRef } from "./src/utilities/RootNavigation";
 import SummaryScreen from './src/screens/Summary.js';
 import { enableScreens } from 'react-native-screens';
+import { StatusBar } from 'expo-status-bar';
 enableScreens();
 
 const Stack = createNativeStackNavigator();
@@ -51,6 +51,9 @@ export default function App() {
             <ActionSheetProvider>
                 <SafeAreaProvider>
                     <NavigationContainer ref={navigationRef}>
+                        <StatusBar
+                            translucent={true}
+                        />
                         <Stack.Navigator initialRouteName="Login">
                             {/* Headers replaced with custom component because of expo go bug on android */}
                             <Stack.Screen
@@ -77,11 +80,6 @@ export default function App() {
                                 name='Profile'
                                 options={{ headerShown: false }}
                                 component={ProfileScreen}
-                            />
-                            <Stack.Screen
-                                name='Settings'
-                                options={{ headerShown: false }}
-                                component={SettingsScreen}
                             />
                             <Stack.Screen
                                 name='Friends'

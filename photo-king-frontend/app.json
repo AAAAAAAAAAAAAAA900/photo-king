@@ -1,77 +1,76 @@
 {
-  "expo": {
-    "name": "photo-king-frontend",
-    "slug": "photo-king-frontend",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icons/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/icons/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "plugins": [
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow PhotoKing to access your photos.",
-          "savePhotosPermission": "Allow PhotoKing to save photos.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "The app accesses your photos to let you share them with your friends.",
-          "cameraPermission": "Allow PhotoKing to access your camera"
-        }
-      ],
-      "expo-secure-store"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
+    "expo": {
+        "name": "photo-king-frontend",
+        "slug": "photo-king-frontend",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icons/icon.png",
+        "userInterfaceStyle": "light",
+        "newArchEnabled": true,
+        "splash": {
+            "image": "./assets/icons/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
         },
-        "NSPhotoLibraryUsageDescription": "We need access to your photo library to upload pictures.",
-        "NSPhotoLibraryAddUsageDescription": "We need access to save images to your library.",
-        "NSCameraUsageDescription": "We need access to your camera to take pictures.",
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.condoncorp.photoking"
-    },
-    "android": {
-      "softwareKeyboardLayoutMode": "pan",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "useNextNotificationsApi": true,
-      "permissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_MEDIA_LOCATION",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_MEDIA_LOCATION",
-        "android.permission.RECORD_AUDIO"
-      ],
-      "config": {
-        "cleartextTraffic": true
-      },
-      "package": "com.condoncorp.photoking"
-    },
-    "web": {
-      "favicon": "./assets/icons/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "e0963773-2e0e-4948-a413-56ec6eccb6d7"
-      }
+        "plugins": [
+            [
+                "expo-media-library",
+                {
+                    "photosPermission": "Allow PhotoKing to access your photos.",
+                    "savePhotosPermission": "Allow PhotoKing to save photos.",
+                    "isAccessMediaLocationEnabled": true
+                }
+            ],
+            [
+                "expo-image-picker",
+                {
+                    "photosPermission": "The app accesses your photos to let you share them with your friends.",
+                    "cameraPermission": "Allow PhotoKing to access your camera"
+                }
+            ],
+            "expo-secure-store"
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "infoPlist": {
+                "NSAppTransportSecurity": {
+                    "NSAllowsArbitraryLoads": true
+                },
+                "NSPhotoLibraryUsageDescription": "We need access to your photo library to upload pictures.",
+                "NSPhotoLibraryAddUsageDescription": "We need access to save images to your library.",
+                "NSCameraUsageDescription": "We need access to your camera to take pictures.",
+                "ITSAppUsesNonExemptEncryption": false
+            },
+            "bundleIdentifier": "com.condoncorp.photoking"
+        },
+        "android": {
+            "softwareKeyboardLayoutMode": "pan",
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/icons/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "useNextNotificationsApi": true,
+            "permissions": [
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "android.permission.ACCESS_MEDIA_LOCATION",
+                "android.permission.RECORD_AUDIO"
+            ],
+            "config": {
+                "cleartextTraffic": true
+            },
+            "package": "com.condoncorp.photoking"
+        },
+        "web": {
+            "favicon": "./assets/icons/favicon.png"
+        },
+        "extra": {
+            "eas": {
+                "projectId": "e0963773-2e0e-4948-a413-56ec6eccb6d7"
+            }
+        },
+        "androidStatusBar": {
+            "translucent": true
+        }
     }
-  }
 }

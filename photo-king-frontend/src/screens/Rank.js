@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert, ImageBackground, StyleSheet } from "react-native";
+import { Image, SafeAreaView, TouchableOpacity, View, FlatList, Alert, ImageBackground, StyleSheet, BackHandler } from "react-native";
 import DefaultText from "../components/DefaultText";
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { CommonActions } from "@react-navigation/native";
@@ -15,16 +15,6 @@ export default function RankScreen({ navigation }) {
     const [pictures, setPictures] = useState([]);
     const [ranks, setRanks] = useState([]);  // image ids ordered by ranking
 
-    // get group pictures on load
-    useEffect(() => {
-        loadPictures(setPictures, group).then(r => { });
-    }, []);
-
-    // Determine number of ranking slots
-    useEffect(() => {
-        setRanks(pictures.length == 2 ? [null, null] : [null, null, null]);
-    }, [pictures]);
-
     const navigateBack = () => {
         navigation.dispatch((state) => {
             const routes = state.routes.slice(0, -2); // Pop 2 screens from stack
@@ -36,6 +26,27 @@ export default function RankScreen({ navigation }) {
         });
         navigation.navigate('Group', route.params);
     }
+
+    // get group pictures on load
+    useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            navigateBack();
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // load group images
+        loadPictures(setPictures, group);
+
+        // Remove handler
+        return () => backHandler.remove();
+    }, []);
+
+    // Determine number of ranking slots
+    useEffect(() => {
+        setRanks(pictures.length == 2 ? [null, null] : [null, null, null]);
+    }, [pictures]);
 
     const rankPhoto = (photo, rank, ranks) => {
         if (rank != -1) {
@@ -133,8 +144,8 @@ export default function RankScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')} 
-            style={rankStyles.backgroundContainer}
+            <ImageBackground resizeMode='stretch' source={require('../../assets/backgrounds/ImageListBackground.png')}
+                style={rankStyles.backgroundContainer}
             >
                 <View style={rankStyles.imageListContainer}>
                     <FlatList
@@ -171,12 +182,12 @@ const rankStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    backgroundContainer:{ 
-        flex: 1, 
-        backgroundColor: 'white' 
+    backgroundContainer: {
+        flex: 1,
+        backgroundColor: 'white'
     },
-    imageListContainer:{ 
-        flex: 1, 
-        paddingHorizontal: 5 
+    imageListContainer: {
+        flex: 1,
+        paddingHorizontal: 5
     },
 });

@@ -5,6 +5,12 @@ public class UserImageCommentReq {
     private int userId;
     private int photoId;
 
+    public UserImageCommentReq(int userId, int photoId, String comment){
+        this.userId=userId;
+        this.photoId=photoId;
+        this.comment=comment;
+    }
+
     public int getUserId() {
         return userId;
     }

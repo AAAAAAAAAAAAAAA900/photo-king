@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, BackHandler, FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import Header from "../components/Header";
 import { CommonActions, useRoute } from "@react-navigation/native";
@@ -36,11 +36,6 @@ export default function SummaryScreen({ navigation }) {
         }
     }
 
-    // useEffect to get group pictures on load
-    useEffect(() => {
-        getSummary();
-    }, []);
-
     const navigateBack = () => {
         navigation.dispatch((state) => {
             const routes = state.routes.slice(0, -2); // Pop 1 screen from stack
@@ -52,6 +47,22 @@ export default function SummaryScreen({ navigation }) {
         });
         navigation.navigate('Group', { user: user, group: group });
     }
+
+    // useEffect to get group pictures on load
+    useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            navigateBack();
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // Load summary
+        getSummary();
+
+        // Remove handler
+        return () => backHandler.remove();
+    }, []);
 
     // FlatList element's view
     const Pic = useCallback(({ photo, pictures }) => {
@@ -80,7 +91,7 @@ export default function SummaryScreen({ navigation }) {
         }
         return (
             <TouchableOpacity
-                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo })}
+                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo, from: "Summary" })}
                 style={summaryStyles.picHolder}>
                 <Image
                     style={[styles.pic, winningBorder]}

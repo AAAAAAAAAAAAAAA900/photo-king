@@ -1,7 +1,7 @@
-import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultText from '../components/DefaultText';
-import { useRoute } from '@react-navigation/native';
+import { StackActions, useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { useEffect, useState, useCallback, useRef } from "react";
 import * as ImagePicker from 'expo-image-picker';
@@ -31,7 +31,7 @@ export default function GroupScreen({ navigation }) {
     const [friendClicked, setFriendClicked] = useState(null);
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-    const summary = true;
+    const [hasSummary, setHasSummary] = useState(false);
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -117,7 +117,7 @@ export default function GroupScreen({ navigation }) {
         }
         return (
             <TouchableOpacity
-                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo })}
+                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo, from: "Group" })}
                 style={styles.picHolder}>
                 <Image
                     style={[styles.pic, winningBorder]}
@@ -213,9 +213,11 @@ export default function GroupScreen({ navigation }) {
     const deleteGroup = async () => {
         try {
             await photoGroupApi.deleteGroup(group.id).then(() => {
-                getUser(setUser, navigation);
+                setLoading(true);
+                // account for delay in server side group deletion, so group isnt still there on return to home screen
+                setTimeout(getUser(setUser, navigation), 1000);
+                navigateBack();
             });
-            navigateBack();
         }
         catch (error) {
             console.log(error);
@@ -235,10 +237,34 @@ export default function GroupScreen({ navigation }) {
         navigation.navigate('Home', { user });
     };
 
+    // Makes api request to check if should render summary button
+    const checkSummary = async () => {
+        try {
+            const response = await photoGroupApi.getGroupSummary(group.id);
+            if(response.body){
+                setHasSummary(true);
+            }
+        }
+        catch (e) {
+        }
+    };
 
     // useEffect to get group pictures on load
     useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            navigateBack();
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // load group images
         loadPictures(setPictures, group, setLoading);
+        // Check for summary
+        checkSummary();
+
+        // Remove handler
+        return () => backHandler.remove();
     }, []);
 
     // Date calculations necessary for display
@@ -250,7 +276,7 @@ export default function GroupScreen({ navigation }) {
         const isDay = current_date.getDate() === expirationDate.getDate() && current_date.getMonth() === expirationDate.getMonth();
 
         let secondsToEndDay = 0;
-        if(isDay){
+        if (isDay) {
             secondsToEndDay = current_date.getTime();
             current_date.setHours(23, 59, 59);
             secondsToEndDay = Math.floor((current_date.getTime() - secondsToEndDay) / 1000);
@@ -267,7 +293,7 @@ export default function GroupScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
             <Header
-                backFunction={() => {navigateBack();}}
+                backFunction={() => { navigateBack(); }}
                 title={group.name}
                 buttons={
                     // Member bar toggle button
@@ -324,7 +350,7 @@ export default function GroupScreen({ navigation }) {
                 onRequestClose={() => { setOptionsModalVisible(false); }}
             >
                 <TouchableOpacity activeOpacity={1} style={styles.container} onPress={() => setOptionsModalVisible(false)}>
-                    <TouchableOpacity activeOpacity={1} style={[{top: optionsHeight + modalAdjustment + 52}, groupStyles.optionsContainer]}>
+                    <TouchableOpacity activeOpacity={1} style={[{ top: optionsHeight + modalAdjustment + 52 }, groupStyles.optionsContainer]}>
                         {group.ownerId == user.id ?
                             <View style={groupStyles.optionsButtonContainer}>
                                 {/* DELETE BUTTON */}
@@ -375,16 +401,16 @@ export default function GroupScreen({ navigation }) {
             </Modal>
 
             {/* Group members side bar popup */}
-            <Members 
+            <Members
                 users={group.users}
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
                 ownerId={group.ownerId}
                 points={group.userPoints}
-                summaryNavigation={summary? 
-                    ()=>{navigation.navigate("Summary", { user: user, group: group});} 
-                    : 
+                summaryNavigation={hasSummary ?
+                    () => { navigation.navigate("Summary", { user: user, group: group }); }
+                    :
                     undefined}
             />
 
@@ -506,138 +532,139 @@ export const loadPictures = async (setPictures, group, setLoading) => {
 }
 
 const groupStyles = StyleSheet.create({
-    membersButton:{ 
-        height: '100%', 
-        width: 70 
+    membersButton: {
+        height: '100%',
+        width: 70
     },
-    membersIcon:[
-        styles.iconStyle, 
-        { 
-            backgroundColor: 'white', 
-            borderRadius: 25 
-        }
-    ],
-    modalCloseButtonContainer:{ 
-        backgroundColor: colors.primary, 
-        height: 50, 
-        width: '100%', 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    modalCloseButton:[
-        styles.button, 
+    membersIcon: [
+        styles.iconStyle,
         {
-            width: '70%' 
+            backgroundColor: 'white',
+            borderRadius: 25
         }
     ],
-    optionsContainer:{ backgroundColor: 'white', 
-        borderBottomLeftRadius: 5, 
-        borderBottomRightRadius: 5, 
-        padding: 8, 
-        position: 'absolute', 
-        right: 0, 
-        alignSelf: 'baseline', 
-        boxShadow: '0 8 5 0 rgba(0, 0, 0, .25)' 
+    modalCloseButtonContainer: {
+        backgroundColor: colors.primary,
+        height: 50,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    optionsButtonContainer:{ 
-        gap: 8 
-    },
-    topBar:{ 
-        padding: 8, 
-        backgroundColor: 'white', 
-        borderBottomWidth: .5, 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        flexDirection: 'row' 
-    },
-    timeContainer:{ 
-        height: 50, 
-        width: 156, 
-        alignItems: 'center', 
-        backgroundColor: '#CCCCCC', 
-        alignSelf: 'flex-start', 
-        borderRadius: 8, 
-        flexDirection: 'row', 
-        gap: 6  
-    },
-    timerIcon:[
-        styles.iconStyle, 
-        { 
-            width: '28%', 
-            marginLeft: 5 
+    modalCloseButton: [
+        styles.button,
+        {
+            width: '70%'
         }
     ],
-    timerTextContainer:{ 
-        alignItems: 'center', 
-        width: '60%' 
+    optionsContainer: {
+        backgroundColor: 'white',
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        padding: 8,
+        position: 'absolute',
+        right: 0,
+        alignSelf: 'baseline',
+        boxShadow: '0 8 5 0 rgba(0, 0, 0, .25)'
     },
-    topButton:[
-        styles.button, 
-        { 
-            height: 50 
+    optionsButtonContainer: {
+        gap: 8
+    },
+    topBar: {
+        padding: 8,
+        backgroundColor: 'white',
+        borderBottomWidth: .5,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+    timeContainer: {
+        height: 50,
+        width: 156,
+        alignItems: 'center',
+        backgroundColor: '#CCCCCC',
+        alignSelf: 'flex-start',
+        borderRadius: 8,
+        flexDirection: 'row',
+        gap: 6
+    },
+    timerIcon: [
+        styles.iconStyle,
+        {
+            width: '28%',
+            marginLeft: 5
         }
     ],
-    topButtonIcon:[
-        styles.iconStyle, 
-        { 
-            height: '60%' 
+    timerTextContainer: {
+        alignItems: 'center',
+        width: '60%'
+    },
+    topButton: [
+        styles.button,
+        {
+            height: 50
         }
     ],
-    backgroundContainer:{ 
-        flex: 1, 
-        backgroundColor: 'white' 
+    topButtonIcon: [
+        styles.iconStyle,
+        {
+            height: '60%'
+        }
+    ],
+    backgroundContainer: {
+        flex: 1,
+        backgroundColor: 'white'
     },
-    imagesContainer:{ 
-        flex: 1, 
-        paddingHorizontal: 5 
+    imagesContainer: {
+        flex: 1,
+        paddingHorizontal: 5
     },
-    bottomBar:{ 
-        flexDirection: 'row', 
-        height: '8%', 
-        alignContent: 'space-between', 
+    bottomBar: {
+        flexDirection: 'row',
+        height: '8%',
+        alignContent: 'space-between',
         paddingHorizontal: 0,
-        backgroundColor: colors.secondary 
+        backgroundColor: colors.secondary
     },
-    bottomBarDivider:{ 
+    bottomBarDivider: {
         width: 1,
-        backgroundColor: 'white', 
-        marginVertical: 9 
+        backgroundColor: 'white',
+        marginVertical: 9
     },
 });
 
 export const picStyles = StyleSheet.create({
-    firstBorder:{
+    firstBorder: {
         borderWidth: 4,
         borderColor: '#FFD700'
     },
-    secondBorder:{
+    secondBorder: {
         borderWidth: 4,
         borderColor: '#C0C0C0'
     },
-    thirdBorder:{
+    thirdBorder: {
         borderWidth: 4,
         borderColor: '#CD7F32'
     },
-    points:{ 
-        width: 30, 
-        height: 30, 
-        borderRadius: 15, 
-        position: 'absolute', 
-        top: 10, 
-        left: 10, 
-        backgroundColor: colors.primary, 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    points: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        backgroundColor: colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    pfp:{
-        width: 50, 
-        height: 50, 
-        borderRadius: 25, 
-        position: 'absolute', 
-        bottom: 10, 
-        left: 10, 
-        backgroundColor: colors.primary, 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    pfp: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        position: 'absolute',
+        bottom: 10,
+        left: 10,
+        backgroundColor: colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 });

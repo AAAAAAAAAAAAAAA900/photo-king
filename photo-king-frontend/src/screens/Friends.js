@@ -1,6 +1,6 @@
-import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, StyleSheet } from "react-native";
+import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, StyleSheet, BackHandler } from "react-native";
 import DefaultText from "../components/DefaultText";
-import { useRoute } from '@react-navigation/native';
+import { StackActions, useRoute } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FriendSearch, { FriendPreview } from "../components/FriendSearch";
@@ -61,7 +61,24 @@ export default function FriendsScreen({ navigation }) {
         }
     };
     useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            Alert.alert(
+                'Log out?',
+                'Navigating back will return to login screen.',
+                [
+                    { text: 'Cancel', style: 'Cancel' },
+                    { text: 'Log Out', onPress: () => { navigation.dispatch(StackActions.popToTop()); } },
+                ]);
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // load friend requests 
         getFriendRequests();
+
+        // Remove handler
+        return () => backHandler.remove();
     }, []);
 
     const acceptFriendRequest = async (requestId) => {
@@ -245,7 +262,7 @@ export default function FriendsScreen({ navigation }) {
                         >
                             <View style={friendsStyles.redBanner} />
                             <View style={friendsStyles.blueBanner} />
-                            <View style={{ flex: 1, alignItems: "center",}}>
+                            <View style={{ flex: 1, alignItems: "center", }}>
 
                                 {/* SEARCH BAR */}
                                 <View style={friendsStyles.searchBarContainer}>
@@ -307,8 +324,8 @@ export default function FriendsScreen({ navigation }) {
                 <View style={friendsStyles.blueBanner} />
 
 
-                <Animated.View style={[{transform: [{ translateX: slideAnim }]}, friendsStyles.animatedContainer]}>
-                    
+                <Animated.View style={[{ transform: [{ translateX: slideAnim }] }, friendsStyles.animatedContainer]}>
+
                     {/* FRIENDS TAB */}
                     <View style={styles.container}>
                         <FriendSearch onSelect={(friend) => { setFriendClicked({ ...friend }); }}
@@ -350,97 +367,97 @@ export default function FriendsScreen({ navigation }) {
 }
 
 const friendsStyles = StyleSheet.create({
-    modalContainer:{ 
-        height: 400, 
-        width: '90%', 
-        backgroundColor: 'white', 
+    modalContainer: {
+        height: 400,
+        width: '90%',
+        backgroundColor: 'white',
     },
-    redBanner:{ 
-        width: '100%', 
-        height: 30, 
-        backgroundColor: colors.secondary 
+    redBanner: {
+        width: '100%',
+        height: 30,
+        backgroundColor: colors.secondary
     },
-    blueBanner:{ 
-        width: '100%', 
+    blueBanner: {
+        width: '100%',
         height: 10,
-        backgroundColor: colors.primary 
+        backgroundColor: colors.primary
     },
-    searchBarContainer:{ 
-        flexDirection: 'row', 
-        padding: 5, 
-        justifyContent: 'center' 
+    searchBarContainer: {
+        flexDirection: 'row',
+        padding: 5,
+        justifyContent: 'center'
     },
-    modalSearchBar:[
-        styles.textIn, 
-        { 
-            width: '60%', 
-            marginRight: 5 
+    modalSearchBar: [
+        styles.textIn,
+        {
+            width: '60%',
+            marginRight: 5
         }
     ],
-    modalSearchResultsContainer:{ 
-        flex: 1, 
-        width: '95%' 
+    modalSearchResultsContainer: {
+        flex: 1,
+        width: '95%'
     },
-    modalCloseButtonContainer:{ 
-        backgroundColor: colors.primary, 
-        height: 50, 
-        width: '100%', 
-        justifyContent: 'center', 
-        alignItems: 'center' 
+    modalCloseButtonContainer: {
+        backgroundColor: colors.primary,
+        height: 50,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    modalCloseButton:[
-        styles.button, 
-        { 
-            width: '70%' 
+    modalCloseButton: [
+        styles.button,
+        {
+            width: '70%'
         }
     ],
-    tabBarContainer:{ 
-        height: 50, 
-        flexDirection: 
-        "row", 
-        width: '100%', 
-        backgroundColor: colors.secondary, 
-        padding: 8 
+    tabBarContainer: {
+        height: 50,
+        flexDirection:
+            "row",
+        width: '100%',
+        backgroundColor: colors.secondary,
+        padding: 8
     },
-    tabBarButton:{ 
-        width: '50%', 
-        height: '100%', 
+    tabBarButton: {
+        width: '50%',
+        height: '100%',
         borderRadius: 10,
-        alignItems: "center", 
-        justifyContent: "center" 
+        alignItems: "center",
+        justifyContent: "center"
     },
-    tabBarDivider:{ 
-        width: 1, 
-        height: '90%', 
-        backgroundColor: 'black' 
+    tabBarDivider: {
+        width: 1,
+        height: '90%',
+        backgroundColor: 'black'
     },
-    animatedContainer:{
-        flex: 1, 
-        width: '200%', 
-        flexDirection: "row", 
+    animatedContainer: {
+        flex: 1,
+        width: '200%',
+        flexDirection: "row",
         backgroundColor: 'white'
     },
-    invitesContainer:{ 
-        flex: 1, 
-        justifyContent: "center" 
+    invitesContainer: {
+        flex: 1,
+        justifyContent: "center"
     },
-    addButtonContainer:{ 
-        height: 60, 
-        width: '100%', 
-        padding: 8, 
-        justifyContent: "center", 
-        alignItems: "center", 
-        backgroundColor: colors.primary 
+    addButtonContainer: {
+        height: 60,
+        width: '100%',
+        padding: 8,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: colors.primary
     },
-    addFriendButton:{ 
-        height: '100%', 
-        width: '100%', 
-        borderRadius: 10, 
-        borderWidth: 2, 
-        alignItems: "center", 
-        justifyContent: "center", 
-        borderColor: colors.secondary, 
-        backgroundColor: colors.secondary 
+    addFriendButton: {
+        height: '100%',
+        width: '100%',
+        borderRadius: 10,
+        borderWidth: 2,
+        alignItems: "center",
+        justifyContent: "center",
+        borderColor: colors.secondary,
+        backgroundColor: colors.secondary
     },
 });
 

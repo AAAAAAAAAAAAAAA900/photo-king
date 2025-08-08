@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Animated, FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, useAnimatedValue } from "react-native";
+import { Animated, FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, View, Alert, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, useAnimatedValue, BackHandler } from "react-native";
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
 import { CommonActions } from "@react-navigation/native";
@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import userApi from "../api/userApi";
 import Pfp from "../components/Pfp";
 import * as FileSystem from 'expo-file-system';
+import { Client } from '@stomp/stompjs';
 
 import {
     fitContainer,
@@ -17,7 +18,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
-
+import { WS_URL } from "../api/apiClient";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
@@ -28,6 +29,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
+    const stompClientRef = useRef();
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -38,8 +40,53 @@ export default function PhotoScreen({ navigation }) {
                 routes
             });
         });
-        navigation.navigate('Group', route.params);
+        navigation.navigate(route.params.from, route.params);
     }
+
+    // Adds back action listener
+    useEffect(() => {
+        // Create Android back action handler
+        const backAction = () => {
+            navigateBack();
+            return true;
+        }
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // configure stomp client websocket
+        const stompClient = new Client({
+            debug: function (str) {
+                console.log('STOMP: ' + str);
+            },
+            brokerURL: WS_URL,
+            reconnectDelay: 1000,
+            onConnect: (frame) => {
+                // listen for new comments
+                const callback = (message) => {
+                    setPhoto({ ...photo, comments: [...(photo.comments), JSON.parse(message.body)] });
+                };
+                stompClient.subscribe("/topic/comment/" + photo.id, callback);
+            },
+            onStompError: (frame) => {
+                console.log('Broker reported error: ' + frame.headers.message);
+                console.log('Additional headers: ' + frame.headers);
+            },
+            onWebSocketError: (error) => {
+                console.log('WebSocket error: ' + error);
+            },
+            forceBinaryWSFrames: true,
+            appendMissingNULLonIncoming: true,
+        });
+
+        stompClient.activate();
+
+        stompClientRef.current = stompClient;
+
+        // Remove back handler
+        return () => {
+            backHandler.remove();
+            stompClientRef.current.deactivate();
+        }
+    }, []);
 
     const deletePhoto = async () => {
         try {
@@ -76,14 +123,19 @@ export default function PhotoScreen({ navigation }) {
         }
     }
 
+
     const uploadComment = async (comment) => {
         if (!comment.trim()) {
+            // empty comment case
             return;
         }
         try {
-            await imageApi.uploadComment(comment, user.id, photo.id);
-            const getResponse = await imageApi.getComments(photo.id);
-            setPhoto({ ...photo, comments: getResponse.data });
+            // send through websocket
+            stompClientRef.current.publish({
+                destination: "/app/comment/" + photo.id,
+                headers: { userId: user.id },
+                body: comment
+            });
         } catch (e) {
             console.log(e);
         }
@@ -406,7 +458,7 @@ const photoStyles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    commentsButton:{
+    commentsButton: {
         flexDirection: "row",
         gap: 5,
         backgroundColor: colors.secondary,

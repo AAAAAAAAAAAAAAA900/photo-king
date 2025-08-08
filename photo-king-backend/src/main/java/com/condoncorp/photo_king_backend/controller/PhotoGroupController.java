@@ -81,7 +81,7 @@ public class PhotoGroupController {
         try {
             return ResponseEntity.ok(photoGroupService.getGroupSummary(id));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
