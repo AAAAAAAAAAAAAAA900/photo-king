@@ -136,12 +136,29 @@ export default function FriendsScreen({ navigation }) {
     };
 
     const addFriend = async (friendId) => {
+        const error = false;
         try {
             const response = await requestApi.sendFriendRequest(user.id, friendId);
         } catch (e) {
+            error = true;
             console.log(e);
         }
         finally {
+            if (error) {
+                Alert.alert("Request Failed",
+                    `Check wifi connection and try again.`,
+                    [
+                        { text: "Okay", style: "cancel" }
+                    ]
+                );
+            } else {
+                Alert.alert("Request Sent Successfully",
+                    ``,
+                    [
+                        { text: "Okay", style: "cancel" }
+                    ]
+                );
+            }
             closeModal();
         }
     }
