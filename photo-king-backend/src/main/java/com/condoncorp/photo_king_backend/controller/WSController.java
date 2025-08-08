@@ -12,6 +12,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 public class WSController {
 
@@ -36,15 +39,16 @@ public class WSController {
     public void sendFriendRequest(@DestinationVariable Integer senderId, @Header("receiverId") Integer receiverId, String body){
         /*
         body is formatted as:
-        {
-            send, accept, or reject,
-            requestId
-        }
+            "(one of send, remove, accept, or reject),requestId"
+            where requestId is only present for accept or reject
          */
         int requestId;
         switch (body.split(",")[0]){
             case "send":
                 friendRequestService.sendFriendRequest(senderId, receiverId);
+                break;
+            case "remove":
+                userService.removeFriend(senderId, receiverId);
                 break;
             case "accept":
                 requestId = Integer.parseInt(body.split(",")[1]);
@@ -54,12 +58,10 @@ public class WSController {
                 requestId = Integer.parseInt(body.split(",")[1]);
                 friendRequestService.rejectFriendRequest(requestId);
                 break;
-            case "remove":
-                userService.removeFriend(senderId, receiverId);
-                break;
         }
-
-        messagingTemplate.convertAndSend("/topic/friend/" + receiverId, body);
+        Map<String, Object> headers = new HashMap<String, Object>();
+        headers.put("senderId", senderId);
+        messagingTemplate.convertAndSend("/topic/friend/" + receiverId, body, headers);
     }
 
 }

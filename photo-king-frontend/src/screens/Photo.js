@@ -43,7 +43,7 @@ export default function PhotoScreen({ navigation }) {
         navigation.navigate(route.params.from, route.params);
     }
 
-    // Adds back action listener
+    // Adds back action listener and opens websocket
     useEffect(() => {
         // Create Android back action handler
         const backAction = () => {
@@ -72,11 +72,6 @@ export default function PhotoScreen({ navigation }) {
             },
             onWebSocketError: (error) => {
                 console.log('WebSocket error: ' + error);
-            },
-            subscribe: {
-                '/topic/comment': (message) => {
-                    console.log(message.body);
-                }
             },
             forceBinaryWSFrames: true,
             appendMissingNULLonIncoming: true,
