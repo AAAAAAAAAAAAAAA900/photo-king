@@ -73,6 +73,11 @@ export default function PhotoScreen({ navigation }) {
             onWebSocketError: (error) => {
                 console.log('WebSocket error: ' + error);
             },
+            subscribe: {
+                '/topic/comment': (message) => {
+                    console.log(message.body);
+                }
+            },
             forceBinaryWSFrames: true,
             appendMissingNULLonIncoming: true,
         });
