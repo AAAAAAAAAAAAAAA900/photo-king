@@ -18,8 +18,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
-import { API_URL } from "../api/utils";
-
+import { WS_URL } from "../api/apiClient";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
@@ -30,7 +29,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
-    // const webSocket = new WebSocket('wss://worthy-present-ladybug.ngrok-free.app/websocket');
+    const stompClientRef = useRef();
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -52,14 +51,20 @@ export default function PhotoScreen({ navigation }) {
             return true;
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // configure stomp client websocket
         const stompClient = new Client({
             debug: function (str) {
                 console.log('STOMP: ' + str);
             },
-            brokerURL: 'wss://worthy-present-ladybug.ngrok-free.app/websocket',
+            brokerURL: WS_URL,
             reconnectDelay: 1000,
             onConnect: (frame) => {
-                console.log('Connected YAY');
+                // listen for new comments
+                const callback = (message) => {
+                    setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
+                };
+                stompClient.subscribe("/topic/comment/" + photo.id, callback);
             },
             onStompError: (frame) => {
                 console.log('Broker reported error: ' + frame.headers.message);
@@ -78,30 +83,13 @@ export default function PhotoScreen({ navigation }) {
         });
 
         stompClient.activate();
-        
-        /*
-        // Websocket events for comments
-        webSocket.onopen = () => {
-            console.log("socket open");
-        };
-        webSocket.onmessage = (e) => {
-            // a message was received
-            console.log(e.data);
-        };
-        webSocket.onerror = (e) => {
-            // an error occurred
-            console.log(e.message);
-        };
-        webSocket.onclose = (e) => {
-            console.log('uh-oh');
-        };
 
-         */
+        stompClientRef.current = stompClient;
 
         // Remove back handler
         return () => {
             backHandler.remove();
-            stompClient.deactivate();
+            stompClientRef.current.deactivate();
         }
     }, []);
 
@@ -143,10 +131,16 @@ export default function PhotoScreen({ navigation }) {
 
     const uploadComment = async (comment) => {
         if (!comment.trim()) {
+            // empty comment case
             return;
         }
         try {
-            // webSocket.send(comment);
+            // send through websocket
+            stompClientRef.current.publish({
+                destination: "/app/comment/" + photo.id,
+                headers: { userId: user.id },
+                body: comment
+            });
         } catch (e) {
             console.log(e);
         }
