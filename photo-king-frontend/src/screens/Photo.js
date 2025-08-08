@@ -62,7 +62,7 @@ export default function PhotoScreen({ navigation }) {
             onConnect: (frame) => {
                 // listen for new comments
                 const callback = (message) => {
-                    setPhoto({ ...photo, comments: [...(photo.comments), JSON.parse(message.body)] });
+                    setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
                 };
                 stompClient.subscribe("/topic/comment/" + photo.id, callback);
             },
