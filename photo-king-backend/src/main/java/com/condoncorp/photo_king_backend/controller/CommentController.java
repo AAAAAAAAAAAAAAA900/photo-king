@@ -29,4 +29,5 @@ public class CommentController {
         // Forward comment to subscribers
         messagingTemplate.convertAndSend("/topic/comment/" + photoId, commentDTO);
     };
+
 }

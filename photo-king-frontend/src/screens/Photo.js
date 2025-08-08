@@ -18,8 +18,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
-import { API_URL } from "../api/utils";
-
+import { WS_URL } from "../api/apiClient";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
@@ -58,10 +57,9 @@ export default function PhotoScreen({ navigation }) {
             debug: function (str) {
                 console.log('STOMP: ' + str);
             },
-            brokerURL: 'wss://honestly-live-rhino.ngrok-free.app/websocket',
+            brokerURL: WS_URL,
             reconnectDelay: 1000,
             onConnect: (frame) => {
-                console.log('Connected YAY');
                 // listen for new comments
                 const callback = (message) => {
                     setPhoto({ ...photo, comments: [...(photo.comments), JSON.parse(message.body)] });
