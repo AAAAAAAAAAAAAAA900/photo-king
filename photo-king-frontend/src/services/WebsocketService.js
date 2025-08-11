@@ -24,6 +24,7 @@ class WebsocketService {
     }
 
     // initializes a stomp client connection & stores it in this.socketRef
+    // returns promise to avoid race condition if subscribe called after
     connect() {
         if (this.socketRef) {
             return Promise.resolve();
