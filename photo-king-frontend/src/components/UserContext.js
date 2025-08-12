@@ -11,8 +11,13 @@ export function UserProvider({ children }) {
     const websocketServiceRef = useRef(WebsocketService);
 
     const updateUser = useCallback((update) => {
-        setUser(update);
-    }, []);
+        const updateObj = JSON.parse(update);
+        const updatedUser = { ...user };
+        for (const property in updateObj) {
+            updatedUser[property] = updateObj[property];
+        }
+        setUser(updatedUser);
+    }, [user]);
 
     const context = useMemo(() => ({ user, updateUser }), [user, updateUser]);
 

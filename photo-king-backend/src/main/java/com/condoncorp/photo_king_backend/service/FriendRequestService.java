@@ -7,6 +7,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.FriendRequestRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,8 @@ public class FriendRequestService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public void sendFriendRequest(int senderId, int receiverId) {
@@ -65,6 +68,9 @@ public class FriendRequestService {
         User receiver = friendRequest.get().getReceiver();
         sender.getFriends().add(receiver);
         receiver.getFriends().add(sender);
+
+        // Send a message to senders websocket to live notify acceptance
+        messagingTemplate.convertAndSend("/topic/update/" + sender.getId(), sender.getFriends());
 
         userRepository.save(sender);
         userRepository.save(receiver);
