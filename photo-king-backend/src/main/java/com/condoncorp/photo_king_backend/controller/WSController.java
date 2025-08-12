@@ -37,8 +37,8 @@ public class WSController {
     };
 
     // for sending friend requests
-    @MessageMapping("/request/{senderId}")
-    public void sendFriendRequest(@DestinationVariable Integer senderId, Integer receiverId){
+    @MessageMapping("/request/{receiverId}")
+    public void sendFriendRequest(@DestinationVariable Integer receiverId, Integer senderId){
         // save request to DB
         friendRequestService.sendFriendRequest(senderId, receiverId);
         // Forward to request websocket of receiver
