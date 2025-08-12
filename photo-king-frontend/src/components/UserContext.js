@@ -11,6 +11,11 @@ export function UserProvider({ children }) {
     const websocketServiceRef = useRef(WebsocketService);
 
     const updateUser = useCallback((update) => {
+        setUser(update);
+    }, []);
+
+    // For websocket subscription
+    const incommingUserUpdateCallback = useCallback((update) => {
         const updateObj = JSON.parse(update);
         const updatedUser = { ...user };
         for (const property in updateObj) {
@@ -18,7 +23,6 @@ export function UserProvider({ children }) {
         }
         setUser(updatedUser);
     }, [user]);
-
     const context = useMemo(() => ({ user, updateUser }), [user, updateUser]);
 
     useEffect(() => {
@@ -26,7 +30,7 @@ export function UserProvider({ children }) {
         if (user && !websocketServiceRef.current.isConnected) {
             (async () => {
                 await websocketServiceRef.current.connect();
-                websocketServiceRef.current.subscribe("/topic/update/" + user.id, updateUser);
+                websocketServiceRef.current.subscribe("/topic/update/" + user.id, incommingUserUpdateCallback);
             })();
         }
 
