@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
 import com.condoncorp.photo_king_backend.model.FriendRequestStatus;
@@ -11,8 +12,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendRequestService {
@@ -69,8 +72,14 @@ public class FriendRequestService {
         sender.getFriends().add(receiver);
         receiver.getFriends().add(sender);
 
-        // Send a message to senders websocket to live notify acceptance
-        messagingTemplate.convertAndSend("/topic/update/" + sender.getId(), sender.getFriends());
+        // Send new friends list to senders websocket to live notify acceptance
+        HashMap<String, Object> newFriends = new HashMap<String, Object>();
+        newFriends.put("friends", sender.getFriends()
+                .stream()
+                .map(FriendDTO::new)
+                .collect(Collectors
+                        .toList()));
+        messagingTemplate.convertAndSend("/topic/update/" + sender.getId(), newFriends);
 
         userRepository.save(sender);
         userRepository.save(receiver);
