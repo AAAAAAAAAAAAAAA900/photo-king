@@ -9,7 +9,6 @@ import Header from "../components/Header";
 import userApi from "../api/userApi";
 import Pfp from "../components/Pfp";
 import * as FileSystem from 'expo-file-system';
-import { Client } from '@stomp/stompjs';
 
 import {
     fitContainer,
@@ -18,7 +17,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
-import { WS_URL } from "../api/apiClient";
+import WebsocketService from "../services/WebsocketService";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
@@ -29,7 +28,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
-    const stompClientRef = useRef();
+    const websocketServiceRef = useRef(WebsocketService);
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -43,7 +42,7 @@ export default function PhotoScreen({ navigation }) {
         navigation.navigate(route.params.from, route.params);
     }
 
-    // Adds back action listener
+    // Adds back action listener and subscribes to comment websocket endpoint
     useEffect(() => {
         // Create Android back action handler
         const backAction = () => {
@@ -52,39 +51,17 @@ export default function PhotoScreen({ navigation }) {
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
-        // configure stomp client websocket
-        const stompClient = new Client({
-            debug: function (str) {
-                console.log('STOMP: ' + str);
-            },
-            brokerURL: WS_URL,
-            reconnectDelay: 1000,
-            onConnect: (frame) => {
-                // listen for new comments
-                const callback = (message) => {
-                    setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
-                };
-                stompClient.subscribe("/topic/comment/" + photo.id, callback);
-            },
-            onStompError: (frame) => {
-                console.log('Broker reported error: ' + frame.headers.message);
-                console.log('Additional headers: ' + frame.headers);
-            },
-            onWebSocketError: (error) => {
-                console.log('WebSocket error: ' + error);
-            },
-            forceBinaryWSFrames: true,
-            appendMissingNULLonIncoming: true,
-        });
+        // subscribe to comments endpoint
+        var subscription;
+        const callback = (message) => {
+            setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
+        };
+        subscription = websocketServiceRef.current.subscribe("/topic/comment/" + photo.id, callback);
 
-        stompClient.activate();
-
-        stompClientRef.current = stompClient;
-
-        // Remove back handler
+        // Remove back handler and unsubscribe from comments
         return () => {
             backHandler.remove();
-            stompClientRef.current.deactivate();
+            websocketServiceRef.current.unsubscribe(subscription);
         }
     }, []);
 
@@ -131,11 +108,11 @@ export default function PhotoScreen({ navigation }) {
         }
         try {
             // send through websocket
-            stompClientRef.current.publish({
-                destination: "/app/comment/" + photo.id,
-                headers: { userId: user.id },
-                body: comment
-            });
+            websocketServiceRef.current.publish(
+                "/app/comment/" + photo.id, // destination
+                comment,                    // body
+                { userId: user.id }         // headers
+            );
         } catch (e) {
             console.log(e);
         }

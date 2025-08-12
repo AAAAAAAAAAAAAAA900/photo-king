@@ -19,6 +19,7 @@ import { navigationRef } from "./src/utilities/RootNavigation";
 import SummaryScreen from './src/screens/Summary.js';
 import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
+import { UserProvider } from './src/components/UserContext.js';
 enableScreens();
 
 const Stack = createNativeStackNavigator();
@@ -50,59 +51,61 @@ export default function App() {
         <GestureHandlerRootView>
             <ActionSheetProvider>
                 <SafeAreaProvider>
-                    <NavigationContainer ref={navigationRef}>
-                        <StatusBar
-                            translucent={true}
-                        />
-                        <Stack.Navigator initialRouteName="Login">
-                            {/* Headers replaced with custom component because of expo go bug on android */}
-                            <Stack.Screen
-                                name='Login'
-                                options={{ headerShown: false }}
-                                component={LoginScreen}
+                    <UserProvider>
+                        <NavigationContainer ref={navigationRef}>
+                            <StatusBar
+                                translucent={true}
                             />
-                            <Stack.Screen
-                                name='Register'
-                                options={{ headerShown: false }}
-                                component={RegisterScreen}
-                            />
-                            <Stack.Screen
-                                name='Home'
-                                options={{ headerShown: false }}
-                                component={HomeScreen}
-                            />
-                            <Stack.Screen
-                                name='Group'
-                                options={{ headerShown: false }}
-                                component={GroupScreen}
-                            />
-                            <Stack.Screen
-                                name='Profile'
-                                options={{ headerShown: false }}
-                                component={ProfileScreen}
-                            />
-                            <Stack.Screen
-                                name='Friends'
-                                options={{ headerShown: false }}
-                                component={FriendsScreen}
-                            />
-                            <Stack.Screen
-                                name='Photo'
-                                options={{ headerShown: false }}
-                                component={PhotoScreen}
-                            />
-                            <Stack.Screen
-                                name='Rank'
-                                options={{ headerShown: false }}
-                                component={RankScreen}
-                            />
-                            <Stack.Screen
-                                name='Summary'
-                                options={{ headerShown: false }}
-                                component={SummaryScreen}
-                            />
-                        </Stack.Navigator>
-                    </NavigationContainer>
+                            <Stack.Navigator initialRouteName="Login">
+                                {/* Headers replaced with custom component because of expo go bug on android */}
+                                <Stack.Screen
+                                    name='Login'
+                                    options={{ headerShown: false }}
+                                    component={LoginScreen}
+                                />
+                                <Stack.Screen
+                                    name='Register'
+                                    options={{ headerShown: false }}
+                                    component={RegisterScreen}
+                                />
+                                <Stack.Screen
+                                    name='Home'
+                                    options={{ headerShown: false }}
+                                    component={HomeScreen}
+                                />
+                                <Stack.Screen
+                                    name='Group'
+                                    options={{ headerShown: false }}
+                                    component={GroupScreen}
+                                />
+                                <Stack.Screen
+                                    name='Profile'
+                                    options={{ headerShown: false }}
+                                    component={ProfileScreen}
+                                />
+                                <Stack.Screen
+                                    name='Friends'
+                                    options={{ headerShown: false }}
+                                    component={FriendsScreen}
+                                />
+                                <Stack.Screen
+                                    name='Photo'
+                                    options={{ headerShown: false }}
+                                    component={PhotoScreen}
+                                />
+                                <Stack.Screen
+                                    name='Rank'
+                                    options={{ headerShown: false }}
+                                    component={RankScreen}
+                                />
+                                <Stack.Screen
+                                    name='Summary'
+                                    options={{ headerShown: false }}
+                                    component={SummaryScreen}
+                                />
+                            </Stack.Navigator>
+                        </NavigationContainer>
+                    </UserProvider>
                 </SafeAreaProvider>
             </ActionSheetProvider>
         </GestureHandlerRootView>

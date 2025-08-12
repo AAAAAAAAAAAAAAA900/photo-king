@@ -13,6 +13,8 @@ import { debounce, update } from "lodash";
 import requestApi from "../api/requestApi.js";
 import Pfp from "../components/Pfp.js";
 import { getUser } from "./Login.js";
+import { Client } from '@stomp/stompjs';
+import { WS_URL } from "../api/apiClient";
 
 
 
@@ -28,6 +30,7 @@ export default function FriendsScreen({ navigation }) {
     const screenWidth = Dimensions.get("window").width;
     const slideAnim = useRef(new Animated.Value(0)).current;    // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
+    const stompClientRef = useRef();
 
     // Queries users where username like search
     const getSearchData = async (search) => {
@@ -60,6 +63,7 @@ export default function FriendsScreen({ navigation }) {
             console.log(e);
         }
     };
+
     useEffect(() => {
         // Create Android back action handler
         const backAction = () => {
@@ -74,11 +78,43 @@ export default function FriendsScreen({ navigation }) {
         }
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
-        // load friend requests 
+        // load existing friend requests 
         getFriendRequests();
 
-        // Remove handler
-        return () => backHandler.remove();
+        // configure/activate websocket client 
+        const stompClient = new Client({
+            debug: function (str) {
+                console.log('STOMP: ' + str);
+            },
+            brokerURL: WS_URL,
+            reconnectDelay: 1000,
+            onConnect: (frame) => {
+                // listen for new comments
+                const callback = (message) => {
+                    
+                };
+                stompClient.subscribe("/topic/friend/" + user.id, callback);
+            },
+            onStompError: (frame) => {
+                console.log('Broker reported error: ' + frame.headers.message);
+                console.log('Additional headers: ' + frame.headers);
+            },
+            onWebSocketError: (error) => {
+                console.log('WebSocket error: ' + error);
+            },
+            forceBinaryWSFrames: true,
+            appendMissingNULLonIncoming: true,
+        });
+
+        stompClient.activate();
+
+        stompClientRef.current = stompClient;
+
+        // Remove back handler and deactivate websocket
+        return () => {
+            backHandler.remove();
+            stompClientRef.current.deactivate();
+        }
     }, []);
 
     const acceptFriendRequest = async (requestId) => {
@@ -136,12 +172,29 @@ export default function FriendsScreen({ navigation }) {
     };
 
     const addFriend = async (friendId) => {
+        const error = false;
         try {
             const response = await requestApi.sendFriendRequest(user.id, friendId);
         } catch (e) {
+            error = true;
             console.log(e);
         }
         finally {
+            if (error) {
+                Alert.alert("Request Failed",
+                    `Check wifi connection and try again.`,
+                    [
+                        { text: "Okay", style: "cancel" }
+                    ]
+                );
+            } else {
+                Alert.alert("Request Sent Successfully",
+                    ``,
+                    [
+                        { text: "Okay", style: "cancel" }
+                    ]
+                );
+            }
             closeModal();
         }
     }

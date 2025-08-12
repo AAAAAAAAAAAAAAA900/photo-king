@@ -2,8 +2,12 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import {navigate} from "../utilities/RootNavigation";
 
-const API_URL = "https://photo-king.onrender.com";
-const WS_URL = "wss://photo-king.onrender.com/websocket";
+// const API_URL = "https://photo-king.onrender.com";
+// const WS_URL = "wss://photo-king.onrender.com/websocket";
+
+const API_URL = "https://honestly-live-rhino.ngrok-free.app";
+const WS_URL = "wss://honestly-live-rhino.ngrok-free.app/websocket";
+
 
 const apiClient = axios.create({
     baseURL: `${API_URL}/api`,

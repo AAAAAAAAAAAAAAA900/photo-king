@@ -11,12 +11,12 @@ import TitleButtons from '../components/TitleButtons.js';
 import imageApi from '../api/imageApi.js';
 import DropDownMenu from '../components/DropDownMenu.js';
 import { getUser } from './Login.js';
+import { useUser } from '../components/UserContext.js';
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function HomeScreen({ navigation }) {
-    const route = useRoute();
-    const [user, setUser] = useState(route.params?.user);
+    const {user, updateUser} = useUser();
     const [groupModalVisible, setGroupModalVisible] = useState(false)
     const [groupTitle, setGroupTitle] = useState('');
     const [daySelected, setDaySelected] = useState("Monday");
@@ -67,7 +67,7 @@ export default function HomeScreen({ navigation }) {
             console.log(error);
         }
         finally {
-            getUser(setUser, navigation);
+            getUser(updateUser, navigation);
         }
     }
 

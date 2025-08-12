@@ -9,10 +9,12 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
 import { StackActions } from '@react-navigation/native';
+import { useUser } from '../components/UserContext.js';
 
 export default function LoginScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [loginError, setLoginError] = useState("");
+    const { updateUser } = useUser();
     const {
         control,
         handleSubmit,
@@ -31,7 +33,8 @@ export default function LoginScreen({ navigation }) {
             await SecureStore.setItemAsync("accessToken", response.data.accessToken);
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
-            navigation.navigate("Home", { user: user_info.data });
+            updateUser(user_info.data);
+            navigation.navigate("Home");
         } catch (error) {
             setLoginError(error.response.data ? "Check username or password" : "");
         }
@@ -43,7 +46,8 @@ export default function LoginScreen({ navigation }) {
             await SecureStore.setItemAsync("accessToken", response.data.accessToken);
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
-            navigation.navigate("Home", { user: user_info.data });
+            updateUser(user_info.data);
+            navigation.navigate("Home");
         } catch (error) {
             setLoginError(error.response.data ? "Check username or password" : "");
         }
@@ -56,7 +60,8 @@ export default function LoginScreen({ navigation }) {
                 const refreshToken = await SecureStore.getItemAsync("refreshToken");
                 if (refreshToken && await isTokenValid(refreshToken)) {
                     const user_info = await userApi.getUserInfo();
-                    navigation.navigate("Home", { user: user_info.data });
+                    updateUser(user_info.data);
+                    navigation.navigate("Home");
                 }
             } catch (error) {
                 console.log(error);
@@ -238,62 +243,63 @@ const loginStyles = StyleSheet.create({
         boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)',
         borderRadius: 10
     },
-    inputWithIcon:{ 
-        flexDirection: 'row', 
-        width: 250, 
-        height: 40, 
-        alignItems: 'center', 
-        backgroundColor: colors.greyWhite, 
-        borderRadius: 5 
+    inputWithIcon: {
+        flexDirection: 'row',
+        width: 250,
+        height: 40,
+        alignItems: 'center',
+        backgroundColor: colors.greyWhite,
+        borderRadius: 5
     },
-    inLineIcon:[
-        styles.iconStyle, 
-        { 
-            width: '10%', 
-            marginLeft: 5 
+    inLineIcon: [
+        styles.iconStyle,
+        {
+            width: '10%',
+            marginLeft: 5
         }
     ],
-    textIn:[
-        styles.textIn, 
-        { width: 200 
+    textIn: [
+        styles.textIn,
+        {
+            width: 200
 
         }
     ],
-    errorTextContainer:{ 
-        justifyContent: 'center', 
-        alignItems: 'center' 
+    errorTextContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    errorText:{
-        color:'red'
+    errorText: {
+        color: 'red'
     },
-    loginButton:{
-        width: 250, 
-        height: 40, 
-        borderRadius: 20, 
-        backgroundColor: colors.secondary, 
-        alignItems: 'center', 
+    loginButton: {
+        width: 250,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.secondary,
+        alignItems: 'center',
         justifyContent: 'center'
     },
-    dividerContainer:{
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        gap: 10, 
-        width: 250, 
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        width: 250,
         padding: 10
     },
-    divider:{ 
-        height: 1, 
-        flex: 1, 
-        backgroundColor: '#999999' 
+    divider: {
+        height: 1,
+        flex: 1,
+        backgroundColor: '#999999'
     },
-    greyText:{
+    greyText: {
         color: '#999999'
     },
-    signInWith:{
-        width: 250, 
-        height: 40 
+    signInWith: {
+        width: 250,
+        height: 40
     },
-    signUpContainer:{
-        flexDirection:'row'
+    signUpContainer: {
+        flexDirection: 'row'
     }
 });
