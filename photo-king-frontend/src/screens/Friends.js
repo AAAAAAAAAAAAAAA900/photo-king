@@ -151,7 +151,10 @@ export default function FriendsScreen({ navigation }) {
     const addFriend = async (friendId) => {
         const error = false;
         try {
-            const response = await requestApi.sendFriendRequest(user.id, friendId);
+            websocketServiceRef.current.publish(
+                "/app/request/" + friendId, // destination
+                user.id,                    // body
+            );
         } catch (e) {
             error = true;
             console.log(e);
