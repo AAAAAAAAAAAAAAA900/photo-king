@@ -28,7 +28,7 @@ export default function PhotoScreen({ navigation }) {
     const commentRef = useRef("");          // tracks text input text
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
-    const websocketServiceRef = useRef();
+    const websocketServiceRef = useRef(WebsocketService);
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -52,21 +52,16 @@ export default function PhotoScreen({ navigation }) {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
         // subscribe to comments endpoint
-        websocketServiceRef.current = WebsocketService;
         var subscription;
-        (async () => {
-            await websocketServiceRef.current.connect();
-            const callback = (message) => {
-                setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
-            };
-            subscription = websocketServiceRef.current.subscribe("/topic/comment/" + photo.id, callback);
-        })();
+        const callback = (message) => {
+            setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
+        };
+        subscription = websocketServiceRef.current.subscribe("/topic/comment/" + photo.id, callback);
 
         // Remove back handler and unsubscribe from comments
         return () => {
             backHandler.remove();
             websocketServiceRef.current.unsubscribe(subscription);
-            websocketServiceRef.current.disconnect();
         }
     }, []);
 
