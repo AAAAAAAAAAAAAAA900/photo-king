@@ -13,14 +13,13 @@ import { debounce, update } from "lodash";
 import requestApi from "../api/requestApi.js";
 import Pfp from "../components/Pfp.js";
 import { getUser } from "./Login.js";
-import { Client } from '@stomp/stompjs';
-import { WS_URL } from "../api/apiClient";
+import { useUser } from "../components/UserContext.js";
+import WebsocketService from "../services/WebsocketService.js";
 
 
 
 export default function FriendsScreen({ navigation }) {
-    const route = useRoute();
-    const [user, setUser] = useState(route.params?.user);
+    const { user, updateUser } = useUser();
     const [userSearch, setUserSearch] = useState("");           // searching all users
     const [searchResults, setSearchResults] = useState([]);     // query search results
     const [friendModalVisible, setFriendModalVisible] = useState(false);
@@ -30,7 +29,7 @@ export default function FriendsScreen({ navigation }) {
     const screenWidth = Dimensions.get("window").width;
     const slideAnim = useRef(new Animated.Value(0)).current;    // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
-    const stompClientRef = useRef();
+    const websocketServiceRef = useRef(WebsocketService);
 
     // Queries users where username like search
     const getSearchData = async (search) => {
@@ -72,7 +71,7 @@ export default function FriendsScreen({ navigation }) {
                 'Navigating back will return to login screen.',
                 [
                     { text: 'Cancel', style: 'Cancel' },
-                    { text: 'Log Out', onPress: () => { navigation.dispatch(StackActions.popToTop()); } },
+                    { text: 'Log Out', onPress: () => { updateUser(null); navigation.dispatch(StackActions.popToTop()); } },
                 ]);
             return true;
         }
@@ -81,39 +80,17 @@ export default function FriendsScreen({ navigation }) {
         // load existing friend requests 
         getFriendRequests();
 
-        // configure/activate websocket client 
-        const stompClient = new Client({
-            debug: function (str) {
-                console.log('STOMP: ' + str);
-            },
-            brokerURL: WS_URL,
-            reconnectDelay: 1000,
-            onConnect: (frame) => {
-                // listen for new comments
-                const callback = (message) => {
-                    
-                };
-                stompClient.subscribe("/topic/friend/" + user.id, callback);
-            },
-            onStompError: (frame) => {
-                console.log('Broker reported error: ' + frame.headers.message);
-                console.log('Additional headers: ' + frame.headers);
-            },
-            onWebSocketError: (error) => {
-                console.log('WebSocket error: ' + error);
-            },
-            forceBinaryWSFrames: true,
-            appendMissingNULLonIncoming: true,
-        });
+        // subscribe to comments endpoint
+        var subscription;
+        const callback = (message) => {
+            getFriendRequests();
+        };
+        subscription = websocketServiceRef.current.subscribe("/topic/request/" + user.id, callback);
 
-        stompClient.activate();
-
-        stompClientRef.current = stompClient;
-
-        // Remove back handler and deactivate websocket
+        // Remove back handler and unsubscribe from comments
         return () => {
             backHandler.remove();
-            stompClientRef.current.deactivate();
+            websocketServiceRef.current.unsubscribe(subscription);
         }
     }, []);
 
@@ -121,7 +98,7 @@ export default function FriendsScreen({ navigation }) {
         try {
             await requestApi.acceptFriendRequest(requestId).then(() => {
                 getFriendRequests();
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         } catch (e) {
             console.log(e);
@@ -131,7 +108,7 @@ export default function FriendsScreen({ navigation }) {
         try {
             await requestApi.rejectFriendRequest(requestId).then(() => {
                 getFriendRequests();
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         } catch (e) {
             console.log(e);
@@ -174,7 +151,10 @@ export default function FriendsScreen({ navigation }) {
     const addFriend = async (friendId) => {
         const error = false;
         try {
-            const response = await requestApi.sendFriendRequest(user.id, friendId);
+            websocketServiceRef.current.publish(
+                "/app/request/" + friendId, // destination
+                user.id,                    // body
+            );
         } catch (e) {
             error = true;
             console.log(e);
@@ -202,7 +182,7 @@ export default function FriendsScreen({ navigation }) {
     // Removes Friend
     const removeFriend = async (friendId) => {
         try {
-            await userApi.removeFriend(user.id, friendId).then(() => getUser(setUser, navigation));
+            await userApi.removeFriend(user.id, friendId).then(() => getUser(updateUser, navigation));
             // Update friends lists stored in front end
         }
         catch (error) {
@@ -412,7 +392,7 @@ export default function FriendsScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-                <NavBar navigation={navigation} user={user} screen='Friends' />
+                <NavBar navigation={navigation} screen='Friends' />
 
             </SafeAreaView>
         </TouchableWithoutFeedback>

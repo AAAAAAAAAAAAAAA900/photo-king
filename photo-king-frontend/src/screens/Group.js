@@ -17,13 +17,14 @@ import FriendModal from '../components/FriendModal.js';
 import Header from '../components/Header.js';
 import Timer from '../components/Timer.js';
 import { getUser } from './Login.js';
+import { useUser } from '../components/UserContext.js';
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function GroupScreen({ navigation }) {
     const route = useRoute();
-    const [user, setUser] = useState(route.params?.user);
-    const [group, setGroup] = useState(route.params?.group);
+    const {user, updateUser} = useUser();
+    const [group, setGroup] = useState(user.groups.find((g) => g.id == route.params?.groupId));
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
@@ -117,7 +118,7 @@ export default function GroupScreen({ navigation }) {
         }
         return (
             <TouchableOpacity
-                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo, from: "Group" })}
+                onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Group" })}
                 style={styles.picHolder}>
                 <Image
                     style={[styles.pic, winningBorder]}
@@ -191,7 +192,7 @@ export default function GroupScreen({ navigation }) {
     const addUserToGroup = async (id) => {
         try {
             await photoGroupApi.addUserToGroup(id, group.id).then(() => {
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         }
         catch (error) {
@@ -202,7 +203,7 @@ export default function GroupScreen({ navigation }) {
     const removeUserFromGroup = async (id) => {
         try {
             await photoGroupApi.removeUserFromGroup(id, group.id).then(() => {
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         }
         catch (error) {
@@ -215,7 +216,7 @@ export default function GroupScreen({ navigation }) {
             await photoGroupApi.deleteGroup(group.id).then(() => {
                 setLoading(true);
                 // account for delay in server side group deletion, so group isnt still there on return to home screen
-                setTimeout(getUser(setUser, navigation), 1000);
+                setTimeout(getUser(updateUser, navigation), 1000);
                 navigateBack();
             });
         }
@@ -234,7 +235,7 @@ export default function GroupScreen({ navigation }) {
                 routes
             });
         });
-        navigation.navigate('Home', { user });
+        navigation.navigate('Home');
     };
 
     // Makes api request to check if should render summary button
@@ -409,7 +410,7 @@ export default function GroupScreen({ navigation }) {
                 ownerId={group.ownerId}
                 points={group.userPoints}
                 summaryNavigation={hasSummary ?
-                    () => { navigation.navigate("Summary", { user: user, group: group }); }
+                    () => { navigation.navigate("Summary", {  groupId: group.id }); }
                     :
                     undefined}
             />
@@ -443,7 +444,7 @@ export default function GroupScreen({ navigation }) {
                                 ]
                             );
                         } else {
-                            navigation.navigate("Rank", { user: user, group: group });
+                            navigation.navigate("Rank", { groupId: group.id });
                         }
                     }}>
                     <Image style={groupStyles.topButtonIcon} source={require('../../assets/icons/podium.png')} />

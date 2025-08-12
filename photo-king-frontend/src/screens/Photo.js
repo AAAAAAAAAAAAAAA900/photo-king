@@ -18,11 +18,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
 import WebsocketService from "../services/WebsocketService";
+import { useUser } from "../components/UserContext";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
-    const user = route.params?.user;
-    const group = route.params?.group;
+    const { user } = useUser();
+    const group = user.groups.find((g) => g.id == route.params?.groupId);
     const [photo, setPhoto] = useState(route.params?.photo);
     const [commentsModalVisible, setCommentsModalVisible] = useState(false);
     const commentRef = useRef("");          // tracks text input text

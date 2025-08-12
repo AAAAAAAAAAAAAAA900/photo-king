@@ -10,10 +10,10 @@ import Header from "../components/Header";
 import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
 import { getUser } from "./Login";
+import { useUser } from "../components/UserContext";
 
 export default function ProfileScreen({ navigation }) {
-    const route = useRoute();
-    const [user, setUser] = useState(route.params?.user);
+    const {user, updateUser} = useUser();
     const [bio, setBio] = useState(undefined);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function ProfileScreen({ navigation }) {
     const setProfile = async (data) => {
         try {
             await userApi.setProfile(user.id, data.username, data.name, data.bio);
-            await getUser(setUser, navigation);
+            await getUser(updateUser, navigation);
         }
         catch (error) {
             console.log(error);
@@ -116,7 +116,7 @@ export default function ProfileScreen({ navigation }) {
                     <View style={profileStyles.profileContainer}>
                         <View style={profileStyles.pfpContainer}>
                             {/* PROFILE PHOTO */}
-                            <Pfp user={user} setUser={setUser} url={user.profileUrl} size={120} borderWidth={4} />
+                            <Pfp user={user} setUser={updateUser} url={user.profileUrl} size={120} borderWidth={4} />
                             <View style={profileStyles.pfpEditableIconContainer}>
                                 <Image style={styles.iconStyle} source={require('../../assets/icons/edit.png')} />
                             </View>
@@ -207,7 +207,7 @@ export default function ProfileScreen({ navigation }) {
                         </View>
                     </View>
                 }
-                <NavBar navigation={navigation} user={user} screen='Profile' />
+                <NavBar navigation={navigation} screen='Profile' />
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );

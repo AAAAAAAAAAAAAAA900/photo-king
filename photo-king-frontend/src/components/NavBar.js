@@ -2,14 +2,14 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { colors } from "../styles/ComponentStyles";
 
 
-export default function NavBar({navigation, user, screen}){
+export default function NavBar({navigation, screen}){
     return(
         <View style={navStyles.bottomBar}>
             {/* PROFILE ICON */}
             { screen != 'Profile' ? (
                 <TouchableOpacity
                     style={navStyles.iconViewStyle}
-                    onPressOut={() => {navigation.replace("Profile", {user: user})}}
+                    onPressOut={() => {navigation.replace("Profile")}}
                 >
                     <Image style={navStyles.iconStyle} source={require('../../assets/icons/profile.png')}/>
                 </TouchableOpacity>
@@ -27,7 +27,7 @@ export default function NavBar({navigation, user, screen}){
             { screen != 'Home' ? (
                 <TouchableOpacity
                     style={navStyles.iconViewStyle}
-                    onPressOut={() => {navigation.replace("Home", {user: user})}}
+                    onPressOut={() => {navigation.replace("Home")}}
                 >
                     <Image style={navStyles.iconStyle} source={require('../../assets/icons/home.png')}/>
                 </TouchableOpacity>
@@ -45,7 +45,7 @@ export default function NavBar({navigation, user, screen}){
             { screen != 'Friends' ? (
                 <TouchableOpacity
                     style={navStyles.iconViewStyle}
-                    onPressOut={() => {navigation.replace("Friends", {user: user})}}
+                    onPressOut={() => {navigation.replace("Friends")}}
                 >
                     <Image style={navStyles.iconStyle} source={require('../../assets/icons/friends.png')}/>
                 </TouchableOpacity>

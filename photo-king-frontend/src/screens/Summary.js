@@ -7,11 +7,12 @@ import DefaultText from "../components/DefaultText";
 import { loadPictures, picStyles } from "./Group";
 import { useCallback, useEffect, useState } from "react";
 import photoGroupApi from "../api/photoGroupApi";
+import { useUser } from "../components/UserContext";
 
 export default function SummaryScreen({ navigation }) {
     const route = useRoute();
-    const user = route.params?.user;
-    const group = route.params?.group;
+    const { user } = useUser();
+    const group = user.groups.find((g) => g.id == route.params?.groupId);
     const [pictures, setPictures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [placings, setPlacings] = useState([]);
@@ -45,7 +46,7 @@ export default function SummaryScreen({ navigation }) {
                 routes
             });
         });
-        navigation.navigate('Group', { user: user, group: group });
+        navigation.navigate('Group', { groupId: group.id });
     }
 
     // useEffect to get group pictures on load
@@ -91,7 +92,7 @@ export default function SummaryScreen({ navigation }) {
         }
         return (
             <TouchableOpacity
-                onPress={() => navigation.navigate("Photo", { user: user, group: group, photo: photo, from: "Summary" })}
+                onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Summary" })}
                 style={summaryStyles.picHolder}>
                 <Image
                     style={[styles.pic, winningBorder]}

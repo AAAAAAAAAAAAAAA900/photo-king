@@ -10,6 +10,7 @@ import DefaultText from './DefaultText.js';
 import { clearTokens } from "../api/apiClient";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getUser } from '../screens/Login.js';
+import { useUser } from './UserContext.js';
 
 
 export default function Pfp({ navigation, user, setUser, url, size = 50, borderWidth = 0 }) {
@@ -19,6 +20,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
     const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
     const [optionsVisible, setOptionsVisible] = useState(false);
     const { showActionSheetWithOptions } = useActionSheet();
+    const {updateUser} = useUser();
 
     const imageStyle = {
         height: size,
@@ -136,6 +138,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
 
     const logoutButtonPressed = async () => {
         await clearTokens();
+        updateUser(null);
         navigation.dispatch(StackActions.popToTop());
     }
 
