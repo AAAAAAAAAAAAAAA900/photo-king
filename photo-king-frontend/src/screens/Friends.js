@@ -15,12 +15,12 @@ import Pfp from "../components/Pfp.js";
 import { getUser } from "./Login.js";
 import { Client } from '@stomp/stompjs';
 import { WS_URL } from "../api/apiClient";
+import { useUser } from "../components/UserContext.js";
 
 
 
 export default function FriendsScreen({ navigation }) {
-    const route = useRoute();
-    const [user, setUser] = useState(route.params?.user);
+    const {user, updateUser} = useUser();
     const [userSearch, setUserSearch] = useState("");           // searching all users
     const [searchResults, setSearchResults] = useState([]);     // query search results
     const [friendModalVisible, setFriendModalVisible] = useState(false);
@@ -72,7 +72,7 @@ export default function FriendsScreen({ navigation }) {
                 'Navigating back will return to login screen.',
                 [
                     { text: 'Cancel', style: 'Cancel' },
-                    { text: 'Log Out', onPress: () => { navigation.dispatch(StackActions.popToTop()); } },
+                    { text: 'Log Out', onPress: () => { updateUser(null); navigation.dispatch(StackActions.popToTop()); } },
                 ]);
             return true;
         }
@@ -121,7 +121,7 @@ export default function FriendsScreen({ navigation }) {
         try {
             await requestApi.acceptFriendRequest(requestId).then(() => {
                 getFriendRequests();
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         } catch (e) {
             console.log(e);
@@ -131,7 +131,7 @@ export default function FriendsScreen({ navigation }) {
         try {
             await requestApi.rejectFriendRequest(requestId).then(() => {
                 getFriendRequests();
-                getUser(setUser, navigation);
+                getUser(updateUser, navigation);
             });
         } catch (e) {
             console.log(e);
@@ -202,7 +202,7 @@ export default function FriendsScreen({ navigation }) {
     // Removes Friend
     const removeFriend = async (friendId) => {
         try {
-            await userApi.removeFriend(user.id, friendId).then(() => getUser(setUser, navigation));
+            await userApi.removeFriend(user.id, friendId).then(() => getUser(updateUser, navigation));
             // Update friends lists stored in front end
         }
         catch (error) {
@@ -412,7 +412,7 @@ export default function FriendsScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-                <NavBar navigation={navigation} user={user} screen='Friends' />
+                <NavBar navigation={navigation} screen='Friends' />
 
             </SafeAreaView>
         </TouchableWithoutFeedback>

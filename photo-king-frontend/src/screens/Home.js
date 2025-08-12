@@ -31,7 +31,10 @@ export default function HomeScreen({ navigation }) {
                 'Navigating back will return to login screen.' ,
             [
                 { text: 'Cancel', style: 'Cancel' },
-                { text: 'Log Out', onPress: () => {navigation.dispatch(StackActions.popToTop());} },
+                { text: 'Log Out', onPress: () => {
+                    updateUser(null);
+                    navigation.dispatch(StackActions.popToTop());
+                } },
             ]);
             return true;
         }
@@ -166,7 +169,7 @@ export default function HomeScreen({ navigation }) {
                             data={[...user.groups].sort((a, b) => a.name.localeCompare(b.name))} // alphabetical ordering
                             renderItem={({ item }) =>
                                 <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
-                                    navigation.navigate("Group", { user: user, group: item })
+                                    navigation.navigate("Group", { groupId: item.id })
                                 }}
                                 />
                             }
@@ -187,7 +190,7 @@ export default function HomeScreen({ navigation }) {
                 <Image style={styles.iconStyle} source={require('../../assets/icons/plus.png')} />
             </TouchableOpacity>
 
-            <NavBar navigation={navigation} user={user} screen='Home' />
+            <NavBar navigation={navigation} screen='Home' />
         </SafeAreaView>
     );
 }

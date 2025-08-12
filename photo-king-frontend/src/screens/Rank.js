@@ -7,11 +7,12 @@ import { loadPictures, picStyles } from "./Group.js";
 import { useEffect, useState, useCallback } from "react";
 import photoGroupApi from "../api/photoGroupApi";
 import Header from "../components/Header.js";
+import { useUser } from "../components/UserContext.js";
 
 export default function RankScreen({ navigation }) {
     const route = useRoute();
-    const user = route.params?.user;
-    const group = route.params?.group;
+    const { user } = useUser();
+    const group = user.groups.find((g) => g.id == route.params?.groupId);
     const [pictures, setPictures] = useState([]);
     const [ranks, setRanks] = useState([]);  // image ids ordered by ranking
 
