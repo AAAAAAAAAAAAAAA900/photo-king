@@ -81,16 +81,16 @@ export default function FriendsScreen({ navigation }) {
         getFriendRequests();
 
         // subscribe to comments endpoint
-        var subscription;
+        const destination = "/topic/request/" + user.id;
         const callback = (message) => {
             getFriendRequests();
         };
-        subscription = websocketServiceRef.current.subscribe("/topic/request/" + user.id, callback);
+        websocketServiceRef.current.subscribe(destination, callback);
 
         // Remove back handler and unsubscribe from comments
         return () => {
             backHandler.remove();
-            websocketServiceRef.current.unsubscribe(subscription);
+            websocketServiceRef.current.unsubscribe(destination);
         }
     }, []);
 

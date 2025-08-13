@@ -53,16 +53,16 @@ export default function PhotoScreen({ navigation }) {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
         // subscribe to comments endpoint
-        var subscription;
+        const destination = "/topic/comment/" + photo.id;
         const callback = (message) => {
             setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
         };
-        subscription = websocketServiceRef.current.subscribe("/topic/comment/" + photo.id, callback);
+         websocketServiceRef.current.subscribe(destination, callback);
 
         // Remove back handler and unsubscribe from comments
         return () => {
             backHandler.remove();
-            websocketServiceRef.current.unsubscribe(subscription);
+            websocketServiceRef.current.unsubscribe(destination);
         }
     }, []);
 

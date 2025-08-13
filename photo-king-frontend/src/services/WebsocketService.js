@@ -7,6 +7,7 @@ import { WS_URL } from '../api/apiClient';
 class WebsocketService {
     static instance = null;
     callbacks = {};
+    activeSubscriptions = {};
 
     // singleton export
     static getInstance() {
@@ -40,6 +41,15 @@ class WebsocketService {
                     console.log('Websocket connected');
                     this.isConnected = true;
                     this.reconnectAttempts = 0;
+
+                    // (re)subscribe to all cached subscriptions
+                    for(const destination in this.activeSubscriptions){
+                        const callback = this.activeSubscriptions[destination].callback;
+                        this.activeSubscriptions[destination] = {
+                            subscription: this.socketRef.subscribe(destination, callback),
+                            callback: callback
+                        }
+                    }
 
                     this.executeCallback('connect', null);
                     resolve();
@@ -101,6 +111,7 @@ class WebsocketService {
             this.socketRef = null;
             this.isConnected = false;
             clearTimeout(this.timeout);
+            this.activeSubscriptions = {};
         }
     }
 
@@ -122,18 +133,30 @@ class WebsocketService {
         }
     }
 
-    // wrapper for Client.subscribe
-    subscribe(endpoint, callback) {
-        if (this.socketRef && this.isConnected) {
-            return this.socketRef.subscribe(endpoint, callback);
+    // subscribes to destination with callback and caches subscription obj
+    subscribe(destination, callback) {
+        if (this.isConnected && !this.activeSubscriptions[destination]) {
+            this.activeSubscriptions[destination] = {
+                subscription: this.socketRef.subscribe(destination, callback),
+                callback: callback
+            };
         }
-        return null;
+        // if not connected, cache to subscribe on reconnect 
+        else if(!this.isConnected && !this.activeSubscriptions[destination]){
+            this.activeSubscriptions[destination] = {
+                subscription: null,
+                callback: callback
+            };
+        }
     }
 
-    // wrapper for Client.unsubscribe
-    unsubscribe(subscription) {
-        if (this.isConnected && subscription) {
-            subscription.unsubscribe(subscription);
+    // unsubscribes and pops subscription from cache
+    unsubscribe(destination) {
+        if (this.isConnected && this.activeSubscriptions[destination]?.subscription) {
+            this.activeSubscriptions[destination].subscription.unsubscribe();
+        }
+        if(this.activeSubscriptions[destination]){
+            delete this.activeSubscriptions[destination];
         }
     }
 

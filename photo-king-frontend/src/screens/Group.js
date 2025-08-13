@@ -1,7 +1,7 @@
 import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultText from '../components/DefaultText';
-import { StackActions, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import { useEffect, useState, useCallback, useRef } from "react";
 import * as ImagePicker from 'expo-image-picker';
@@ -272,17 +272,17 @@ export default function GroupScreen({ navigation }) {
         checkSummary();
 
         // subscribe to photos endpoint
-        var subscription;
+        const destination = "/topic/picture/" + group.id;
         const callback = (message) => {
             // reload pictures when changed
             loadPictures(setPictures, group, setLoading);
         };
-        subscription = websocketServiceRef.current.subscribe("/topic/picture/" + group.id, callback);
+        websocketServiceRef.current.subscribe(destination, callback);
 
         // Remove back handler and unsubscribe from photos
         return () => {
             backHandler.remove();
-            websocketServiceRef.current.unsubscribe(subscription);
+            websocketServiceRef.current.unsubscribe(destination);
         }
     }, []);
 
