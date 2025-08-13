@@ -16,7 +16,7 @@ export function UserProvider({ children }) {
 
     // For websocket subscription
     const incommingUserUpdateCallback = useCallback((update) => {
-        const updateObj = JSON.parse(update);
+        const updateObj = JSON.parse(update.body);
         const updatedUser = { ...user };
         for (const property in updateObj) {
             updatedUser[property] = updateObj[property];

@@ -7,6 +7,8 @@ import com.condoncorp.photo_king_backend.model.FriendRequestStatus;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.FriendRequestRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
