@@ -1,11 +1,13 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserImageService {
@@ -31,7 +34,8 @@ public class UserImageService {
     private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
     @Autowired
     private UserImageCommentRepository userImageCommentRepository;
-
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
@@ -56,9 +60,8 @@ public class UserImageService {
         userImage.setSummary(null);
         userImageRepository.save(userImage);
 
-
-
-
+        // Live update group of photo change
+        messagingTemplate.convertAndSend("/topic/picture/" + groupId);
 
         return userImage.getUrl();
     }
@@ -113,15 +116,18 @@ public class UserImageService {
             return;
         }
 
-
         try {
             cloudinaryService.delete(userImage.get().getPublicId());
         } catch (Exception e) {
             throw new IOException("Failed to delete image: " + userImage.get().getPublicId());
         }
-        userImageRepository.deleteById(id);
 
+        // Live update group of photo change
+        messagingTemplate.convertAndSend("/topic/picture/" + userImage.get().getPhotoGroup().getId());
+
+        userImageRepository.deleteById(id);
     }
+
     // DELETES USER'S PROFILE PICTURE
     public void deleteProfileImage(int id) throws IOException {
 

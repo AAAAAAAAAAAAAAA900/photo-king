@@ -18,12 +18,13 @@ import Header from '../components/Header.js';
 import Timer from '../components/Timer.js';
 import { getUser } from './Login.js';
 import { useUser } from '../components/UserContext.js';
+import WebsocketService from '../services/WebsocketService.js';
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function GroupScreen({ navigation }) {
     const route = useRoute();
-    const {user, updateUser} = useUser();
+    const { user, updateUser } = useUser();
     const [group, setGroup] = useState(user.groups.find((g) => g.id == route.params?.groupId));
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
@@ -33,6 +34,7 @@ export default function GroupScreen({ navigation }) {
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [hasSummary, setHasSummary] = useState(false);
+    const websocketServiceRef = useRef(WebsocketService);
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -41,7 +43,12 @@ export default function GroupScreen({ navigation }) {
 
     // update group when members or name changes
     useEffect(() => {
-        setGroup(user.groups.find((g) => g.id == group.id));
+        // if group was deleted or missing in last update, pop to home screen
+        const updateGroup = user.groups.find((g) => g.id == group.id);
+        if (!updateGroup) {
+            navigateBack();
+        }
+        setGroup(updateGroup);
     }, [user]);
 
     const { showActionSheetWithOptions } = useActionSheet();
@@ -242,7 +249,7 @@ export default function GroupScreen({ navigation }) {
     const checkSummary = async () => {
         try {
             const response = await photoGroupApi.getGroupSummary(group.id);
-            if(response.body){
+            if (response.body) {
                 setHasSummary(true);
             }
         }
@@ -250,7 +257,7 @@ export default function GroupScreen({ navigation }) {
         }
     };
 
-    // useEffect to get group pictures on load
+    // useEffect to get group pictures on load and subscribe to pictures socket
     useEffect(() => {
         // Create Android back action handler
         const backAction = () => {
@@ -264,8 +271,19 @@ export default function GroupScreen({ navigation }) {
         // Check for summary
         checkSummary();
 
-        // Remove handler
-        return () => backHandler.remove();
+        // subscribe to photos endpoint
+        var subscription;
+        const callback = (message) => {
+            // reload pictures when changed
+            loadPictures(setPictures, group, setLoading);
+        };
+        subscription = websocketServiceRef.current.subscribe("/topic/picture/" + group.id, callback);
+
+        // Remove back handler and unsubscribe from photos
+        return () => {
+            backHandler.remove();
+            websocketServiceRef.current.unsubscribe(subscription);
+        }
     }, []);
 
     // Date calculations necessary for display
@@ -410,7 +428,7 @@ export default function GroupScreen({ navigation }) {
                 ownerId={group.ownerId}
                 points={group.userPoints}
                 summaryNavigation={hasSummary ?
-                    () => { navigation.navigate("Summary", {  groupId: group.id }); }
+                    () => { navigation.navigate("Summary", { groupId: group.id }); }
                     :
                     undefined}
             />

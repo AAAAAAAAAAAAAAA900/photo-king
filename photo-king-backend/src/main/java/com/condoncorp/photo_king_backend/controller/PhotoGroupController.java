@@ -10,6 +10,7 @@ import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -26,6 +27,8 @@ public class PhotoGroupController {
 
     @Autowired
     private PhotoGroupService photoGroupService;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
@@ -63,6 +66,8 @@ public class PhotoGroupController {
             throw new RuntimeException("Invalid number of images");
         }
 
+        // Live update group of ranking change
+        messagingTemplate.convertAndSend("/topic/picture/" + groupId);
     }
 
     // CHECKS IF GROUP IS EXPIRED

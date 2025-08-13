@@ -8,11 +8,13 @@ import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +33,8 @@ public class UserService {
     private JwtService jwtService;
     @Autowired
     private CustomUserDetailsService userDetailsService;
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
 
     // SAVES USER TO DATABASE
@@ -143,6 +147,17 @@ public class UserService {
         friend.removeFriend(user);
         saveUser(user);
         saveUser(friend);
+
+        // Send new friends list to friends websocket to live update removal
+        HashMap<String, Object> newFriends = new HashMap<String, Object>();
+        newFriends.put("friends", friend.getFriends()
+                .stream()
+                .map(FriendDTO::new)
+                .collect(Collectors
+                        .toList()));
+        messagingTemplate.convertAndSend("/topic/update/" + friend.getId(), newFriends);
+
+
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
     }
 
