@@ -1,9 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.controller.WSController;
-import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
-import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.PhotoGroupPoints;
 import com.condoncorp.photo_king_backend.model.User;
@@ -11,9 +8,7 @@ import com.condoncorp.photo_king_backend.repository.PhotoGroupPointsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserGroupService {
@@ -25,7 +20,7 @@ public class UserGroupService {
     @Autowired
     private PhotoGroupPointsRepository photoGroupPointsRepository;
     @Autowired
-    private WSController websocketController;
+    private WSService websocketService;
 
     public PhotoGroupDTO addUserToGroup(int userId, int groupId) {
         User user = userService.getUserById(userId);
@@ -46,7 +41,7 @@ public class UserGroupService {
         photoGroupService.saveGroup(photoGroup);
 
         // Live update all users in group of add
-        websocketController.pingAllMembers(photoGroup);
+        websocketService.pingAllMembers(photoGroup);
 
         return new PhotoGroupDTO(photoGroup);
     }
@@ -62,7 +57,7 @@ public class UserGroupService {
         photoGroupService.saveGroup(photoGroup);
 
         // Live update all users in group of remove
-        websocketController.pingAllMembers(photoGroup);
+        websocketService.pingAllMembers(photoGroup);
 
         return new PhotoGroupDTO(photoGroup);
     }

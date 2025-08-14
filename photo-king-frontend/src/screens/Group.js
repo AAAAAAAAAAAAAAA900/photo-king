@@ -235,13 +235,13 @@ export default function GroupScreen({ navigation }) {
     }
 
     const renameGroup = async () => {
-        if (!renameTextInputRef.current.text.trim()){
+        if (!renameTextInputRef.current.text.trim()) {
             return;
         }
-        try{
+        try {
             await photoGroupApi.rename(group.id, renameTextInputRef.current.text);
         }
-        catch(e){
+        catch (e) {
             console.log(e);
         }
     }
@@ -302,12 +302,10 @@ export default function GroupScreen({ navigation }) {
 
     // Date calculations necessary for display
     const getDateInfo = () => {
-
         const current_date = new Date(Date.now());
         const expirationDate = new Date(group.expiresAt);
         const expirationDay = expirationDate.getDay();
         const isDay = current_date.getDate() === expirationDate.getDate() && current_date.getMonth() === expirationDate.getMonth();
-
         let secondsToEndDay = 0;
         if (isDay) {
             secondsToEndDay = current_date.getTime();
@@ -398,8 +396,8 @@ export default function GroupScreen({ navigation }) {
                                 {/* CANCEL */}
                                 <TouchableOpacity
                                     style={styles.button}
-                                    onPress={() => { 
-                                        setRenameModalVisible(false); 
+                                    onPress={() => {
+                                        setRenameModalVisible(false);
                                     }}
                                 >
                                     <DefaultText style={styles.buttonText}>Cancel</DefaultText>
@@ -407,7 +405,7 @@ export default function GroupScreen({ navigation }) {
                                 {/* SUBMIT */}
                                 <TouchableOpacity
                                     style={styles.button}
-                                    onPress={() => { 
+                                    onPress={() => {
                                         renameGroup();
                                         setRenameModalVisible(false);
                                     }}
@@ -649,11 +647,11 @@ const groupStyles = StyleSheet.create({
             width: 220
         }
     ],
-    renameButtonsContainer:{
-        flexDirection:'row',
+    renameButtonsContainer: {
+        flexDirection: 'row',
         width: 220,
-        justifyContent:'space-between',
-        paddingHorizontal:10
+        justifyContent: 'space-between',
+        paddingHorizontal: 10
     },
     optionsContainer: {
         backgroundColor: 'white',

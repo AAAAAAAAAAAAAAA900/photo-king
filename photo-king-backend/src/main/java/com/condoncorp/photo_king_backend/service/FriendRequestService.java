@@ -1,6 +1,5 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
@@ -26,7 +25,7 @@ public class FriendRequestService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private WSController websocketController;
+    private WSService websocketService;
 
     @Transactional
     public void sendFriendRequest(int senderId, int receiverId) {
@@ -78,7 +77,7 @@ public class FriendRequestService {
                 .map(FriendDTO::new)
                 .collect(Collectors
                         .toList()));
-        websocketController.pingUser(sender.getId(), newFriends);
+        websocketService.pingUser(sender.getId(), newFriends);
 
         userRepository.save(sender);
         userRepository.save(receiver);

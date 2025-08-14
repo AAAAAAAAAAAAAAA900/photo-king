@@ -8,6 +8,7 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.service.FriendRequestService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
 import com.condoncorp.photo_king_backend.service.UserService;
+import com.condoncorp.photo_king_backend.service.WSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
@@ -23,11 +24,11 @@ import java.util.stream.Collectors;
 public class WSController {
 
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-    @Autowired
     private UserImageService userImageService;
     @Autowired
     private FriendRequestService friendRequestService;
+    @Autowired
+    private WSService websocketService;
     @Autowired
     private UserService userService;
 
@@ -37,7 +38,7 @@ public class WSController {
         // Save comment to DB
         UserImageCommentDTO commentDTO = userImageService.uploadComment(new UserImageCommentReq(userId, photoId, comment));
         // Forward comment to subscribers
-        messagingTemplate.convertAndSend("/topic/comment/" + photoId, commentDTO);
+        websocketService.liveUpdateComment(photoId, commentDTO);
     };
 
     // for sending friend requests
@@ -46,29 +47,7 @@ public class WSController {
         // save request to DB
         friendRequestService.sendFriendRequest(senderId, receiverId);
         // Forward to request websocket of receiver
-        messagingTemplate.convertAndSend("/topic/request/" + receiverId, senderId);
+        websocketService.liveUpdateRequest(senderId, receiverId);
     }
 
-    // Updates groups of every user in group
-    public void pingAllMembers(PhotoGroup group){
-        for(User user : group.getUsers()){
-            HashMap<String, Object> newGroups = new HashMap<String, Object>();
-            newGroups.put("groups", user.getPhotoGroups()
-                    .stream()
-                    .map(PhotoGroupDTO::new)
-                    .collect(Collectors
-                            .toList()));
-            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), newGroups);
-        }
-    }
-
-    // sends a message to the users websocket
-    public void pingUser(int userId, Object payload){
-        messagingTemplate.convertAndSend("/topic/update/" + userId, payload);
-    }
-
-    // sends a message to the groups websocket
-    public void pingGroup(int groupId, Object payload){
-        messagingTemplate.convertAndSend("/topic/picture/" + groupId, payload);
-    }
 }
