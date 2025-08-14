@@ -43,7 +43,7 @@ class WebsocketService {
                     this.reconnectAttempts = 0;
 
                     // (re)subscribe to all cached subscriptions
-                    for(const destination in this.activeSubscriptions){
+                    for (const destination in this.activeSubscriptions) {
                         const callback = this.activeSubscriptions[destination].callback;
                         this.activeSubscriptions[destination] = {
                             subscription: this.socketRef.subscribe(destination, callback),
@@ -59,10 +59,8 @@ class WebsocketService {
                     console.log('Additional headers: ' + frame.headers);
 
                     this.isConnected = false;
-                    this.socketRef.deactivate().finally(() => {
-                        this.socketRef = null;
-                        this.delayReconnect();
-                    });
+                    this.socketRef = null;
+                    this.delayReconnect();
                     this.executeCallback('error', frame);
                     reject();
                 },
@@ -70,10 +68,8 @@ class WebsocketService {
                     console.log('WebSocket error: ' + error);
 
                     this.isConnected = false;
-                    this.socketRef.deactivate().finally(() => {
-                        this.socketRef = null;
-                        this.delayReconnect();
-                    });
+                    this.socketRef = null;
+                    this.delayReconnect();
                     this.executeCallback('error', error);
                     reject();
                 },
@@ -142,7 +138,7 @@ class WebsocketService {
             };
         }
         // if not connected, cache to subscribe on reconnect 
-        else if(!this.isConnected && !this.activeSubscriptions[destination]){
+        else if (!this.isConnected && !this.activeSubscriptions[destination]) {
             this.activeSubscriptions[destination] = {
                 subscription: null,
                 callback: callback
@@ -155,7 +151,7 @@ class WebsocketService {
         if (this.isConnected && this.activeSubscriptions[destination]?.subscription) {
             this.activeSubscriptions[destination].subscription.unsubscribe();
         }
-        if(this.activeSubscriptions[destination]){
+        if (this.activeSubscriptions[destination]) {
             delete this.activeSubscriptions[destination];
         }
     }

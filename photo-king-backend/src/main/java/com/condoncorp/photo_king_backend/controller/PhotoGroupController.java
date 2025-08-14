@@ -67,7 +67,7 @@ public class PhotoGroupController {
         }
 
         // Live update group of ranking change
-        messagingTemplate.convertAndSend("/topic/picture/" + groupId);
+        messagingTemplate.convertAndSend("/topic/picture/" + groupId, "rank");
     }
 
     // CHECKS IF GROUP IS EXPIRED

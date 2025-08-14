@@ -374,7 +374,7 @@ export default function GroupScreen({ navigation }) {
                             <View style={groupStyles.optionsButtonContainer}>
                                 {/* DELETE BUTTON */}
                                 <TouchableOpacity
-                                    style={styles.button}
+                                    style={groupStyles.topButton}
                                     onPress={() => {
                                         Alert.alert(
                                             `Delete ${group.name}?`,
@@ -391,7 +391,7 @@ export default function GroupScreen({ navigation }) {
 
                                 {/* RENAME BUTTON */}
                                 <TouchableOpacity
-                                    style={styles.button}
+                                    style={groupStyles.topButton}
                                     onPress={() => { }}
                                 >
                                     <DefaultText style={styles.buttonText}>Rename Group</DefaultText>
@@ -583,7 +583,7 @@ const groupStyles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         alignSelf: 'baseline',
-        boxShadow: '0 8 5 0 rgba(0, 0, 0, .25)'
+        boxShadow: '0 8 5 0 rgba(0, 0, 0, .25)',
     },
     optionsButtonContainer: {
         gap: 8

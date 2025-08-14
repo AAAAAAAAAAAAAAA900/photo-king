@@ -61,7 +61,7 @@ public class UserImageService {
         userImageRepository.save(userImage);
 
         // Live update group of photo change
-        messagingTemplate.convertAndSend("/topic/picture/" + groupId);
+        messagingTemplate.convertAndSend("/topic/picture/" + groupId, "upload");
 
         return userImage.getUrl();
     }
@@ -123,7 +123,7 @@ public class UserImageService {
         }
 
         // Live update group of photo change
-        messagingTemplate.convertAndSend("/topic/picture/" + userImage.get().getPhotoGroup().getId());
+        messagingTemplate.convertAndSend("/topic/picture/" + userImage.get().getPhotoGroup().getId(), "delete");
 
         userImageRepository.deleteById(id);
     }
