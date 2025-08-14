@@ -222,12 +222,9 @@ export default function GroupScreen({ navigation }) {
 
     const deleteGroup = async () => {
         try {
-            await photoGroupApi.deleteGroup(group.id).then(() => {
-                setLoading(true);
-                // account for delay in server side group deletion, so group isnt still there on return to home screen
-                setTimeout(getUser(updateUser, navigation), 1000);
-                navigateBack();
-            });
+            // This will automatically navigate the user back to home
+            await photoGroupApi.deleteGroup(group.id)
+            setLoading(true);
         }
         catch (error) {
             console.log(error);
