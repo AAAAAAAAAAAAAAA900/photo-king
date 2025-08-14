@@ -1,6 +1,5 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
@@ -11,10 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +34,7 @@ public class PhotoGroupService {
     @Autowired
     private UserImageService userImageService;
     @Autowired
-    private WSController websocketController;
+    private WSService websocketService;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
@@ -83,7 +80,7 @@ public class PhotoGroupService {
                     .map(PhotoGroupDTO::new)
                     .collect(Collectors
                             .toList()));
-            websocketController.pingUser(user.getId(), newGroups);
+            websocketService.pingUser(user.getId(), newGroups);
 
         }
 
@@ -105,7 +102,7 @@ public class PhotoGroupService {
         photoGroup.get().setName(name);
         photoGroupRepository.save(photoGroup.get());
 
-        websocketController.pingAllMembers(photoGroup.get());
+        websocketService.pingAllMembers(photoGroup.get());
 
         return new PhotoGroupDTO(photoGroup.get());
     }

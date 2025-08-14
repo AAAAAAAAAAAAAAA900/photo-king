@@ -1,6 +1,5 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
@@ -9,7 +8,6 @@ import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +33,7 @@ public class UserService {
     @Autowired
     private CustomUserDetailsService userDetailsService;
     @Autowired
-    private WSController websocketController;
+    private WSService websocketService;
 
 
     // SAVES USER TO DATABASE
@@ -156,7 +154,7 @@ public class UserService {
                 .map(FriendDTO::new)
                 .collect(Collectors
                         .toList()));
-        websocketController.pingUser(friend.getId(), newFriends);
+        websocketService.pingUser(friend.getId(), newFriends);
 
 
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());

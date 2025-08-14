@@ -1,6 +1,5 @@
 package com.condoncorp.photo_king_backend.service;
 
-import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
@@ -13,10 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserImageService {
@@ -34,7 +31,7 @@ public class UserImageService {
     @Autowired
     private UserImageCommentRepository userImageCommentRepository;
     @Autowired
-    private WSController websocketController;
+    private WSService websocketService;
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
@@ -60,7 +57,7 @@ public class UserImageService {
         userImageRepository.save(userImage);
 
         // Live update group of photo change
-        websocketController.pingGroup(groupId, "upload");
+        websocketService.liveUpdatePictures(groupId, "upload");
 
         return userImage.getUrl();
     }
@@ -122,7 +119,7 @@ public class UserImageService {
         }
 
         // Live update group of photo change
-        websocketController.pingGroup(userImage.get().getPhotoGroup().getId(), "delete");
+        websocketService.liveUpdatePictures(userImage.get().getPhotoGroup().getId(), "delete");
 
         userImageRepository.deleteById(id);
     }
