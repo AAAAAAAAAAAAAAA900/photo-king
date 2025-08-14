@@ -1,17 +1,23 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
 import com.condoncorp.photo_king_backend.model.FriendRequestStatus;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.FriendRequestRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendRequestService {
@@ -22,6 +28,8 @@ public class FriendRequestService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public void sendFriendRequest(int senderId, int receiverId) {
@@ -65,6 +73,15 @@ public class FriendRequestService {
         User receiver = friendRequest.get().getReceiver();
         sender.getFriends().add(receiver);
         receiver.getFriends().add(sender);
+
+        // Send new friends list to senders websocket to live notify acceptance
+        HashMap<String, Object> newFriends = new HashMap<String, Object>();
+        newFriends.put("friends", sender.getFriends()
+                .stream()
+                .map(FriendDTO::new)
+                .collect(Collectors
+                        .toList()));
+        messagingTemplate.convertAndSend("/topic/update/" + sender.getId(), newFriends);
 
         userRepository.save(sender);
         userRepository.save(receiver);

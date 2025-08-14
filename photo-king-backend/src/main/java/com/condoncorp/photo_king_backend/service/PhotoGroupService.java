@@ -6,6 +6,7 @@ import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PhotoGroupService {
@@ -33,7 +36,8 @@ public class PhotoGroupService {
     private PhotoGroupPointsRepository photoGroupPointsRepository;
     @Autowired
     private UserImageService userImageService;
-
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
@@ -58,7 +62,6 @@ public class PhotoGroupService {
     }
 
     public void deleteGroup(int groupId) throws IOException {
-
         PhotoGroup photoGroup = getGroupById(groupId);
         Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
         if (photoGroupSummary.isPresent()) {
@@ -72,6 +75,16 @@ public class PhotoGroupService {
         // REMOVES GROUP FROM ALL USERS
         for (User user : photoGroup.getUsers()) {
             user.getPhotoGroups().remove(photoGroup);
+
+            // Live update user of remove through websocket
+            HashMap<String, Object> newGroups = new HashMap<String, Object>();
+            newGroups.put("groups", user.getPhotoGroups()
+                    .stream()
+                    .map(PhotoGroupDTO::new)
+                    .collect(Collectors
+                            .toList()));
+            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), newGroups);
+
         }
 
         photoGroup.getUsers().clear();
