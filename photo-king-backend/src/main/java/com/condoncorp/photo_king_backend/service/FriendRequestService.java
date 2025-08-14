@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
@@ -7,10 +8,7 @@ import com.condoncorp.photo_king_backend.model.FriendRequestStatus;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.FriendRequestRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +25,8 @@ public class FriendRequestService {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
-    SimpMessagingTemplate messagingTemplate;
+    private WSController websocketController;
 
     @Transactional
     public void sendFriendRequest(int senderId, int receiverId) {
@@ -81,7 +78,7 @@ public class FriendRequestService {
                 .map(FriendDTO::new)
                 .collect(Collectors
                         .toList()));
-        messagingTemplate.convertAndSend("/topic/update/" + sender.getId(), newFriends);
+        websocketController.pingUser(sender.getId(), newFriends);
 
         userRepository.save(sender);
         userRepository.save(receiver);

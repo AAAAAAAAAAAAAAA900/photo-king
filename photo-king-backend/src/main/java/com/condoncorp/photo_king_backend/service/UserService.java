@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
@@ -34,7 +35,7 @@ public class UserService {
     @Autowired
     private CustomUserDetailsService userDetailsService;
     @Autowired
-    SimpMessagingTemplate messagingTemplate;
+    private WSController websocketController;
 
 
     // SAVES USER TO DATABASE
@@ -155,7 +156,7 @@ public class UserService {
                 .map(FriendDTO::new)
                 .collect(Collectors
                         .toList()));
-        messagingTemplate.convertAndSend("/topic/update/" + friend.getId(), newFriends);
+        websocketController.pingUser(friend.getId(), newFriends);
 
 
         return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());

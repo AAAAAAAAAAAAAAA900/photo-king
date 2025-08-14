@@ -1,7 +1,10 @@
 package com.condoncorp.photo_king_backend.controller;
 
+import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
+import com.condoncorp.photo_king_backend.model.PhotoGroup;
+import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.service.FriendRequestService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
 import com.condoncorp.photo_king_backend.service.UserService;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class WSController {
@@ -45,4 +49,26 @@ public class WSController {
         messagingTemplate.convertAndSend("/topic/request/" + receiverId, senderId);
     }
 
+    // Updates groups of every user in group
+    public void pingAllMembers(PhotoGroup group){
+        for(User user : group.getUsers()){
+            HashMap<String, Object> newGroups = new HashMap<String, Object>();
+            newGroups.put("groups", user.getPhotoGroups()
+                    .stream()
+                    .map(PhotoGroupDTO::new)
+                    .collect(Collectors
+                            .toList()));
+            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), newGroups);
+        }
+    }
+
+    // sends a message to the users websocket
+    public void pingUser(int userId, Object payload){
+        messagingTemplate.convertAndSend("/topic/update/" + userId, payload);
+    }
+
+    // sends a message to the groups websocket
+    public void pingGroup(int groupId, Object payload){
+        messagingTemplate.convertAndSend("/topic/picture/" + groupId, payload);
+    }
 }

@@ -1,12 +1,12 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.controller.WSController;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class PhotoGroupService {
     @Autowired
     private UserImageService userImageService;
     @Autowired
-    SimpMessagingTemplate messagingTemplate;
+    private WSController websocketController;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
@@ -83,7 +83,7 @@ public class PhotoGroupService {
                     .map(PhotoGroupDTO::new)
                     .collect(Collectors
                             .toList()));
-            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), newGroups);
+            websocketController.pingUser(user.getId(), newGroups);
 
         }
 
@@ -104,6 +104,9 @@ public class PhotoGroupService {
         }
         photoGroup.get().setName(name);
         photoGroupRepository.save(photoGroup.get());
+
+        websocketController.pingAllMembers(photoGroup.get());
+
         return new PhotoGroupDTO(photoGroup.get());
     }
 
