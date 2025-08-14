@@ -28,7 +28,7 @@ public class PhotoGroupController {
     @Autowired
     private PhotoGroupService photoGroupService;
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private WSController websocketController;
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
@@ -67,7 +67,7 @@ public class PhotoGroupController {
         }
 
         // Live update group of ranking change
-        messagingTemplate.convertAndSend("/topic/picture/" + groupId, "rank");
+        websocketController.pingGroup(groupId, "rank");
     }
 
     // CHECKS IF GROUP IS EXPIRED

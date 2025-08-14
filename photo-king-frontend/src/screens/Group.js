@@ -1,4 +1,4 @@
-import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
+import { SafeAreaView, FlatList, View, Image, TouchableOpacity, Modal, Linking, Alert, ImageBackground, ActivityIndicator, Platform, StyleSheet, BackHandler, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultText from '../components/DefaultText';
 import { useRoute } from '@react-navigation/native';
@@ -29,12 +29,14 @@ export default function GroupScreen({ navigation }) {
     const [pictures, setPictures] = useState([]);
     const [userModalVisible, setUserModalVisible] = useState(false);
     const [membersPopUpVisible, setMembersPopUpVisible] = useState(false);
+    const [renameModalVisible, setRenameModalVisible] = useState(false);
     const [friendModalVisible, setFriendModalVisible] = useState(false);
     const [friendClicked, setFriendClicked] = useState(null);
     const [optionsModalVisible, setOptionsModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [hasSummary, setHasSummary] = useState(false);
     const websocketServiceRef = useRef(WebsocketService);
+    const renameTextInputRef = useRef();
 
     // For positioning position:absolute elements
     const optionsButtonRef = useRef(null);
@@ -232,6 +234,18 @@ export default function GroupScreen({ navigation }) {
         }
     }
 
+    const renameGroup = async () => {
+        if (!renameTextInputRef.current.text.trim()){
+            return;
+        }
+        try{
+            await photoGroupApi.rename(group.id, renameTextInputRef.current.text);
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+
     // renavigates to home
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -360,6 +374,54 @@ export default function GroupScreen({ navigation }) {
                 </TouchableOpacity>
             </Modal>
 
+            {/* rename group pop up */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={renameModalVisible}
+                onRequestClose={() => { setRenameModalVisible(false); }}
+            >
+                <TouchableOpacity activeOpacity={1} onPress={() => setRenameModalVisible(false)} style={styles.modalBackground}>
+                    <View style={styles.redModalBanner} />
+                    <View style={styles.blueModalBanner} />
+                    <TouchableOpacity activeOpacity={1} style={styles.popupView}>
+                        <View style={groupStyles.renameContainer}>
+                            <DefaultText style={styles.titleText}>Rename Group</DefaultText>
+                            <TextInput
+                                ref={renameTextInputRef}
+                                placeholder="Enter group name..."
+                                style={groupStyles.renameTextIn}
+                                onChangeText={(txt) => { renameTextInputRef.current.text = txt; }}
+                                maxLength={20}
+                            />
+                            <View style={groupStyles.renameButtonsContainer}>
+                                {/* CANCEL */}
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={() => { 
+                                        setRenameModalVisible(false); 
+                                    }}
+                                >
+                                    <DefaultText style={styles.buttonText}>Cancel</DefaultText>
+                                </TouchableOpacity>
+                                {/* SUBMIT */}
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={() => { 
+                                        renameGroup();
+                                        setRenameModalVisible(false);
+                                    }}
+                                >
+                                    <DefaultText style={styles.buttonText}>Submit</DefaultText>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={styles.blueModalBanner} />
+                    <View style={styles.redModalBanner} />
+                </TouchableOpacity>
+            </Modal>
+
             {/* Options modal */}
             {/* owner: delete group & rename | member: leave group */}
             <Modal
@@ -392,7 +454,7 @@ export default function GroupScreen({ navigation }) {
                                 {/* RENAME BUTTON */}
                                 <TouchableOpacity
                                     style={groupStyles.topButton}
-                                    onPress={() => { }}
+                                    onPress={() => { setRenameModalVisible(true); }}
                                 >
                                     <DefaultText style={styles.buttonText}>Rename Group</DefaultText>
                                 </TouchableOpacity>
@@ -575,6 +637,24 @@ const groupStyles = StyleSheet.create({
             width: '70%'
         }
     ],
+    renameContainer: {
+        gap: 25,
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    renameTextIn: [
+        styles.textIn,
+        {
+            width: 220
+        }
+    ],
+    renameButtonsContainer:{
+        flexDirection:'row',
+        width: 220,
+        justifyContent:'space-between',
+        paddingHorizontal:10
+    },
     optionsContainer: {
         backgroundColor: 'white',
         borderBottomLeftRadius: 5,
