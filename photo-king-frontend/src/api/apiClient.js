@@ -5,8 +5,11 @@ import {navigate} from "../utilities/RootNavigation";
 // const API_URL = "https://photo-king.onrender.com";
 // const WS_URL = "wss://photo-king.onrender.com/websocket";
 
-const API_URL = "https://honestly-live-rhino.ngrok-free.app";
-const WS_URL = "wss://honestly-live-rhino.ngrok-free.app/websocket";
+const API_URL = "https://worthy-present-ladybug.ngrok-free.app";
+const WS_URL = "wss://worthy-present-ladybug.ngrok-free.app/websocket";
+
+// const API_URL = "https://honestly-live-rhino.ngrok-free.app";
+// const WS_URL = "wss://honestly-live-rhino.ngrok-free.app/websocket";
 
 
 const apiClient = axios.create({
@@ -115,4 +118,4 @@ apiFormClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-export { WS_URL, apiClient, apiFormClient, isTokenValid, clearTokens };
+export { WS_URL, apiClient, apiFormClient, isTokenValid, clearTokens, getAccessToken };
