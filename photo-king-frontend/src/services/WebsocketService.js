@@ -135,13 +135,10 @@ class WebsocketService {
     // subscribes to destination with callback and caches subscription obj
     subscribe(destination, callback) {
         if (this.isConnected && !this.activeSubscriptions[destination]) {
-            /*
             this.activeSubscriptions[destination] = {
                 subscription: this.socketRef.subscribe(destination, callback),
                 callback: callback
             };
-
-             */
         }
         // if not connected, cache to subscribe on reconnect 
         else if (!this.isConnected && !this.activeSubscriptions[destination]) {
