@@ -223,4 +223,13 @@ public class UserService {
                 .map(FriendDTO::new).
                 collect(Collectors.toList());
     }
+
+    public String getUsernameByToken (String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        String token = authHeader.substring(7);
+        return jwtService.extractUsername(token);
+    }
 }

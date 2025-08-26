@@ -1,5 +1,7 @@
 import { Client } from '@stomp/stompjs';
 import { WS_URL } from '../api/apiClient';
+import { getAccessToken } from "../api/apiClient";
+
 /*
  following this tutorial: https://medium.com/@tusharkumar27864/best-practices-of-using-websockets-real-time-communication-in-react-native-projects-89e749ba2e3f
  but using Stomp client instead of JS websocket
@@ -26,15 +28,20 @@ class WebsocketService {
 
     // initializes a stomp client connection & stores it in this.socketRef
     // returns promise to avoid race condition if subscribe called after
-    connect() {
+    async connect() {
         if (this.socketRef) {
             return Promise.resolve();
         }
+
+        let accessToken = await getAccessToken();
 
         const connectPromise = new Promise((resolve, reject) => {
             this.socketRef = new Client({
                 debug: function (str) {
                     console.log('STOMP: ' + str);
+                },
+                connectHeaders: {
+                    Authorization: `Bearer ${accessToken}`
                 },
                 brokerURL: WS_URL,
                 onConnect: (frame) => {
@@ -65,7 +72,8 @@ class WebsocketService {
                     reject();
                 },
                 onWebSocketError: (error) => {
-                    console.log('WebSocket error: ' + error);
+                    console.log('WebSocket error: ');
+                    console.log(error);
 
                     this.isConnected = false;
                     this.socketRef = null;
@@ -112,20 +120,15 @@ class WebsocketService {
     }
 
     // wrapper for Client.publish
-    publish(destination, body, headers = null) {
+    async publish(destination, body, headers = null) {
+        let accessToken = await getAccessToken();
+        const authHeader = { Authorization: `Bearer ${accessToken}`, ...(headers ? headers : {})};
         if (this.isConnected && this.socketRef) {
-            if (headers) {
-                this.socketRef.publish({
-                    destination: destination,
-                    headers: headers,
-                    body: body,
-                });
-            } else {
-                this.socketRef.publish({
-                    destination: destination,
-                    body: body,
-                });
-            }
+            this.socketRef.publish({
+                destination: destination,
+                headers: authHeader,
+                body: body,
+            });
         }
     }
 

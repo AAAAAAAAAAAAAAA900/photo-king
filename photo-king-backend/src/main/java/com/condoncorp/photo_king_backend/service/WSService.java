@@ -36,7 +36,7 @@ public class WSService {
                     .map(PhotoGroupDTO::new)
                     .collect(Collectors
                             .toList()));
-            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), newGroups);
+            messagingTemplate.convertAndSend("/topic/update/" + user.getId(), (Object) newGroups);
         }
     }
 
