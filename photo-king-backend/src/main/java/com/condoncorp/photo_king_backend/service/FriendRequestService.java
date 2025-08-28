@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.CustomUserDetails;
 import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.FriendRequestDTO;
 import com.condoncorp.photo_king_backend.model.FriendRequest;
@@ -8,6 +9,9 @@ import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.repository.FriendRequestRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,7 @@ public class FriendRequestService {
     private WSService websocketService;
 
     @Transactional
+    @PreAuthorize("#senderId == authentication.principal.id")
     public void sendFriendRequest(int senderId, int receiverId) {
 
         if (senderId == receiverId) {
@@ -58,17 +63,26 @@ public class FriendRequestService {
 
     }
 
+
     public void acceptFriendRequest(int friendRequestId) {
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
-        if (friendRequest.isEmpty()) {
-            throw new RuntimeException("Friend request not found.");
+        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
+                .orElseThrow(() -> new RuntimeException("Friend request not found") );
+        User sender = friendRequest.getSender();
+        User receiver = friendRequest.getReceiver();
+
+        // Check authorization
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(receiver.getId() != authenticatedUserId){
+            throw new AccessDeniedException("Only the receiving user may accept a request.");
         }
 
         // ADD BOTH USERS TO FRIENDS LIST
-        User sender = friendRequest.get().getSender();
-        User receiver = friendRequest.get().getReceiver();
         sender.getFriends().add(receiver);
         receiver.getFriends().add(sender);
+        userRepository.save(sender);
+        userRepository.save(receiver);
+        friendRequestRepository.deleteById(friendRequestId);
 
         // Send new friends list to senders websocket to live notify acceptance
         HashMap<String, Object> newFriends = new HashMap<String, Object>();
@@ -78,21 +92,24 @@ public class FriendRequestService {
                 .collect(Collectors
                         .toList()));
         websocketService.pingUser(sender.getId(), newFriends);
-
-        userRepository.save(sender);
-        userRepository.save(receiver);
-        friendRequestRepository.deleteById(friendRequestId);
     }
 
     public void rejectFriendRequest(int friendRequestId) {
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
-        if (friendRequest.isEmpty()) {
-            throw new RuntimeException("Friend request not found.");
+        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
+                .orElseThrow(()-> new RuntimeException("Friend request not found."));
+
+        // Check authorization
+        int receiverId = friendRequest.getReceiver().getId();
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(receiverId != authenticatedUserId){
+            throw new AccessDeniedException("Only the receiving user may deny a request.");
         }
 
         friendRequestRepository.deleteById(friendRequestId);
     }
 
+    @PreAuthorize("#receiverId == authentication.principal.id")
     public List<FriendRequestDTO> getPendingFriendRequests(int receiverId) {
         Optional<User> user = userRepository.findById(receiverId);
         if (user.isEmpty()) {

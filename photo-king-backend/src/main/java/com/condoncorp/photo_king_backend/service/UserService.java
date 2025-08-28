@@ -8,6 +8,8 @@ import com.condoncorp.photo_king_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,7 @@ public class UserService {
 
     // DELETES USER FROM DATABASE BY ID
     @Transactional
+    @PreAuthorize("#id == authentication.principal.id")
     public void deleteUser(Integer id) throws IOException {
         User user = getUserById(id);
 
@@ -117,28 +120,8 @@ public class UserService {
         return new UserDTO(user.get());
     }
 
-
-    // ADDS FRIEND TO USER'S FRIENDS LIST
-    public Set<FriendDTO> addFriend(int userId, int friendId) {
-        if (userId == friendId) {
-            throw new RuntimeException("You can't add yourself as a friend");
-        }
-
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-
-        if ( user.getFriends().contains(friend) ) {
-            throw new RuntimeException("You are already friends");
-        }
-
-        user.addFriend(friend);
-        friend.addFriend(user);
-        saveUser(user);
-        saveUser(friend);
-        return user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
-    }
-
     // REMOVES FRIEND FROM USER'S FRIENDS LIST
+    @PreAuthorize("#userId == authentication.principal.id")
     public Set<FriendDTO> removeFriend(int userId, int friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
@@ -206,7 +189,8 @@ public class UserService {
     }
 
     // SETS NEW PROFILE DATA
-    public UserDTO setUserProfile(UserProfileReq userProfileReq){
+    @PreAuthorize("#userProfileReq.getId() == authentication.principal.id")
+    public UserDTO setUserProfile(@P("userProfileReq") UserProfileReq userProfileReq){
         User user = getUserById(userProfileReq.getId());
         user.setUsername(userProfileReq.getUsername());
         user.setName(userProfileReq.getName());

@@ -6,12 +6,14 @@ import com.condoncorp.photo_king_backend.dto.UserImageDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,11 +36,12 @@ public class UserImageService {
     private WSService websocketService;
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
+    @PreAuthorize("#userId == authentication.principal.id")
     public String upload(MultipartFile file, int userId, int groupId) throws IOException {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
-        if (user.isEmpty() || photoGroup.isEmpty()) {
-            return null;
+        User user = userRepository.findById(userId).orElseThrow();
+        PhotoGroup photoGroup = photoGroupRepository.findById(groupId).orElseThrow();
+        if(!photoGroup.getUsers().contains(user)){
+            throw new AccessDeniedException("User does not belong to group");
         }
 
         BufferedImage bi = ImageIO.read(file.getInputStream());
@@ -51,8 +54,8 @@ public class UserImageService {
         userImage.setImageName((String) result.get("original_filename"));
         userImage.setUrl((String) result.get("url"));
         userImage.setPublicId((String) result.get("public_id"));
-        userImage.setUser(user.get());
-        userImage.setPhotoGroup(photoGroup.get());
+        userImage.setUser(user);
+        userImage.setPhotoGroup(photoGroup);
         userImage.setSummary(null);
         userImageRepository.save(userImage);
 
@@ -62,6 +65,7 @@ public class UserImageService {
         return userImage.getUrl();
     }
 
+    @PreAuthorize("#userId == authentication.principal.id")
     public String uploadProfile(MultipartFile file, int userId) throws IOException {
 
         User user = userRepository.findById(userId).orElse(null);
@@ -74,13 +78,17 @@ public class UserImageService {
             return null;
         }
 
+        // Delete old PFP
+        if(user.getProfilePublicId() != null && !user.getProfilePublicId().isEmpty()){
+            cloudinaryService.delete(user.getProfilePublicId());
+        }
+
         Map result = cloudinaryService.upload(file);
         user.setProfileUrl((String) result.get("url"));
         user.setProfilePublicId((String) result.get("public_id"));
         userRepository.save(user);
 
         return user.getProfileUrl();
-
     }
 
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE

@@ -59,13 +59,8 @@ export default function HomeScreen({ navigation }) {
                 case "Saturday": day = 6; break;
                 case "Sunday": day = 7; break;
             }
-            const group_response = await photoGroupApi.addGroup(groupTitle, user.id, day); // CREATES A GROUP
-            const group_data = group_response.data;
-            try {
-                const user_group_response = await photoGroupApi.addUserToGroup(user.id, group_data.id); // ADDS OWNER TO GROUP
-            } catch (error) {
-                console.log(error);
-            }
+            // creates a group and adds owner
+            await photoGroupApi.addGroup(groupTitle, user.id, day);
         } catch (error) {
             console.log(error);
         }

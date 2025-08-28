@@ -6,6 +6,7 @@ import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
+import com.condoncorp.photo_king_backend.service.UserGroupService;
 import com.condoncorp.photo_king_backend.service.WSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,13 +27,18 @@ public class PhotoGroupController {
     @Autowired
     private PhotoGroupService photoGroupService;
     @Autowired
+    private UserGroupService userGroupService;
+    @Autowired
     private WSService websocketService;
 
     // CREATES A PHOTO GROUP
     @PostMapping(path = "/add")
     public ResponseEntity<?> addGroup(@RequestBody PhotoGroupReq photoGroupReq) {
-        return ResponseEntity.ok(photoGroupService.addGroup(photoGroupReq));
-
+        // Create group
+        PhotoGroupDTO photoGroup = photoGroupService.addGroup(photoGroupReq);
+        // Add creator to group
+        photoGroup = userGroupService.addUserToGroup(photoGroupReq.getOwnerId(), photoGroup.getId());
+        return ResponseEntity.ok(photoGroup);
     }
 
     @DeleteMapping(path = "/delete/{id}")
@@ -68,12 +74,6 @@ public class PhotoGroupController {
         websocketService.liveUpdatePictures(groupId, "rank");
     }
 
-    // CHECKS IF GROUP IS EXPIRED
-    @GetMapping(path = "/expired")
-    public boolean isExpired(int groupId) {
-        return photoGroupService.isExpired(groupId);
-    }
-
     @PutMapping(path="/update-name/{id}/{name}")
     public PhotoGroupDTO updateName(@PathVariable int id, @PathVariable String name) {
         return photoGroupService.updateGroupName(id, name);
@@ -87,21 +87,4 @@ public class PhotoGroupController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
-    @PostMapping(path="/test/{id}")
-    public void test(@PathVariable int id) {
-        PhotoGroup photoGroup = photoGroupService.getGroupById(id);
-        LocalDateTime newExpirationTest = LocalDateTime.now().plusMinutes(1);
-        photoGroup.setExpiresAt(newExpirationTest);
-        photoGroupRepository.save(photoGroup);
-    }
-
-    @PostMapping(path="/summary")
-    public void summaryTest() throws IOException {
-        photoGroupService.resetGroups();
-    }
-
-
-
-
 }

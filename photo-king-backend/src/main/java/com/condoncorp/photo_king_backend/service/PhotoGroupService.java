@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.CustomUserDetails;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
@@ -7,6 +8,9 @@ import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -37,12 +41,19 @@ public class PhotoGroupService {
     private WSService websocketService;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
-        Optional<User> user = userRepository.findById(photoGroupReq.getOwnerId());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
+        User user = userRepository.findById(photoGroupReq.getOwnerId())
+                .orElseThrow(()-> new RuntimeException("User not found"));
+
+        // Check authorization
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(user.getId() != authenticatedUserId){
+            throw new AccessDeniedException("UserId does not match ownerId");
         }
+
         PhotoGroup photoGroup = new PhotoGroup(photoGroupReq);
         photoGroupRepository.save(photoGroup);
+
         return new PhotoGroupDTO(photoGroup);
     }
 
@@ -60,6 +71,14 @@ public class PhotoGroupService {
 
     public void deleteGroup(int groupId) throws IOException {
         PhotoGroup photoGroup = getGroupById(groupId);
+
+        // Check authorization
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getOwnerId() != authenticatedUserId){
+            throw new AccessDeniedException("Only the owner may delete a group.");
+        }
+
         Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
         if (photoGroupSummary.isPresent()) {
             for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
@@ -95,16 +114,22 @@ public class PhotoGroupService {
     }
 
     public PhotoGroupDTO updateGroupName(int groupId, String name) {
-        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
-        if (photoGroup.isEmpty()) {
-            throw new RuntimeException("Group not found");
+        PhotoGroup photoGroup = photoGroupRepository.findById(groupId)
+                .orElseThrow(()-> new RuntimeException("Group not found"));
+
+        // Check authorization
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getOwnerId() != authenticatedUserId){
+            throw new AccessDeniedException("UserId does not match ownerId");
         }
-        photoGroup.get().setName(name);
-        photoGroupRepository.save(photoGroup.get());
 
-        websocketService.pingAllMembers(photoGroup.get());
+        photoGroup.setName(name);
+        photoGroupRepository.save(photoGroup);
 
-        return new PhotoGroupDTO(photoGroup.get());
+        websocketService.pingAllMembers(photoGroup);
+
+        return new PhotoGroupDTO(photoGroup);
     }
 
 
@@ -114,6 +139,7 @@ public class PhotoGroupService {
         photoGroupUserRankingRepository.save(photoGroupUserRanking);
     }
 
+    @PreAuthorize("#userId == authentication.principal.id")
     public void updateFirstRank(int userId, int groupId, int firstRankId) {
         Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
         if (photoGroupUserRanking.isEmpty()) {
@@ -128,6 +154,7 @@ public class PhotoGroupService {
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
     }
 
+    @PreAuthorize("#userId == authentication.principal.id")
     public void updateSecondRank(int userId, int groupId, int secondRankId) {
         Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
 
@@ -142,6 +169,7 @@ public class PhotoGroupService {
         photoGroupUserRankingRepository.save(photoGroupUserRanking.get());
     }
 
+    @PreAuthorize("#userId == authentication.principal.id")
     public void updateThirdRank(int userId, int groupId, int thirdRankId) {
         Optional<PhotoGroupUserRanking> photoGroupUserRanking = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
         if (photoGroupUserRanking.isEmpty()) {
@@ -239,6 +267,14 @@ public class PhotoGroupService {
 
     public PhotoGroupSummaryDTO getGroupSummary(int groupId) {
         PhotoGroup photoGroup = getGroupById(groupId);
+
+        // Check authorization i.e. user belongs to group
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+            throw new AccessDeniedException("User is not in group");
+        }
+
         Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId());
         if (photoGroupSummary.isEmpty()) {
             throw new RuntimeException("Group summary will appear after expiration date.");

@@ -33,10 +33,6 @@ public class UserImageController {
                 return "NO FILE RECEIVED";
             }
 
-            System.out.println("Files received: " + files.size());
-            System.out.println("User ID: " + userId);
-            System.out.println("Group ID: " + groupId);
-
             List<String> uploadedUrls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = userImageService.upload(file, userId, groupId);
@@ -58,8 +54,6 @@ public class UserImageController {
             if (file == null || file.isEmpty()) {
                 return "NO FILE RECEIVED";
             }
-            System.out.println("Files received: " + file.getSize());
-            System.out.println("User ID: " + userId);
 
             return userImageService.uploadProfile(file, userId);
         } catch (Exception e) {
