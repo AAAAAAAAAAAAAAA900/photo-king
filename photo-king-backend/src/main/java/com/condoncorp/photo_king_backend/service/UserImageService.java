@@ -1,5 +1,6 @@
 package com.condoncorp.photo_king_backend.service;
 
+import com.condoncorp.photo_king_backend.dto.CustomUserDetails;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentDTO;
 import com.condoncorp.photo_king_backend.dto.UserImageCommentReq;
 import com.condoncorp.photo_king_backend.dto.UserImageDTO;
@@ -7,6 +8,8 @@ import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +98,18 @@ public class UserImageService {
     public void deleteImage(int id) throws IOException {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
+        if (userImage.isEmpty()) {
+            return;
+        }
+
+        // Check authorization i.e. person deleting is not image or group owner
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(authenticatedUserId != userImage.get().getUser().getId() &&
+                authenticatedUserId != userImage.get().getPhotoGroup().getOwnerId()){
+            throw new org.springframework.security.access.AccessDeniedException("User not permitted to delete photo");
+        }
+
         Optional<PhotoGroupUserRanking> firstRank =  photoGroupUserRankingRepository.findByFirstRank(id);
 
         if (firstRank.isPresent()) {
@@ -116,10 +131,6 @@ public class UserImageService {
             }
         }
 
-        if (userImage.isEmpty()) {
-            return;
-        }
-
         try {
             cloudinaryService.delete(userImage.get().getPublicId());
         } catch (Exception e) {
@@ -133,6 +144,7 @@ public class UserImageService {
     }
 
     // DELETES USER'S PROFILE PICTURE
+    @PreAuthorize("#id == authentication.principal.id")
     public void deleteProfileImage(int id) throws IOException {
 
         User user = userRepository.findById(id).orElse(null);
@@ -153,17 +165,21 @@ public class UserImageService {
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     public List<UserImageDTO> getImagesByGroup(int groupId) {
-        Optional<PhotoGroup> photoGroup = photoGroupRepository.findById(groupId);
-        if (photoGroup.isEmpty()) {
+        Optional<PhotoGroup> optionalPhotoGroup = photoGroupRepository.findById(groupId);
+        if (optionalPhotoGroup.isEmpty() ||
+                optionalPhotoGroup.get().getUserImages().isEmpty()) {
             return null;
         }
+        PhotoGroup photoGroup = optionalPhotoGroup.get();
 
-        if (photoGroup.get().getUserImages().isEmpty()) {
-            return null;
+        // Check authorization i.e. user belongs to group
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
-        return photoGroup.get().getUserImages().stream().map(UserImageDTO::new).toList();
-
+        return photoGroup.getUserImages().stream().map(UserImageDTO::new).toList();
     }
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER
@@ -182,32 +198,24 @@ public class UserImageService {
 
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImageDTO getTopImage(int groupId) {
+        PhotoGroup photoGroup = photoGroupRepository.findById(groupId).orElseThrow();
 
-        List<UserImageDTO> groupImages = getImagesByGroup(groupId);
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getUsers().stream().noneMatch((u) -> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
+        }
 
-        if (groupImages == null) {
+        List<UserImage> groupImages = photoGroup.getUserImages();
+        if (groupImages == null || groupImages.isEmpty()) {
             return null;
         }
-
-        if (groupImages.isEmpty()) {
-            return null;
-        }
-        List<UserImageDTO> images = new ArrayList<>(getImagesByGroup(groupId));
-
-        if (images.isEmpty()) {
-            return null;
-        }
-
-        if (images.size() == 1) {
-            return images.get(0);
-        }
-
-        images.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
-        return images.get(0);
+        groupImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
+        return new UserImageDTO(groupImages.get(0));
     }
 
     // UPDATES AN IMAGE'S POINTS
-    public UserImageDTO updatePoints(int id, int points) {
+    public void updatePoints(int id, int points) {
 
         Optional<UserImage> userImage = userImageRepository.findById(id);
         if (userImage.isEmpty()) {
@@ -217,40 +225,53 @@ public class UserImageService {
         int currentPoints = userImage.get().getPoints();
         userImage.get().setPoints(currentPoints + points);
         userImageRepository.save(userImage.get());
-        return new UserImageDTO(userImage.get());
     }
 
     // COMMENT FUNCTIONS
     // UPLOADS COMMENT TO IMAGE
-    public UserImageCommentDTO uploadComment(UserImageCommentReq userImageCommentReq) {
-        Optional<User> user = userRepository.findById(userImageCommentReq.getUserId());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
+    @PreAuthorize("userImageCommentReq.getUserId() == authentication.principal.id")
+    public UserImageCommentDTO uploadComment(@P("userImageCommentReq") UserImageCommentReq userImageCommentReq) {
+        UserImage userImage = userImageRepository.findById(userImageCommentReq.getPhotoId())
+                .orElseThrow(()-> new RuntimeException("Image not found"));
+
+        // Check authorization i.e. user belongs to group
+        PhotoGroup photoGroup = userImage.getPhotoGroup();
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
-        Optional<UserImage> userImage = userImageRepository.findById(userImageCommentReq.getPhotoId());
-        if (userImage.isEmpty()) {
-            throw new RuntimeException("Image not found");
-        }
+
+        User user = userRepository.findById(userImageCommentReq.getUserId())
+                .orElseThrow(()-> new RuntimeException("User not found"));
 
         UserImageComment userImageComment = new UserImageComment();
         userImageComment.setComment(userImageCommentReq.getComment());
         userImageComment.setCreatedAt(LocalDateTime.now());
-        userImageComment.setUser(user.get());
-        userImageComment.setUserImage(userImage.get());
+        userImageComment.setUser(user);
+        userImageComment.setUserImage(userImage);
+
         userImageCommentRepository.save(userImageComment);
-
         return new UserImageCommentDTO(userImageComment);
-
     }
 
-    public void deleteComment(int id) {
-        userImageCommentRepository.deleteById(id);
-    }
-
-    // GETS COMMENTS FOR GIVEN IMAGE1
+    // GETS COMMENTS FOR GIVEN IMAGE
     public List<UserImageCommentDTO> getComments(int photoId){
-        Optional<UserImage> image = userImageRepository.findById(photoId);
-        return image.map(userImage -> userImage.getComments().stream().map(UserImageCommentDTO::new).toList()).orElse(Collections.emptyList());
+        Optional<UserImage> optionalImage = userImageRepository.findById(photoId);
+        if(optionalImage.isEmpty()){
+            return Collections.emptyList();
+        }
+        UserImage image = optionalImage.get();
+
+        // Check authorization i.e. user belongs to group
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(image.getPhotoGroup().getUsers().stream().noneMatch(
+                (u)-> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
+        }
+
+        return image.getComments().stream().map(UserImageCommentDTO::new).toList();
     }
 
     public void saveImage(UserImage userImage) {

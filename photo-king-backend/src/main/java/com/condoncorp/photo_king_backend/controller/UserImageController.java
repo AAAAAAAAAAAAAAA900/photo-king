@@ -80,12 +80,6 @@ public class UserImageController {
         userImageService.deleteProfileImage(userId);
     }
 
-    // UPDATES AN IMAGE'S POINTS
-    @PutMapping(path = "/update-points/{id}/{points}")
-    public UserImageDTO updatePoints(@PathVariable int id, @PathVariable int points) {
-        return userImageService.updatePoints(id, points);
-    }
-
     // RETURNS IMAGES WITH HIGHEST POINTS
     @GetMapping(path = "/get-top-image/{groupId}")
     public UserImageDTO getTopImage(@PathVariable int groupId) {
@@ -98,16 +92,8 @@ public class UserImageController {
         return userImageService.uploadComment(userImageCommentReq);
     }
 
-    // DELETES COMMENT
-    @DeleteMapping(path = "/delete-comment/{id}")
-    public void deleteComment(@PathVariable int id) {
-        userImageService.deleteComment(id);
-    }
-
     @GetMapping(path = "/get-comments/{photoId}")
     public List<UserImageCommentDTO> getComments(@PathVariable int photoId) {
         return userImageService.getComments(photoId);
     }
-
-
 }
