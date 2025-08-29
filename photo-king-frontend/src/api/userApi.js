@@ -6,10 +6,6 @@ const userApi = {
         return apiClient.get("/user/get-user-info");
     },
 
-    getUser: async(username) => {
-        return apiClient.get(`/user/get-user/${username}`);
-    },
-
     removeFriend: async (userId, friendId) => {
         return apiClient.post(`/user/remove-friend/${userId}/${friendId}`);
     },

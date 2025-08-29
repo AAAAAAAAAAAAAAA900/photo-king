@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -229,7 +230,8 @@ public class UserImageService {
 
     // COMMENT FUNCTIONS
     // UPLOADS COMMENT TO IMAGE
-    @PreAuthorize("userImageCommentReq.getUserId() == authentication.principal.id")
+    @Transactional
+    @PreAuthorize("#userImageCommentReq.getUserId() == authentication.principal.id")
     public UserImageCommentDTO uploadComment(@P("userImageCommentReq") UserImageCommentReq userImageCommentReq) {
         UserImage userImage = userImageRepository.findById(userImageCommentReq.getPhotoId())
                 .orElseThrow(()-> new RuntimeException("Image not found"));

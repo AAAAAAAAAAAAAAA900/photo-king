@@ -25,7 +25,14 @@ const apiFormClient = axios.create({
 
 
 // GET TOKENS
-const getAccessToken = async () => await SecureStore.getItemAsync("accessToken");
+const getAccessToken = async () => {
+    const accessToken = await SecureStore.getItemAsync("accessToken");
+    if (!accessToken || !(await isTokenValid(accessToken))) {
+        await refreshAccessToken(); // Refresh the token if expired
+        const accessToken = await SecureStore.setItemAsync("accessToken", accessToken);
+    }
+    return accessToken;
+}
 const getRefreshToken = async () => await SecureStore.getItemAsync("refreshToken");
 
 // STORE TOKENS
@@ -80,11 +87,6 @@ apiClient.interceptors.request.use(async (config) => {
     if (!config.url.startsWith("/auth/")) {
         let accessToken = await getAccessToken();
 
-        if (!accessToken || !(await isTokenValid(accessToken))) {
-            await refreshAccessToken(); // Refresh the token if expired
-            accessToken = await getAccessToken(); // Get the new token
-        }
-
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -99,12 +101,6 @@ apiFormClient.interceptors.request.use(async (config) => {
 
     if (!config.url.startsWith("/auth/")) {
         let accessToken = await getAccessToken();
-
-
-        if (!accessToken || !(await isTokenValid(accessToken))) {
-            await refreshAccessToken(); // Refresh the token if expired
-            accessToken = await getAccessToken(); // Get the new token
-        }
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;

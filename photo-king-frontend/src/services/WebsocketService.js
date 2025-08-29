@@ -1,5 +1,5 @@
 import { Client } from '@stomp/stompjs';
-import { WS_URL } from '../api/apiClient';
+import { apiClient, WS_URL } from '../api/apiClient';
 import { getAccessToken } from "../api/apiClient";
 
 /*
@@ -23,7 +23,20 @@ class WebsocketService {
         this.socketRef = null;
         this.isConnected = false;
         this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
+        this.maxReconnectAttempts = 6;
+    }
+
+    // connect helper method: incrementally delays and caps reconnect attempts
+    delayReconnect() {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            // Exponential backoff for reconnection
+            const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
+            console.log("Reconnect attempt " + this.reconnectAttempts + ". Scheduled in " + delay + "ms.");
+            this.timeout = setTimeout(() => {
+                this.reconnectAttempts++;
+                this.connect();
+            }, delay);
+        }
     }
 
     // initializes a stomp client connection & stores it in this.socketRef
@@ -37,6 +50,7 @@ class WebsocketService {
 
         const connectPromise = new Promise((resolve, reject) => {
             this.socketRef = new Client({
+                reconnectDelay: 0,   // disables auto reconnect
                 debug: function (str) {
                     console.log('STOMP: ' + str);
                 },
@@ -50,20 +64,21 @@ class WebsocketService {
                     this.reconnectAttempts = 0;
 
                     // (re)subscribe to all cached subscriptions
-                    for (const destination in this.activeSubscriptions) {
-                        const callback = this.activeSubscriptions[destination].callback;
-                        this.activeSubscriptions[destination] = {
-                            subscription: this.socketRef.subscribe(destination, callback),
-                            callback: callback
+                    if (this.socketRef) {
+                        for (const destination in this.activeSubscriptions) {
+                            const callback = this.activeSubscriptions[destination].callback;
+                            this.activeSubscriptions[destination] = {
+                                subscription: this.socketRef.subscribe(destination, callback),
+                                callback: callback
+                            }
                         }
                     }
 
                     this.executeCallback('connect', null);
                     resolve();
                 },
-                onStompError: (frame) => {
+                onStompError: (frame) => { 
                     console.log('Broker reported error: ' + frame.headers.message);
-                    console.log('Additional headers: ' + frame.headers);
 
                     this.isConnected = false;
                     this.socketRef = null;
@@ -91,21 +106,10 @@ class WebsocketService {
             });
 
             this.socketRef.activate();
+
         });
 
         return connectPromise;
-    }
-
-    // connect helper method: incrementally delays and caps reconnect attempts
-    delayReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            // Exponential backoff for reconnection
-            const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
-            this.timeout = setTimeout(() => {
-                this.reconnectAttempts++;
-                this.connect();
-            }, delay);
-        }
     }
 
     // deactivates stomp client and resets state
@@ -122,7 +126,7 @@ class WebsocketService {
     // wrapper for Client.publish
     async publish(destination, body, headers = null) {
         let accessToken = await getAccessToken();
-        const authHeader = { Authorization: `Bearer ${accessToken}`, ...(headers ? headers : {})};
+        const authHeader = { Authorization: `Bearer ${accessToken}`, ...(headers ? headers : {}) };
         if (this.isConnected && this.socketRef) {
             this.socketRef.publish({
                 destination: destination,
