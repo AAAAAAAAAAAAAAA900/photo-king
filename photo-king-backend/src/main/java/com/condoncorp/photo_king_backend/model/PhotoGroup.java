@@ -22,7 +22,7 @@ public class PhotoGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = true, nullable = false, length = 20, name = "name")
+    @Column(nullable = false, length = 20, name = "name")
     private String name;
 
     @Column(name = "owner_id", nullable = false)

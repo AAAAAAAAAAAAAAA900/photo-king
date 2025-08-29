@@ -33,7 +33,8 @@ public class UserGroupService {
         // Check authorization i.e. person doing the adding belongs to group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+        if(authenticatedUserId != photoGroup.getOwnerId() &&
+            photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new AccessDeniedException("User adding is not in group");
         }
 
