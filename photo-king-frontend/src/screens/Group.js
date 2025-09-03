@@ -297,6 +297,17 @@ export default function GroupScreen({ navigation }) {
         }
     }, []);
 
+    const resetGroup = async () => {
+        setLoading(true);
+        try {
+            await photoGroupApi.reset(group.id);
+        }
+        catch (e) {
+            setLoading(false);
+            Alert.alert("Reset failed", "check wifi connection or try again later.");
+        }
+    };
+
     // Date calculations necessary for display
     const getDateInfo = () => {
         const current_date = new Date(Date.now());
@@ -418,7 +429,7 @@ export default function GroupScreen({ navigation }) {
             </Modal>
 
             {/* Options modal */}
-            {/* owner: delete group & rename | member: leave group */}
+            {/* owner: delete, rename, reset | member: leave group */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -452,6 +463,23 @@ export default function GroupScreen({ navigation }) {
                                     onPress={() => { setRenameModalVisible(true); }}
                                 >
                                     <DefaultText style={styles.buttonText}>Rename Group</DefaultText>
+                                </TouchableOpacity>
+
+                                {/* RESET BUTTON */}
+                                <TouchableOpacity
+                                    style={groupStyles.topButton}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            "Reset group early?",
+                                            "Photos will be moved to summary, and points will be assigned.",
+                                            [
+                                                { text: "Cancel", style: "cancel" },
+                                                { text: "Confirm", onPress: () => { resetGroup(); } }
+                                            ]
+                                        );
+                                    }}
+                                >
+                                    <DefaultText style={styles.buttonText}>Reset Now</DefaultText>
                                 </TouchableOpacity>
                             </View>
                             :

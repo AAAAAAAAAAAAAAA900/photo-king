@@ -39,6 +39,8 @@ public class PhotoGroupService {
     private UserImageService userImageService;
     @Autowired
     private WSService websocketService;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         User user = userRepository.findById(photoGroupReq.getOwnerId())
@@ -105,9 +107,13 @@ public class PhotoGroupService {
 
         photoGroup.getUsers().clear();
 
-        // RETURNS ALL IMAGES IN A GROUP AND DELETES THEM
+        // Deletes all images from image server
         for (UserImage userImage : photoGroup.getUserImages()) {
-            userImageService.deleteImage(userImage.getId());
+            try {
+                cloudinaryService.delete(userImage.getPublicId());
+            } catch (Exception e) {
+                throw new IOException("Failed to delete image: " + userImage.getPublicId());
+            }
         }
 
         photoGroupRepository.deleteById(groupId);
@@ -199,11 +205,17 @@ public class PhotoGroupService {
         for (PhotoGroup photoGroup : photoGroups) {
             if (isExpired(photoGroup.getId())) {
                 createPhotoGroupSummary(photoGroup);
+
+                // UDPATES EXPIRATION DATE
+                LocalDateTime newExpiresAt = photoGroup.getExpiresAt().plusDays(7).with(LocalTime.of(23, 59, 59));
+                photoGroup.setExpiresAt(newExpiresAt);
+
                 updateExpiredGroups(photoGroup);
             }
         }
     }
 
+    // Helper method: creates/overwrites new summary for group resetting
     public void createPhotoGroupSummary(PhotoGroup photoGroup) throws IOException {
         Optional<PhotoGroupSummary> existingPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId()); // CHECKS IF GROUP SUMMARY EXISTS
         List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
@@ -236,12 +248,8 @@ public class PhotoGroupService {
         userImageService.saveAllImages(userImages);
     }
 
+    // Helper method: handles points and image deletion in group resetting
     public void updateExpiredGroups(PhotoGroup photoGroup) {
-
-        // UDPATES EXPIRATION DATE
-        LocalDateTime newExpiresAt = photoGroup.getExpiresAt().plusDays(7).with(LocalTime.of(23, 59, 59));
-        photoGroup.setExpiresAt(newExpiresAt);
-
         // UPDATE POINTS
         UserImage first = photoGroup.getCurrentFirstPlaceImage();
         UserImage second = photoGroup.getCurrentSecondPlaceImage();
@@ -282,19 +290,26 @@ public class PhotoGroupService {
         return new PhotoGroupSummaryDTO(photoGroupSummary.get());
     }
 
+    // resets photo group of given ID before its scheduled date
+    public void resetGroup(int groupId) throws IOException{
+        PhotoGroup group = photoGroupRepository.findById(groupId).orElseThrow(
+                ()-> new RuntimeException("Group not found.")
+        );
 
+        // Check authorization: caller is group owner
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(group.getOwnerId() != authenticatedUserId){
+            throw new AccessDeniedException("User is not group owner");
+        }
 
+        // create summary, change reset date to week from now, reset group
+        createPhotoGroupSummary(group);
+        System.out.println("\n\n" +"summary created" + "\n\n");
+        LocalDateTime newExpiresAt = LocalDateTime.now().plusDays(7).with(LocalTime.of(23, 59, 59));
+        group.setExpiresAt(newExpiresAt);
+        updateExpiredGroups(group);     // also saves group
 
-
-
-
-
-
-
-
-
-
-
-
-
+        websocketService.pingAllMembers(group);     // live update group members of change
+    }
 }

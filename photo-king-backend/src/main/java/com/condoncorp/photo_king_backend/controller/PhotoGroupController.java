@@ -3,7 +3,6 @@ package com.condoncorp.photo_king_backend.controller;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserGroupService;
@@ -11,10 +10,10 @@ import com.condoncorp.photo_king_backend.service.WSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -72,6 +71,21 @@ public class PhotoGroupController {
 
         // Live update group of ranking change
         websocketService.liveUpdatePictures(groupId, "rank");
+    }
+
+    // Resets group early
+    @PatchMapping(path="/reset/{id}")
+    public ResponseEntity<Void> resetGroup(@PathVariable int id){
+        try{
+            photoGroupService.resetGroup(id);
+            return ResponseEntity.ok().build();
+        } catch(Exception e){
+            if (e instanceof AccessDeniedException)
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            else if (e.getMessage().equals("Group not found."))
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping(path="/update-name/{id}/{name}")

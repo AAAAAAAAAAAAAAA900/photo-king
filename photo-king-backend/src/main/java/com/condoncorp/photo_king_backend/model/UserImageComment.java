@@ -2,6 +2,8 @@ package com.condoncorp.photo_king_backend.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +23,7 @@ public class UserImageComment {
 
     @ManyToOne
     @JoinColumn(name = "user_image_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user_image"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private UserImage userImage;
 
     @Column(name = "created_at", nullable = false, updatable = false)

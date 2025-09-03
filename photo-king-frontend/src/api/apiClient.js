@@ -29,7 +29,6 @@ const getAccessToken = async () => {
     const accessToken = await SecureStore.getItemAsync("accessToken");
     if (!accessToken || !(await isTokenValid(accessToken))) {
         await refreshAccessToken(); // Refresh the token if expired
-        const accessToken = await SecureStore.setItemAsync("accessToken", accessToken);
     }
     return accessToken;
 }

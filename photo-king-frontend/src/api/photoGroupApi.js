@@ -30,6 +30,9 @@ const photoGroupApi = {
     rename: async (groupId, name) => {
         return apiClient.put(`/photo-group/update-name/${groupId}/${name}`);
     },
+    reset: async (groupId) => {
+        return apiClient.patch(`/photo-group/reset/${groupId}`);
+    }
 }
 
 export default photoGroupApi;
