@@ -321,6 +321,6 @@ public class PhotoGroupService {
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group
 
-        websocketService.pingAllMembers(group);     // live update group members of change
+        websocketService.liveUpdatePictures(group.getId(), "reset");     // live update group members of change
     }
 }

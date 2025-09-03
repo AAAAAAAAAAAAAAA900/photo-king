@@ -60,7 +60,6 @@ const isTokenValid = async (token) => {
 const refreshAccessToken = async () => {
     const refreshToken = await getRefreshToken();
     if (!refreshToken || !(await isTokenValid(refreshToken))) {
-        await clearTokens();
         navigate("Login")
     }
     try {
@@ -70,13 +69,13 @@ const refreshAccessToken = async () => {
             }
         })
         if (response.data === null) {
-            await clearTokens();
-            navigate("Login")
+            navigate("Login");
+            return;
         }
         await saveAccessToken(response.data);
     }
     catch (error) {
-        await clearTokens();
+        navigate("Login");
     }
 }
 

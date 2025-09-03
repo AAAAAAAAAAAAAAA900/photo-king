@@ -112,7 +112,7 @@ export default function SummaryScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
             <Header
-                title={"TESTING"}
+                title={group.name}
                 backFunction={() => { navigateBack(); }}
             />
 
@@ -133,7 +133,9 @@ export default function SummaryScreen({ navigation }) {
                                 < View style={summaryStyles.podiumPlace}>
                                     <DefaultText numberOfLines={3} style={summaryStyles.username}>{placings[1].username}</DefaultText>
                                     <Pfp url={placings[1].pfp} />
-                                    <View style={summaryStyles.silver} />
+                                    <View style={summaryStyles.silver}>
+                                        <DefaultText style={styles.buttonText}>+2 Points</DefaultText>
+                                    </View>
                                 </View>
                             }
 
@@ -142,7 +144,9 @@ export default function SummaryScreen({ navigation }) {
                                 <View style={summaryStyles.podiumPlace}>
                                     <DefaultText numberOfLines={2} style={summaryStyles.username}>{placings[0].username}</DefaultText>
                                     <Pfp url={placings[0].pfp} />
-                                    <View style={summaryStyles.gold} />
+                                    <View style={summaryStyles.gold}>
+                                        <DefaultText style={styles.buttonText}>+3 Points</DefaultText>
+                                    </View>
                                 </View>
                             }
 
@@ -151,7 +155,9 @@ export default function SummaryScreen({ navigation }) {
                                 <View style={summaryStyles.podiumPlace}>
                                     <DefaultText numberOfLines={4} style={summaryStyles.username}>{placings[2].username}</DefaultText>
                                     <Pfp url={placings[2].pfp} />
-                                    <View style={summaryStyles.bronze} />
+                                    <View style={summaryStyles.bronze}>
+                                        <DefaultText style={styles.buttonText}>+1 Points</DefaultText>
+                                    </View>
                                 </View>
                             }
                         </View>
@@ -163,13 +169,19 @@ export default function SummaryScreen({ navigation }) {
 
                     {/* IMAGES */}
                     <View style={summaryStyles.picturesContainer}>
-                        <FlatList
-                            keyExtractor={(item) => item.id}
-                            numColumns={1}
-                            renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
-                            data={pictures}
-                            ItemSeparatorComponent={<View style={summaryStyles.separator} />}
-                        />
+                        {pictures.length != 0 ?
+                            <FlatList
+                                keyExtractor={(item) => item.id}
+                                numColumns={1}
+                                renderItem={({ item }) => <Pic photo={item} pictures={pictures} />}
+                                data={pictures}
+                                ItemSeparatorComponent={<View style={summaryStyles.separator} />}
+                            />
+                            :
+                            <View style={styles.containerCenterAll}>
+                                <DefaultText style={styles.buttonText}>No photos last week!</DefaultText>
+                            </View>
+                        }
                     </View>
                 </View>
             }
@@ -201,6 +213,8 @@ const summaryStyles = StyleSheet.create({
         backgroundColor: 'silver',
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     gold: {
         width: '100%',
@@ -208,6 +222,8 @@ const summaryStyles = StyleSheet.create({
         backgroundColor: 'gold',
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     bronze: {
         width: '100%',
@@ -215,6 +231,8 @@ const summaryStyles = StyleSheet.create({
         backgroundColor: '#CD7F32',
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     username: [
         styles.bold,

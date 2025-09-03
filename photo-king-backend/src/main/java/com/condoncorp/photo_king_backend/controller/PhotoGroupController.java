@@ -2,6 +2,7 @@ package com.condoncorp.photo_king_backend.controller;
 
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
+import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.dto.RankUpdateReq;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.service.PhotoGroupService;
@@ -96,7 +97,8 @@ public class PhotoGroupController {
     @GetMapping(path="/get-summary/{id}")
     public ResponseEntity<?> getSummary(@PathVariable int id) {
         try {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(photoGroupService.getGroupSummary(id));
+            PhotoGroupSummaryDTO sum = photoGroupService.getGroupSummary(id);
+            return ResponseEntity.ok(sum);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
