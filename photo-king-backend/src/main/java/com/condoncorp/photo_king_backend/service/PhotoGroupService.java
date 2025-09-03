@@ -41,6 +41,8 @@ public class PhotoGroupService {
     private WSService websocketService;
     @Autowired
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private UserImageRepository userImageRepository;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         User user = userRepository.findById(photoGroupReq.getOwnerId())
@@ -84,7 +86,8 @@ public class PhotoGroupService {
         Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
         if (photoGroupSummary.isPresent()) {
             for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
-                userImageService.deleteImage(userImage.getId());
+                cloudinaryService.delete(userImage.getPublicId());
+                userImageRepository.deleteById(userImage.getId());
             }
             photoGroupSummary.get().getUserImages().clear();
             photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
@@ -221,27 +224,29 @@ public class PhotoGroupService {
         List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
         if (existingPhotoGroupSummary.isPresent()) {
             PhotoGroupSummary photoGroupSummary = existingPhotoGroupSummary.get();
-
             for (UserImage image : new ArrayList<>(photoGroupSummary.getUserImages())) {
-                userImageService.deleteImage(image.getId());
+                cloudinaryService.delete(image.getPublicId());
+                userImageRepository.deleteById(image.getId());
             }
-
             photoGroupSummary.getUserImages().clear();
-
             for (UserImage image : userImages) {
                 image.setSummary(photoGroupSummary);
             }
-
             photoGroupSummary.getUserImages().addAll(userImages);
             photoGroupSummaryRepository.save(photoGroupSummary);
         }
         else {
+            System.out.println("1");
             PhotoGroupSummary newPhotoGroupSummary = new PhotoGroupSummary(); // CREATES NEW GROUP SUMMARY
+            System.out.println("2");
             newPhotoGroupSummary.setGroupId(photoGroup.getId());
+            System.out.println("3");
             for (UserImage image : userImages) {
                 image.setSummary(newPhotoGroupSummary);
             }
+            System.out.println("4");
             newPhotoGroupSummary.getUserImages().addAll(userImages);
+            System.out.println("5");
             photoGroupSummaryRepository.save(newPhotoGroupSummary);
         }
 
@@ -250,20 +255,27 @@ public class PhotoGroupService {
 
     // Helper method: handles points and image deletion in group resetting
     public void updateExpiredGroups(PhotoGroup photoGroup) {
+        System.out.println("INSIDE");
         // UPDATE POINTS
         UserImage first = photoGroup.getCurrentFirstPlaceImage();
         UserImage second = photoGroup.getCurrentSecondPlaceImage();
         UserImage third = photoGroup.getCurrentThirdPlaceImage();
 
-        if (first.getPoints() > 0) {
+        System.out.println("POINTS:");
+        if (first != null && first.getPoints() > 0) {
             photoGroupPointsRepository.findByGroupAndUser(photoGroup, first.getUser())
                     .ifPresent(p -> p.setPoints(p.getPoints() + 3));
+        }
+        if (second != null && second.getPoints() > 0) {
             photoGroupPointsRepository.findByGroupAndUser(photoGroup, second.getUser())
                     .ifPresent(p -> p.setPoints(p.getPoints() + 2));
+        }
+        if (third != null && third.getPoints() > 0) {
             photoGroupPointsRepository.findByGroupAndUser(photoGroup, third.getUser())
                     .ifPresent(p -> p.setPoints(p.getPoints() + 1));
         }
 
+        System.out.println("HERE");
         // CLEAR IMAGES
         for (UserImage image : new ArrayList<>(photoGroup.getUserImages())) {
             image.setPhotoGroup(null);  // Remove association
@@ -305,7 +317,6 @@ public class PhotoGroupService {
 
         // create summary, change reset date to week from now, reset group
         createPhotoGroupSummary(group);
-        System.out.println("\n\n" +"summary created" + "\n\n");
         LocalDateTime newExpiresAt = LocalDateTime.now().plusDays(7).with(LocalTime.of(23, 59, 59));
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group

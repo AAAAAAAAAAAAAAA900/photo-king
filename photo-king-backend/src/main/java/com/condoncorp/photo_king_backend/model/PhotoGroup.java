@@ -138,11 +138,7 @@ public class PhotoGroup {
     }
 
     public UserImage getCurrentSecondPlaceImage() {
-        if (userImages.isEmpty()) {
-            return null;
-        }
-
-        if (userImages.size() == 1) {
+        if (userImages.size() < 2) {
             return null;
         }
 
@@ -151,11 +147,7 @@ public class PhotoGroup {
     }
 
     public UserImage getCurrentThirdPlaceImage() {
-        if (userImages.isEmpty()) {
-            return null;
-        }
-
-        if (userImages.size() == 1) {
+        if (userImages.size() < 3) {
             return null;
         }
 

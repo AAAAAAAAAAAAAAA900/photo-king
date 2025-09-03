@@ -96,7 +96,7 @@ public class PhotoGroupController {
     @GetMapping(path="/get-summary/{id}")
     public ResponseEntity<?> getSummary(@PathVariable int id) {
         try {
-            return ResponseEntity.ok(photoGroupService.getGroupSummary(id));
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(photoGroupService.getGroupSummary(id));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

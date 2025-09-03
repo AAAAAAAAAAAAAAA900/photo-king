@@ -260,6 +260,7 @@ export default function GroupScreen({ navigation }) {
     const checkSummary = async () => {
         try {
             const response = await photoGroupApi.getGroupSummary(group.id);
+            console.log(response.body);
             if (response.body) {
                 setHasSummary(true);
             }
