@@ -1,6 +1,6 @@
 import { Client } from '@stomp/stompjs';
-import { apiClient, WS_URL } from '../api/apiClient';
-import { getAccessToken } from "../api/apiClient";
+import {  WS_URL } from '../api/apiClient';
+import { getValidAccessToken } from "../api/apiClient";
 
 /*
  following this tutorial: https://medium.com/@tusharkumar27864/best-practices-of-using-websockets-real-time-communication-in-react-native-projects-89e749ba2e3f
@@ -46,7 +46,7 @@ class WebsocketService {
             return Promise.resolve();
         }
 
-        let accessToken = await getAccessToken();
+        let accessToken = await getValidAccessToken();
 
         const connectPromise = new Promise((resolve, reject) => {
             this.socketRef = new Client({
@@ -125,7 +125,7 @@ class WebsocketService {
 
     // wrapper for Client.publish
     async publish(destination, body, headers = null) {
-        let accessToken = await getAccessToken();
+        let accessToken = await getValidAccessToken();
         const authHeader = { Authorization: `Bearer ${accessToken}`, ...(headers ? headers : {}) };
         if (this.isConnected && this.socketRef) {
             this.socketRef.publish({

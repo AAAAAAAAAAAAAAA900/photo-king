@@ -6,12 +6,18 @@ import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -213,6 +219,8 @@ public class PhotoGroupService {
                 photoGroup.setExpiresAt(newExpiresAt);
 
                 updateExpiredGroups(photoGroup);
+
+                websocketService.liveUpdatePictures(photoGroup.getId(), "reset");
             }
         }
     }
@@ -222,13 +230,11 @@ public class PhotoGroupService {
         Optional<PhotoGroupSummary> existingPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId()); // CHECKS IF GROUP SUMMARY EXISTS
         List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
         if (existingPhotoGroupSummary.isPresent()) {
-            System.out.println("Deleting photos");
             PhotoGroupSummary photoGroupSummary = existingPhotoGroupSummary.get();
             for (UserImage image : new ArrayList<>(photoGroupSummary.getUserImages())) {
                 cloudinaryService.delete(image.getPublicId());
             }
             photoGroupSummary.getUserImages().clear();
-            System.out.println("Adding new photos");
             for (UserImage image : userImages) {
                 image.setSummary(photoGroupSummary);
             }
@@ -294,7 +300,9 @@ public class PhotoGroupService {
         return new PhotoGroupSummaryDTO(photoGroupSummary.get());
     }
 
+
     // resets photo group of given ID before its scheduled date
+    @Transactional
     public void resetGroup(int groupId) throws IOException{
         PhotoGroup group = photoGroupRepository.findById(groupId).orElseThrow(
                 ()-> new RuntimeException("Group not found.")
@@ -313,6 +321,6 @@ public class PhotoGroupService {
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group
 
-        websocketService.liveUpdatePictures(group.getId(), "reset");     // live update group members of change
+        websocketService.liveUpdatePictures(group.getId(), "reset");
     }
 }

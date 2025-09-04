@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import {navigate} from "../utilities/RootNavigation";
+import { navigate } from "../utilities/RootNavigation";
+import WebsocketService from "../services/WebsocketService";
 
 // const API_URL = "https://photo-king.onrender.com";
 // const WS_URL = "wss://photo-king.onrender.com/websocket";
@@ -25,13 +26,7 @@ const apiFormClient = axios.create({
 
 
 // GET TOKENS
-const getAccessToken = async () => {
-    const accessToken = await SecureStore.getItemAsync("accessToken");
-    if (!accessToken || !(await isTokenValid(accessToken))) {
-        await refreshAccessToken(); // Refresh the token if expired
-    }
-    return accessToken;
-}
+const getAccessToken = async () => await SecureStore.getItemAsync("accessToken");
 const getRefreshToken = async () => await SecureStore.getItemAsync("refreshToken");
 
 // STORE TOKENS
@@ -60,7 +55,9 @@ const isTokenValid = async (token) => {
 const refreshAccessToken = async () => {
     const refreshToken = await getRefreshToken();
     if (!refreshToken || !(await isTokenValid(refreshToken))) {
+        await clearTokens();
         navigate("Login")
+        WebsocketService.disconnect();
     }
     try {
         const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { token: refreshToken }, {
@@ -69,21 +66,30 @@ const refreshAccessToken = async () => {
             }
         })
         if (response.data === null) {
-            navigate("Login");
-            return;
+            await clearTokens();
+            navigate("Login")
+            WebsocketService.disconnect();
         }
         await saveAccessToken(response.data);
     }
     catch (error) {
-        navigate("Login");
+        await clearTokens();
     }
 }
 
+const getValidAccessToken = async () => {
+    let accessToken = await getAccessToken();
+    if (!accessToken || !(await isTokenValid(accessToken))) {
+        await refreshAccessToken(); // Refresh the token if expired
+        accessToken = await getAccessToken(); // Get the new token
+    }
+    return accessToken;
+}
 
 // PUT AUTHORIZATION HEADER BEFORE ANY API CALL EXCEPT AUTH
 apiClient.interceptors.request.use(async (config) => {
     if (!config.url.startsWith("/auth/")) {
-        let accessToken = await getAccessToken();
+        let accessToken = await getValidAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
@@ -96,9 +102,8 @@ apiClient.interceptors.request.use(async (config) => {
 })
 
 apiFormClient.interceptors.request.use(async (config) => {
-
     if (!config.url.startsWith("/auth/")) {
-        let accessToken = await getAccessToken();
+        let accessToken = await getValidAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
@@ -112,4 +117,4 @@ apiFormClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-export { WS_URL, apiClient, apiFormClient, isTokenValid, clearTokens, getAccessToken };
+export { WS_URL, apiClient, apiFormClient, isTokenValid, getValidAccessToken };
