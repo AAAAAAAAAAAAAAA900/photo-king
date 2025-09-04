@@ -87,7 +87,6 @@ public class PhotoGroupService {
         if (photoGroupSummary.isPresent()) {
             for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
                 cloudinaryService.delete(userImage.getPublicId());
-                userImageRepository.deleteById(userImage.getId());
             }
             photoGroupSummary.get().getUserImages().clear();
             photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
@@ -223,12 +222,13 @@ public class PhotoGroupService {
         Optional<PhotoGroupSummary> existingPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(photoGroup.getId()); // CHECKS IF GROUP SUMMARY EXISTS
         List<UserImage> userImages = photoGroup.getUserImages(); // GETS ALL IMAGES
         if (existingPhotoGroupSummary.isPresent()) {
+            System.out.println("Deleting photos");
             PhotoGroupSummary photoGroupSummary = existingPhotoGroupSummary.get();
             for (UserImage image : new ArrayList<>(photoGroupSummary.getUserImages())) {
                 cloudinaryService.delete(image.getPublicId());
-                userImageRepository.deleteById(image.getId());
             }
             photoGroupSummary.getUserImages().clear();
+            System.out.println("Adding new photos");
             for (UserImage image : userImages) {
                 image.setSummary(photoGroupSummary);
             }
@@ -236,17 +236,12 @@ public class PhotoGroupService {
             photoGroupSummaryRepository.save(photoGroupSummary);
         }
         else {
-            System.out.println("1");
             PhotoGroupSummary newPhotoGroupSummary = new PhotoGroupSummary(); // CREATES NEW GROUP SUMMARY
-            System.out.println("2");
             newPhotoGroupSummary.setGroupId(photoGroup.getId());
-            System.out.println("3");
             for (UserImage image : userImages) {
                 image.setSummary(newPhotoGroupSummary);
             }
-            System.out.println("4");
             newPhotoGroupSummary.getUserImages().addAll(userImages);
-            System.out.println("5");
             photoGroupSummaryRepository.save(newPhotoGroupSummary);
         }
 
@@ -255,13 +250,11 @@ public class PhotoGroupService {
 
     // Helper method: handles points and image deletion in group resetting
     public void updateExpiredGroups(PhotoGroup photoGroup) {
-        System.out.println("INSIDE");
         // UPDATE POINTS
         UserImage first = photoGroup.getCurrentFirstPlaceImage();
         UserImage second = photoGroup.getCurrentSecondPlaceImage();
         UserImage third = photoGroup.getCurrentThirdPlaceImage();
 
-        System.out.println("POINTS:");
         if (first != null && first.getPoints() > 0) {
             photoGroupPointsRepository.findByGroupAndUser(photoGroup, first.getUser())
                     .ifPresent(p -> p.setPoints(p.getPoints() + 3));
@@ -275,7 +268,6 @@ public class PhotoGroupService {
                     .ifPresent(p -> p.setPoints(p.getPoints() + 1));
         }
 
-        System.out.println("HERE");
         // CLEAR IMAGES
         for (UserImage image : new ArrayList<>(photoGroup.getUserImages())) {
             image.setPhotoGroup(null);  // Remove association

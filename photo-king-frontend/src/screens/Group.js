@@ -43,6 +43,19 @@ export default function GroupScreen({ navigation }) {
     const [optionsHeight, setOptionsHeight] = useState(0);
     const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
 
+    // renavigates to home
+    const navigateBack = () => {
+        navigation.dispatch((state) => {
+            const routes = state.routes.slice(0, -2); // Pop 1 screen from stack
+            return CommonActions.reset({
+                ...state,
+                index: routes.length - 1,
+                routes
+            });
+        });
+        navigation.navigate('Home');
+    };
+
     // update group when members or name changes
     useEffect(() => {
         // if group was deleted or missing in last update, pop to home screen
@@ -224,7 +237,7 @@ export default function GroupScreen({ navigation }) {
         try {
             // This will automatically navigate the user back to home
             await photoGroupApi.deleteGroup(group.id)
-            setLoading(true);
+            navigateBack();
         }
         catch (error) {
             console.log(error);
@@ -242,19 +255,6 @@ export default function GroupScreen({ navigation }) {
             console.log(e);
         }
     }
-
-    // renavigates to home
-    const navigateBack = () => {
-        navigation.dispatch((state) => {
-            const routes = state.routes.slice(0, -2); // Pop 1 screen from stack
-            return CommonActions.reset({
-                ...state,
-                index: routes.length - 1,
-                routes
-            });
-        });
-        navigation.navigate('Home');
-    };
 
     // Makes api request to check if should render summary button
     const checkSummary = async () => {
