@@ -18,7 +18,7 @@ import Header from '../components/Header.js';
 import Timer from '../components/Timer.js';
 import { getUser } from './Login.js';
 import { useUser } from '../components/UserContext.js';
-import WebsocketService from '../services/WebsocketService.js';
+import WebsocketService from '../utilities/WebsocketService.js';
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 

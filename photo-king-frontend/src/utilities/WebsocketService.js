@@ -1,5 +1,5 @@
 import { Client } from '@stomp/stompjs';
-import {  WS_URL } from '../api/apiClient';
+import { WS_URL } from '../api/apiClient';
 import { getValidAccessToken } from "../api/apiClient";
 
 /*
@@ -24,11 +24,12 @@ class WebsocketService {
         this.isConnected = false;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 6;
+        this.shouldReconnect = true;
     }
 
     // connect helper method: incrementally delays and caps reconnect attempts
     delayReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
             // Exponential backoff for reconnection
             const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
             console.log("Reconnect attempt " + this.reconnectAttempts + ". Scheduled in " + delay + "ms.");
@@ -42,6 +43,7 @@ class WebsocketService {
     // initializes a stomp client connection & stores it in this.socketRef
     // returns promise to avoid race condition if subscribe called after
     async connect() {
+        this.shouldReconnect = true;
         if (this.socketRef) {
             return Promise.resolve();
         }
@@ -77,7 +79,7 @@ class WebsocketService {
                     this.executeCallback('connect', null);
                     resolve();
                 },
-                onStompError: (frame) => { 
+                onStompError: (frame) => {
                     console.log('Broker reported error: ' + frame.headers.message);
 
                     this.isConnected = false;
@@ -114,13 +116,15 @@ class WebsocketService {
 
     // deactivates stomp client and resets state
     disconnect() {
+        clearTimeout(this.timeout);
         if (this.socketRef) {
             this.socketRef.deactivate();
             this.socketRef = null;
-            this.isConnected = false;
-            clearTimeout(this.timeout);
-            this.activeSubscriptions = {};
         }
+        this.isConnected = false;
+        this.shouldReconnect = false;
+        this.reconnectAttempts = 0;
+        this.activeSubscriptions = {};
     }
 
     // wrapper for Client.publish

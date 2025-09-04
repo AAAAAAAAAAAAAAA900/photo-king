@@ -63,6 +63,9 @@ export default function LoginScreen({ navigation }) {
                     updateUser(user_info.data);
                     navigation.navigate("Home");
                 }
+                else {
+                    updateUser(null);
+                }
             } catch (error) {
                 console.log(error);
             } finally {

@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { navigate } from "../utilities/RootNavigation";
-import WebsocketService from "../services/WebsocketService";
+import { resetToLogin } from "../utilities/RootNavigation";
 
 // const API_URL = "https://photo-king.onrender.com";
 // const WS_URL = "wss://photo-king.onrender.com/websocket";
@@ -11,7 +10,6 @@ import WebsocketService from "../services/WebsocketService";
 
 const API_URL = "https://honestly-live-rhino.ngrok-free.app";
 const WS_URL = "wss://honestly-live-rhino.ngrok-free.app/websocket";
-
 
 const apiClient = axios.create({
     baseURL: `${API_URL}/api`,
@@ -56,8 +54,7 @@ const refreshAccessToken = async () => {
     const refreshToken = await getRefreshToken();
     if (!refreshToken || !(await isTokenValid(refreshToken))) {
         await clearTokens();
-        navigate("Login")
-        WebsocketService.disconnect();
+        resetToLogin();
     }
     try {
         const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { token: refreshToken }, {
@@ -67,8 +64,7 @@ const refreshAccessToken = async () => {
         })
         if (response.data === null) {
             await clearTokens();
-            navigate("Login")
-            WebsocketService.disconnect();
+            resetToLogin();
         }
         await saveAccessToken(response.data);
     }
@@ -117,4 +113,4 @@ apiFormClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-export { WS_URL, apiClient, apiFormClient, isTokenValid, getValidAccessToken };
+export { WS_URL, apiClient, apiFormClient, refreshAccessToken, getAccessToken, clearTokens, isTokenValid, getValidAccessToken };

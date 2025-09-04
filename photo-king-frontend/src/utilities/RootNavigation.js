@@ -1,9 +1,16 @@
-import { createNavigationContainerRef } from "@react-navigation/native";
+import { CommonActions, createNavigationContainerRef } from "@react-navigation/native";
 
+// For navigation outside react components
 export const navigationRef = createNavigationContainerRef();
 
-export function navigate(name, params) {
+// navigates to login and clears user context
+export function resetToLogin() {
     if (navigationRef.isReady()) {
-        navigationRef.navigate(name, params);
+        navigationRef.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+            })
+        );
     }
 }

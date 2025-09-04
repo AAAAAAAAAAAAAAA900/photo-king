@@ -14,7 +14,7 @@ import requestApi from "../api/requestApi.js";
 import Pfp from "../components/Pfp.js";
 import { getUser } from "./Login.js";
 import { useUser } from "../components/UserContext.js";
-import WebsocketService from "../services/WebsocketService.js";
+import WebsocketService from "../utilities/WebsocketService.js";
 
 
 

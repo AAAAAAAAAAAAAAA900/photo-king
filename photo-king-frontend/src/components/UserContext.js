@@ -2,12 +2,14 @@
 // user context using this tutorial: https://blog.logrocket.com/react-context-tutorial/
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import WebsocketService from "../services/WebsocketService";
+import WebsocketService from "../utilities/WebsocketService";
 
 const UserContext = createContext(null);
+let externalSetUser = null; // to clear user outside react components
 
 export function UserProvider({ children }) {
     const [user, setUser] = useState(null);
+    externalSetUser = setUser;
     const websocketServiceRef = useRef(WebsocketService);
 
     const updateUser = useCallback((update) => {
@@ -35,13 +37,13 @@ export function UserProvider({ children }) {
         }
 
         // is user is logged out, disconnect websocket
-        if (!user && websocketServiceRef.current.isConnected) {
+        if (!user && websocketServiceRef.current) {
             websocketServiceRef.current.disconnect();
         }
 
         // clean on unmount
         return () => {
-            if (websocketServiceRef.current.isConnected) {
+            if (websocketServiceRef.current) {
                 websocketServiceRef.current.disconnect();
             }
         }
@@ -52,6 +54,11 @@ export function UserProvider({ children }) {
             {children}
         </UserContext.Provider>
     );
+}
+
+export const clearUser = () => {
+    if (externalSetUser)
+        externalSetUser(null);
 }
 
 export const useUser = () => useContext(UserContext);

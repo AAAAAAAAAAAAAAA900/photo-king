@@ -17,7 +17,7 @@ import {
 } from 'react-native-zoom-toolkit';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
-import WebsocketService from "../services/WebsocketService";
+import WebsocketService from "../utilities/WebsocketService";
 import { useUser } from "../components/UserContext";
 
 export default function PhotoScreen({ navigation }) {
@@ -309,7 +309,7 @@ export default function PhotoScreen({ navigation }) {
                             <Image style={photoStyles.commentsIcon} source={require('../../assets/icons/comment.png')} />
                             <DefaultText style={styles.buttonText}>{photo.comments.length}</DefaultText>
                         </TouchableOpacity>
-                        {photo.userId == user.id &&
+                        {(photo.userId == user.id || group.ownerId == user.id) &&
                             <TouchableOpacity
                                 onPress={() => {
                                     Keyboard.dismiss();
