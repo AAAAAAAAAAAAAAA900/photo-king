@@ -98,16 +98,19 @@ public class UserImageService {
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
     public void deleteImage(int id) throws IOException {
 
-        Optional<UserImage> userImage = userImageRepository.findById(id);
-        if (userImage.isEmpty()) {
-            return;
-        }
+        UserImage userImage = userImageRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Image does not exist."));
 
         // Check authorization i.e. person deleting is not image or group owner
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(authenticatedUserId != userImage.get().getUser().getId() &&
-                authenticatedUserId != userImage.get().getPhotoGroup().getOwnerId()){
+        PhotoGroup photoGroup = userImage.getPhotoGroup();
+        if(photoGroup == null){
+            photoGroup = photoGroupRepository.findById(userImage.getSummary().getGroupId())
+                    .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+        }
+        if(authenticatedUserId != userImage.getUser().getId() &&
+                authenticatedUserId != photoGroup.getOwnerId()){
             throw new org.springframework.security.access.AccessDeniedException("User not permitted to delete photo");
         }
 
@@ -133,13 +136,13 @@ public class UserImageService {
         }
 
         try {
-            cloudinaryService.delete(userImage.get().getPublicId());
+            cloudinaryService.delete(userImage.getPublicId());
         } catch (Exception e) {
-            throw new IOException("Failed to delete image: " + userImage.get().getPublicId());
+            throw new IOException("Failed to delete image: " + userImage.getPublicId());
         }
 
         // Live update group of photo change
-        websocketService.liveUpdatePictures(userImage.get().getPhotoGroup().getId(), "delete");
+        websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
 
         userImageRepository.deleteById(id);
     }
@@ -238,6 +241,10 @@ public class UserImageService {
 
         // Check authorization i.e. user belongs to group
         PhotoGroup photoGroup = userImage.getPhotoGroup();
+        if(photoGroup == null){
+            photoGroup = photoGroupRepository.findById(userImage.getSummary().getGroupId())
+                    .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+        }
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
         if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){

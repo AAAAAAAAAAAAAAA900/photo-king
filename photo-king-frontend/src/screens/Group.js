@@ -236,8 +236,7 @@ export default function GroupScreen({ navigation }) {
     const deleteGroup = async () => {
         try {
             // This will automatically navigate the user back to home
-            await photoGroupApi.deleteGroup(group.id)
-            navigateBack();
+            await photoGroupApi.deleteGroup(group.id);
         }
         catch (error) {
             console.log(error);
