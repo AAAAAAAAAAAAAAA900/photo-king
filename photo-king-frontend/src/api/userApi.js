@@ -28,6 +28,10 @@ const userApi = {
 
     getFriendById: async (friendId) => {
         return apiClient.get(`/user/friend-by-id/${friendId}`);
+    },
+
+    deleteAccount: async (userId) => {
+        return apiClient.delete(`/user/delete/${userId}`);
     }
 }
 

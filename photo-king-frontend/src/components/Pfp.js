@@ -1,4 +1,4 @@
-import { View, Image, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, Modal, Platform, StyleSheet, Alert } from 'react-native';
 import styles, { colors } from '../styles/ComponentStyles.js';
 import * as ImagePicker from 'expo-image-picker';
 import { useActionSheet } from "@expo/react-native-action-sheet";
@@ -11,6 +11,7 @@ import { clearTokens } from "../api/apiClient";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getUser } from '../screens/Login.js';
 import { useUser } from './UserContext.js';
+import userApi from '../api/userApi.js';
 
 
 export default function Pfp({ navigation, user, setUser, url, size = 50, borderWidth = 0 }) {
@@ -20,7 +21,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
     const modalAdjustment = Platform.OS == 'ios' ? useSafeAreaInsets().top : 0;
     const [optionsVisible, setOptionsVisible] = useState(false);
     const { showActionSheetWithOptions } = useActionSheet();
-    const {updateUser} = useUser();
+    const { user: userObj, updateUser } = useUser();
 
     const imageStyle = {
         height: size,
@@ -127,7 +128,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
         try {
             const response = await imageApi.uploadProfile(formData);
             await getUser(setUser);
-            
+
             console.log('Upload Success');
             console.log(response.data);
         } catch (error) {
@@ -137,6 +138,13 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
 
 
     const logoutButtonPressed = async () => {
+        await clearTokens();
+        updateUser(null);
+        navigation.dispatch(StackActions.popToTop());
+    }
+
+    const deleteButtonPressed = async () => {
+        await userApi.deleteAccount(userObj.id);
         await clearTokens();
         updateUser(null);
         navigation.dispatch(StackActions.popToTop());
@@ -152,17 +160,38 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
                 transparent={true}
             >
                 {/* MODAL CLOSE CLICK AREA */}
-                <TouchableOpacity 
-                activeOpacity={1} 
-                style={styles.container} 
-                onPress={() => setOptionsVisible(false)}
+                <TouchableOpacity
+                    activeOpacity={1}
+                    style={styles.container}
+                    onPress={() => setOptionsVisible(false)}
                 >
-                    {/* LOGOUT BUTTON */}
-                    <TouchableOpacity 
-                    onPress={logoutButtonPressed} 
-                    style={[pfpStyles.logoutButton, {top: modalHeight+54}]}>
-                        <DefaultText>Logout</DefaultText>
-                    </TouchableOpacity>
+                    <View style={[pfpStyles.buttonMenu, { top: modalHeight + 54 }]}>
+                        {/* LOGOUT BUTTON */}
+                        <TouchableOpacity
+                            onPress={logoutButtonPressed}
+                            style={pfpStyles.button}>
+                            <DefaultText>Logout</DefaultText>
+                        </TouchableOpacity>
+
+                        {/* DIVIDER */}
+                        <View style={pfpStyles.divider} />
+
+                        {/* DELETE BUTTON */}
+                        <TouchableOpacity
+                            onPress={()=>{
+                                Alert.alert(
+                                    "Delete Account",
+                                    "Are you sure you want to delete your account? This action cannot be undone.",
+                                    [
+                                        { text: "Cancel", style: "cancel" },
+                                        { text: "Delete", style: "destructive", onPress: deleteButtonPressed }
+                                    ]
+                                );
+                            }}
+                            style={pfpStyles.button}>
+                            <DefaultText style={pfpStyles.deleteButtonText}>Delete Account</DefaultText>
+                        </TouchableOpacity>
+                    </View>
                 </TouchableOpacity>
             </Modal>
 
@@ -174,7 +203,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
                     <Image
                         ref={pfpRef}
                         style={imageStyle}
-                        source={url? { uri: url } : require('../../assets/icons/pfp.png')}
+                        source={url ? { uri: url } : require('../../assets/icons/pfp.png')}
                         onLayout={() => {
                             pfpRef.current.measureInWindow((x, y, width, height) => {
                                 setModalHeight(y + modalAdjustment);
@@ -182,11 +211,11 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
                         }}
                     />
                 </TouchableOpacity>
-                 : 
+                :
                 <View style={pfpStyles.pfpContainer}>
                     <Image
                         style={imageStyle}
-                        source={url? { uri: url } : require('../../assets/icons/pfp.png')}
+                        source={url ? { uri: url } : require('../../assets/icons/pfp.png')}
                     />
                 </View>
             }
@@ -195,19 +224,33 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
 }
 
 const pfpStyles = StyleSheet.create({
-    logoutButton:{ 
-        position: 'absolute', 
-        right: 10, 
-        height: 45, 
-        width: 85, 
-        backgroundColor: 'white', 
-        borderRadius: 20, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)' 
+    buttonMenu: {
+        position: 'absolute',
+        right: 10,
+        height: 100,
+        width: 85,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '5 5 5 0 rgba(0, 0, 0, 0.25)'
     },
-    pfpContainer:{ 
-        alignSelf: 'baseline' 
+    divider: {
+        height:1,
+        borderWidth:.5,
+        width: '80%',
     },
-                    
+    button: {
+        flex:1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    pfpContainer: {
+        alignSelf: 'baseline'
+    },
+    deleteButtonText: {
+        color: 'red',
+        textAlign:'center',
+    },
+
 });
