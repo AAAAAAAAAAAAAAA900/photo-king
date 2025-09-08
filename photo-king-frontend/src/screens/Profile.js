@@ -11,9 +11,10 @@ import { useForm, Controller } from 'react-hook-form';
 import userApi from "../api/userApi";
 import { getUser } from "./Login";
 import { useUser } from "../components/UserContext";
+import { apiClient, refreshAccessToken, saveAccessToken, saveRefreshToken } from "../api/apiClient";
 
 export default function ProfileScreen({ navigation }) {
-    const {user, updateUser} = useUser();
+    const { user, updateUser } = useUser();
     const [bio, setBio] = useState(undefined);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -21,6 +22,17 @@ export default function ProfileScreen({ navigation }) {
     const bioRef = useRef(null);
     const [nameFocussed, setNameFocussed] = useState(false);
     const nameRef = useRef(null);
+
+    const {
+        control,
+        handleSubmit,
+        formState: {
+            errors
+        },
+        clearErrors,
+        setError,
+        reset
+    } = useForm({ reValidateMode: 'onSubmit' });
 
     const getBio = async () => {
         try {
@@ -34,11 +46,17 @@ export default function ProfileScreen({ navigation }) {
 
     const setProfile = async (data) => {
         try {
-            await userApi.setProfile(user.id, data.username, data.name, data.bio);
+            const response = await userApi.setProfile(user.id, data.username, data.name, data.bio);
+            if(response.data) {
+                saveAccessToken(response.data.accessToken);
+                saveRefreshToken(response.data.refreshToken);
+            }
             await getUser(updateUser, navigation);
+            return true;
         }
         catch (error) {
-            console.log(error);
+            setError("username", { type: "manual", message: "Username already taken." });
+            return false;
         }
     }
 
@@ -77,25 +95,16 @@ export default function ProfileScreen({ navigation }) {
         }
     }, [bio]);
 
-    const {
-        control,
-        handleSubmit,
-        formState: {
-            errors
-        },
-        clearErrors,
-        reset
-    } = useForm({ reValidateMode: 'onSubmit' });
-
-    const onSubmit = (data) => {
-        setProfile(data);
-        setBio(data.bio);
-        setSubmitted(true);
-        reset({
-            username: data.username,
-            name: data.name,
-            bio: data.bio
-        });
+    const onSubmit = async (data) => {
+        if (await setProfile(data)) {
+            setBio(data.bio);
+            setSubmitted(true);
+            reset({
+                username: data.username,
+                name: data.name,
+                bio: data.bio
+            });
+        }
     }
 
     const onChangeText = () => {
