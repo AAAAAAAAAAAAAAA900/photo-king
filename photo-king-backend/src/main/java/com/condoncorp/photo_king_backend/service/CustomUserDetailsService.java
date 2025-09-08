@@ -26,6 +26,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() ->
                 new UsernameNotFoundException("Username or password is incorrect."));
 
+        if (user != null && !user.getUsername().equals(username)) {
+            throw new UsernameNotFoundException("Username or password is incorrect.");
+        }
+
         return new CustomUserDetails(
                 user.getId(),
                 user.getUsername(),
