@@ -98,7 +98,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                         );
                                     }}
                                 >
-                                    <DefaultText style={styles.buttonText}>Kick From Group</DefaultText>
+                                    <DefaultText style={styles.buttonText}>Kick</DefaultText>
                                 </TouchableOpacity>
                             }
                             <TouchableOpacity

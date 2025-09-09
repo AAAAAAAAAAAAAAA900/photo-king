@@ -36,7 +36,7 @@ export default function FriendsScreen({ navigation }) {
         if (search) {
             try {
                 const response = await userApi.searchUsers(search);
-                setSearchResults(response.data);
+                setSearchResults(response.data.filter(u => u.id != user.id && !user.friends.some(f => f.id === u.id))); // remove self and existing friends
             }
             catch (e) {
                 console.log(e);

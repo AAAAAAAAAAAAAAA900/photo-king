@@ -459,7 +459,7 @@ export default function GroupScreen({ navigation }) {
                                 {/* RENAME BUTTON */}
                                 <TouchableOpacity
                                     style={groupStyles.topButton}
-                                    onPress={() => { setRenameModalVisible(true); }}
+                                    onPress={() => { setOptionsModalVisible(false); setRenameModalVisible(true); }}
                                 >
                                     <DefaultText style={styles.buttonText}>Rename Group</DefaultText>
                                 </TouchableOpacity>
@@ -484,7 +484,7 @@ export default function GroupScreen({ navigation }) {
                             :
                             /* LEAVE BUTTON */
                             <TouchableOpacity
-                                style={styles.button}
+                                style={groupStyles.topButton}
                                 onPress={() => {
                                     Alert.alert(
                                         `Leave ${group.name}?`,
