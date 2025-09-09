@@ -195,7 +195,11 @@ public class UserService {
         user.setUsername(userProfileReq.getUsername());
         user.setName(userProfileReq.getName());
         user.setBio(userProfileReq.getBio());
-        saveUser(user);
+        try {
+            saveUser(user);
+        } catch(Exception e){
+            throw new RuntimeException("Username is taken.");
+        }
         return new UserDTO(user);
     }
 

@@ -3,11 +3,16 @@ package com.condoncorp.photo_king_backend.controller;
 import com.condoncorp.photo_king_backend.dto.FriendDTO;
 import com.condoncorp.photo_king_backend.dto.UserDTO;
 import com.condoncorp.photo_king_backend.dto.UserProfileReq;
+import com.condoncorp.photo_king_backend.service.CustomUserDetailsService;
+import com.condoncorp.photo_king_backend.service.JwtService;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +22,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     // DELETES USER FROM DATABASE. REQUIRES USER ID.
     @DeleteMapping(path = "/delete/{id}")
@@ -50,8 +59,17 @@ public class UserController {
 
     // UPDATES CUSTOMIZABLE USER PROFILE INFORMATION.
     @PostMapping(path = "/set-user-profile")
-    public UserDTO setUserProfile(@RequestBody UserProfileReq userProfileReq){
-        return userService.setUserProfile(userProfileReq);
+    public ResponseEntity<?> setUserProfile(@RequestBody UserProfileReq userProfileReq){
+        try {
+            UserDTO newUserInfo = userService.setUserProfile(userProfileReq);
+            // Return new tokens matching new username for front end
+            HashMap<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", jwtService.generateToken(userDetailsService.loadUserByUsername(newUserInfo.getUsername())));
+            tokens.put("refreshToken", jwtService.generateRefreshToken(newUserInfo.getUsername()));
+            return ResponseEntity.ok().body(tokens);
+        } catch (Exception e) {
+            return ResponseEntity.status(409).body(null);
+        }
     }
 
     // GETS USERS MATCHING SEARCH QUERY
