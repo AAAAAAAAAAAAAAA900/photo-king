@@ -83,14 +83,20 @@ public class UserGroupService {
         Optional<PhotoGroupUserRanking> optionalRankings = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
         if (optionalRankings.isPresent()) {
 
-            UserImage firstRankImage = userImageService.getImageById(optionalRankings.get().getFirstRankId());
-            userImageService.updatePoints(firstRankImage.getId(), -3);
+            if (optionalRankings.get().getFirstRankId() != 0) {
+                UserImage firstRankImage = userImageService.getImageById(optionalRankings.get().getFirstRankId());
+                userImageService.updatePoints(firstRankImage.getId(), -3);
+            }
 
-            UserImage secondRankImage = userImageService.getImageById(optionalRankings.get().getSecondRankId());
-            userImageService.updatePoints(secondRankImage.getId(), -2);
+            if (optionalRankings.get().getSecondRankId() != 0) {
+                UserImage secondRankImage = userImageService.getImageById(optionalRankings.get().getSecondRankId());
+                userImageService.updatePoints(secondRankImage.getId(), -2);
+            }
 
-            UserImage thirdRankImage = userImageService.getImageById(optionalRankings.get().getThirdRankId());
-            userImageService.updatePoints(thirdRankImage.getId(), -1);
+            if (optionalRankings.get().getThirdRankId() != 0) {
+                UserImage thirdRankImage = userImageService.getImageById(optionalRankings.get().getThirdRankId());
+                userImageService.updatePoints(thirdRankImage.getId(), -1);
+            }
 
             photoGroupUserRankingRepository.delete(optionalRankings.get());
         }
