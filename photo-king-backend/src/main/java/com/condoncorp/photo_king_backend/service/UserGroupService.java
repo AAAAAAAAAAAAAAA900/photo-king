@@ -111,6 +111,9 @@ public class UserGroupService {
 
         userService.saveUser(user);
 
+        // Live update group images
+        websocketService.liveUpdatePictures(photoGroup.getId(), "rank");
+
         // Live update groups users
         websocketService.pingAllMembers(photoGroup);
         // Live update removed user
