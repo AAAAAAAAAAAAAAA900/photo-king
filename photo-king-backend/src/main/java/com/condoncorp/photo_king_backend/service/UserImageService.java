@@ -200,6 +200,15 @@ public class UserImageService {
         return user.get().getUserImages().stream().map(UserImageDTO::new).toList();
     }
 
+    // RETURNS IMAGE BY ID
+    public UserImage getImageById(int id) {
+        Optional<UserImage> image = userImageRepository.findById(id);
+        if (image.isEmpty()) {
+            throw new RuntimeException("Image not found");
+        }
+        return image.get();
+    }
+
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
     public UserImageDTO getTopImage(int groupId) {
         PhotoGroup photoGroup = photoGroupRepository.findById(groupId).orElseThrow();
