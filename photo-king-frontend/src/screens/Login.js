@@ -36,7 +36,7 @@ export default function LoginScreen({ navigation }) {
             updateUser(user_info.data);
             navigation.navigate("Home");
         } catch (error) {
-            setLoginError(error.response.data ? "Check username or password" : "");
+            setLoginError(error.response.status === 401 ? "Check username or password" : "Check wifi or try again later");
         }
     }
 

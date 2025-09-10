@@ -99,9 +99,13 @@ class WebsocketService {
                     reject();
                 },
                 onWebSocketClose: (e) => {
-                    console.log("Websocket closed: " + e);
+                    console.log("Websocket closed: " + e.code);
                     this.isConnected = false;
                     this.socketRef = null;
+                    if (e.code == 1001) {
+                        this.delayReconnect();
+                        this.executeCallback('error', e);
+                    }
                 },
                 forceBinaryWSFrames: true,
                 appendMissingNULLonIncoming: true,

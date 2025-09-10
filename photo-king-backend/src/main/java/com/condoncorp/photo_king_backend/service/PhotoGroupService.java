@@ -325,7 +325,7 @@ public class PhotoGroupService {
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group
 
-        // 
+        //
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){
             @Override
             public void afterCommit(){
