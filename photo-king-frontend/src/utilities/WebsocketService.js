@@ -102,7 +102,7 @@ class WebsocketService {
                     console.log("Websocket closed: " + e.code);
                     this.isConnected = false;
                     this.socketRef = null;
-                    if (e.code == 1001) {
+                    if (e.code != 1000) { // 1000 = normal closure
                         this.delayReconnect();
                         this.executeCallback('error', e);
                     }

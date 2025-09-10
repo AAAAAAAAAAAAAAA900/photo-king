@@ -3,6 +3,7 @@ package com.condoncorp.photo_king_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +37,8 @@ public class User implements UserDetails {
     private String bio;
     @Column(name = "apple_id")
     private String appleId;
-
+    @Column(name = "policy_accepted", nullable = false, columnDefinition = "boolean default false")
+    private boolean policyAccepted;
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -76,6 +78,7 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.policyAccepted = false;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
@@ -89,6 +92,7 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.policyAccepted = false;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
@@ -251,6 +255,14 @@ public class User implements UserDetails {
     public void removeFriend(User friend) {
         this.friends.remove(friend);
         friend.getFriends().remove(this);
+    }
+
+    public boolean isPolicyAccepted() {
+        return policyAccepted;
+    }
+
+    public void setPolicyAccepted(boolean policyAccepted) {
+        this.policyAccepted = policyAccepted;
     }
 
     @Override

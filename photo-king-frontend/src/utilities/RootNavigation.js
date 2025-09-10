@@ -3,7 +3,7 @@ import { CommonActions, createNavigationContainerRef } from "@react-navigation/n
 // For navigation outside react components
 export const navigationRef = createNavigationContainerRef();
 
-// navigates to login and clears user context
+// navigates to login
 export function resetToLogin() {
     if (navigationRef.isReady()) {
         navigationRef.dispatch(

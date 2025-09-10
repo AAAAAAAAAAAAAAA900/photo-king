@@ -180,7 +180,6 @@ public class UserService {
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
         return getUserByUsername(username);
-
     }
 
     // RETURNS BIO OF GIVEN USER
@@ -219,5 +218,17 @@ public class UserService {
 
         String token = authHeader.substring(7);
         return jwtService.extractUsername(token);
+    }
+
+    // Accepts privacy policy
+    @PreAuthorize("#userId == authentication.principal.id")
+    public void acceptPolicy(int userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new RuntimeException("user not found")
+        );
+
+        user.setPolicyAccepted(true);
+
+        userRepository.save(user);
     }
 }

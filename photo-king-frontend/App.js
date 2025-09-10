@@ -20,6 +20,7 @@ import SummaryScreen from './src/screens/Summary.js';
 import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
 import { UserProvider } from './src/components/UserContext.js';
+import PolicyScreen from './src/screens/Policy.js';
 enableScreens();
 
 const Stack = createNativeStackNavigator();
@@ -67,6 +68,11 @@ export default function App() {
                                     name='Register'
                                     options={{ headerShown: false }}
                                     component={RegisterScreen}
+                                />
+                                <Stack.Screen
+                                    name='Policy'
+                                    options={{ headerShown: false }}
+                                    component={PolicyScreen}
                                 />
                                 <Stack.Screen
                                     name='Home'

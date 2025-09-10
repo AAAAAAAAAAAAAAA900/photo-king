@@ -83,4 +83,11 @@ public class UserController {
     public FriendDTO getFriendById(@PathVariable int id){
         return userService.getFriendById(id);
     }
+
+    // SETS PRIVACY POLICY TO ACCEPTED
+    @PatchMapping(path = "/accept-policy/{id}")
+    public ResponseEntity<?> acceptPolicy(@PathVariable int id){
+        userService.acceptPolicy(id);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -32,6 +32,10 @@ const userApi = {
 
     deleteAccount: async (userId) => {
         return apiClient.delete(`/user/delete/${userId}`);
+    },
+
+    acceptPolicy: async (userId) => {
+        return apiClient.patch(`/user/accept-policy/${userId}`);
     }
 }
 
