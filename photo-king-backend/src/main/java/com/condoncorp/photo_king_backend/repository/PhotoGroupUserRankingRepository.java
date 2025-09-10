@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +22,8 @@ public interface PhotoGroupUserRankingRepository extends JpaRepository<PhotoGrou
 
     @Query("SELECT p FROM PhotoGroupUserRanking p WHERE p.thirdRankId = ?1")
     Optional<PhotoGroupUserRanking> findByThirdRank(int thirdRankId);
+
+    @Query("SELECT p FROM PhotoGroupUserRanking p WHERE p.groupId = ?1")
+    List<PhotoGroupUserRanking> findByPhotoGroupId(int groupId);
 
 }

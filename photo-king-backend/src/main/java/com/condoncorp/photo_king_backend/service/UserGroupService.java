@@ -116,6 +116,7 @@ public class UserGroupService {
 
         // Live update groups users
         websocketService.pingAllMembers(photoGroup);
+
         // Live update removed user
         HashMap<String, Object> newGroups = new HashMap<String, Object>();
         newGroups.put("groups", user.getPhotoGroups()

@@ -98,6 +98,10 @@ public class PhotoGroupService {
             photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
         }
 
+        // REMOVES USER RANKINGS FROM GROUP
+        List<PhotoGroupUserRanking> photoGroupUserRankings = photoGroupUserRankingRepository.findByPhotoGroupId(groupId);
+        photoGroupUserRankings.forEach(photoGroupUserRankingRepository::delete);
+
         // REMOVES GROUP FROM ALL USERS
         for (User user : photoGroup.getUsers()) {
             user.getPhotoGroups().remove(photoGroup);
