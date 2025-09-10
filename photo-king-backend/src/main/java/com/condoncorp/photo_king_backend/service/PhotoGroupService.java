@@ -325,6 +325,13 @@ public class PhotoGroupService {
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group
 
-        websocketService.liveUpdatePictures(group.getId(), "reset");
+        // 
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){
+            @Override
+            public void afterCommit(){
+                websocketService.liveUpdatePictures(group.getId(), "reset");
+                websocketService.pingAllMembers(group);
+            }
+        });
     }
 }
