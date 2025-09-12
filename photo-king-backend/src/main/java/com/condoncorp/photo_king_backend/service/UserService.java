@@ -92,6 +92,7 @@ public class UserService {
         newUser.setEmail(user.getEmail());
         newUser.setName(user.getName());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        newUser.setPolicyAccepted(true);
 
         userRepository.save(newUser);
 
