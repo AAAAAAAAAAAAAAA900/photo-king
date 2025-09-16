@@ -20,6 +20,7 @@ public class UserDTO {
     private final Set<FriendDTO> friends;
     private final Set<PhotoGroupDTO> groups;
     private final List<UserImageDTO> userImages;
+    private final boolean policyAccepted;
 
     public UserDTO(User user){
         this.id = user.getId();
@@ -29,6 +30,7 @@ public class UserDTO {
         this.profileUrl = user.getProfileUrl();
         this.profilePublicId = user.getProfilePublicId();
         this.role = user.getRole();
+        this.policyAccepted = user.isPolicyAccepted();
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
         this.userImages = user.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
@@ -55,7 +57,7 @@ public class UserDTO {
     public String getProfileUrl() {
         return profileUrl;
     }
-
+    public boolean isPolicyAccepted() {return policyAccepted;}
     public String getProfilePublicId() {
         return profilePublicId;
     }

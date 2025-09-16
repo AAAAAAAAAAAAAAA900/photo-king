@@ -1,6 +1,7 @@
 import { Client } from '@stomp/stompjs';
 import { WS_URL } from '../api/apiClient';
 import { getValidAccessToken } from "../api/apiClient";
+import { resetToLogin } from './RootNavigation';
 
 /*
  following this tutorial: https://medium.com/@tusharkumar27864/best-practices-of-using-websockets-real-time-communication-in-react-native-projects-89e749ba2e3f
@@ -37,6 +38,9 @@ class WebsocketService {
                 this.reconnectAttempts++;
                 this.connect();
             }, delay);
+        }
+        else{
+            resetToLogin();
         }
     }
 
@@ -99,9 +103,13 @@ class WebsocketService {
                     reject();
                 },
                 onWebSocketClose: (e) => {
-                    console.log("Websocket closed: " + e);
+                    console.log("Websocket closed: " + e.code);
                     this.isConnected = false;
                     this.socketRef = null;
+                    if (e.code != 1000) { // 1000 = normal closure
+                        this.delayReconnect();
+                        this.executeCallback('error', e);
+                    }
                 },
                 forceBinaryWSFrames: true,
                 appendMissingNULLonIncoming: true,

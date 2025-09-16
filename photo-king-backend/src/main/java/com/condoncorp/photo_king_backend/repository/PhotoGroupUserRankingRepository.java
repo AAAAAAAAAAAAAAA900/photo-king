@@ -2,9 +2,12 @@ package com.condoncorp.photo_king_backend.repository;
 
 import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +24,9 @@ public interface PhotoGroupUserRankingRepository extends JpaRepository<PhotoGrou
 
     @Query("SELECT p FROM PhotoGroupUserRanking p WHERE p.thirdRankId = ?1")
     Optional<PhotoGroupUserRanking> findByThirdRank(int thirdRankId);
+
+    @Modifying
+    @Query("DELETE FROM PhotoGroupUserRanking p WHERE p.groupId = ?1")
+    int deleteByPhotoGroupId(int groupId);
 
 }

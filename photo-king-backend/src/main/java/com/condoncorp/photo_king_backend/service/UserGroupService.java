@@ -2,12 +2,10 @@ package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.CustomUserDetails;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupDTO;
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.PhotoGroupPoints;
-import com.condoncorp.photo_king_backend.model.PhotoGroupUserRanking;
-import com.condoncorp.photo_king_backend.model.User;
+import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupPointsRepository;
 import com.condoncorp.photo_king_backend.repository.PhotoGroupUserRankingRepository;
+import com.condoncorp.photo_king_backend.repository.UserImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +33,8 @@ public class UserGroupService {
     private WSService websocketService;
     @Autowired
     private PhotoGroupUserRankingRepository photoGroupUserRankingRepository;
+    @Autowired
+    private UserImageService userImageService;
 
     public PhotoGroupDTO addUserToGroup(int userId, int groupId) {
         User user = userService.getUserById(userId);
@@ -79,10 +79,31 @@ public class UserGroupService {
             throw new AccessDeniedException("Only group owner may remove members.");
         }
 
-        // delete ranking data
+        // remove points from images
         Optional<PhotoGroupUserRanking> optionalRankings = photoGroupUserRankingRepository.findByPhotoGroupIdAndUserId(groupId, userId);
+        if (optionalRankings.isPresent()) {
+
+            if (optionalRankings.get().getFirstRankId() != 0) {
+                UserImage firstRankImage = userImageService.getImageById(optionalRankings.get().getFirstRankId());
+                userImageService.updatePoints(firstRankImage.getId(), -3);
+            }
+
+            if (optionalRankings.get().getSecondRankId() != 0) {
+                UserImage secondRankImage = userImageService.getImageById(optionalRankings.get().getSecondRankId());
+                userImageService.updatePoints(secondRankImage.getId(), -2);
+            }
+
+            if (optionalRankings.get().getThirdRankId() != 0) {
+                UserImage thirdRankImage = userImageService.getImageById(optionalRankings.get().getThirdRankId());
+                userImageService.updatePoints(thirdRankImage.getId(), -1);
+            }
+
+            photoGroupUserRankingRepository.delete(optionalRankings.get());
+        }
+
+
+        // delete ranking data
         Optional<PhotoGroupPoints> optionalPoints = photoGroupPointsRepository.findByGroupAndUser(photoGroup, user);
-        optionalRankings.ifPresent(ranking -> photoGroupUserRankingRepository.delete(ranking));
         optionalPoints.ifPresent(points -> photoGroupPointsRepository.delete(points));
 
         user.getPhotoGroups().remove(photoGroup);
@@ -90,8 +111,12 @@ public class UserGroupService {
 
         userService.saveUser(user);
 
+        // Live update group images
+        websocketService.liveUpdatePictures(photoGroup.getId(), "rank");
+
         // Live update groups users
         websocketService.pingAllMembers(photoGroup);
+
         // Live update removed user
         HashMap<String, Object> newGroups = new HashMap<String, Object>();
         newGroups.put("groups", user.getPhotoGroups()

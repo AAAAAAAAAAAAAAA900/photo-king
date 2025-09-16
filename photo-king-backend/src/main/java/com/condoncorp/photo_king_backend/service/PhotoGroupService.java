@@ -6,8 +6,6 @@ import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -79,6 +77,7 @@ public class PhotoGroupService {
         photoGroupRepository.save(photoGroup);
     }
 
+    @Transactional
     public void deleteGroup(int groupId) throws IOException {
         PhotoGroup photoGroup = getGroupById(groupId);
 
@@ -89,13 +88,19 @@ public class PhotoGroupService {
             throw new AccessDeniedException("Only the owner may delete a group.");
         }
 
-        Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
-        if (photoGroupSummary.isPresent()) {
-            for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
+        // REMOVES USER RANKINGS FROM GROUP
+        photoGroupUserRankingRepository.deleteByPhotoGroupId(groupId);
+
+        // DELETES SUMMARY
+        Optional<PhotoGroupSummary> optionalPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
+        if (optionalPhotoGroupSummary.isPresent()) {
+            PhotoGroupSummary summary = optionalPhotoGroupSummary.get();
+            for (UserImage userImage : summary.getUserImages()) {
                 cloudinaryService.delete(userImage.getPublicId());
+                userImage.setSummary(null);
             }
-            photoGroupSummary.get().getUserImages().clear();
-            photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
+            summary.getUserImages().clear();
+            photoGroupSummaryRepository.delete(summary);
         }
 
         // REMOVES GROUP FROM ALL USERS
@@ -110,10 +115,7 @@ public class PhotoGroupService {
                     .collect(Collectors
                             .toList()));
             websocketService.pingUser(user.getId(), newGroups);
-
         }
-
-        photoGroup.getUsers().clear();
 
         // Deletes all images from image server
         for (UserImage userImage : photoGroup.getUserImages()) {
@@ -122,9 +124,11 @@ public class PhotoGroupService {
             } catch (Exception e) {
                 throw new IOException("Failed to delete image: " + userImage.getPublicId());
             }
+            userImage.setPhotoGroup(null);
         }
+        photoGroup.getUserImages().clear();
 
-        photoGroupRepository.deleteById(groupId);
+        photoGroupRepository.delete(photoGroup);
     }
 
     public PhotoGroupDTO updateGroupName(int groupId, String name) {
@@ -207,6 +211,7 @@ public class PhotoGroupService {
     }
 
     // RESET GROUP METHODS =============================================================================================
+    @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void resetGroups() throws IOException {
         List<PhotoGroup> photoGroups = photoGroupRepository.findAll();
@@ -321,6 +326,13 @@ public class PhotoGroupService {
         group.setExpiresAt(newExpiresAt);
         updateExpiredGroups(group);     // also saves group
 
-        websocketService.liveUpdatePictures(group.getId(), "reset");
+        //
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){
+            @Override
+            public void afterCommit(){
+                websocketService.liveUpdatePictures(group.getId(), "reset");
+                websocketService.pingAllMembers(group);
+            }
+        });
     }
 }

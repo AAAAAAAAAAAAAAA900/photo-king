@@ -39,11 +39,17 @@ export default function FriendSearch({ searchData, onSelect }) {
                     style={searchStyles.textIn}
                 />
             </View>
-            <FlatList
-                data={[...filteredData].sort((a, b) => a.username.localeCompare(b.username))}
-                keyExtractor={(item) => item.username}
-                renderItem={({ item }) => <FriendPreview friend={item} press={() => { onSelect ? onSelect(item) : null }} />}
-            />
+            {searchData.length > 0 ? 
+                <FlatList
+                    data={[...filteredData].sort((a, b) => a.username.localeCompare(b.username))}
+                    keyExtractor={(item) => item.username}
+                    renderItem={({ item }) => <FriendPreview friend={item} press={() => { onSelect ? onSelect(item) : null }} />}
+                />
+                :
+                <View style={styles.containerCenterAll}>
+                    <DefaultText>Need more friends? Try adding some!</DefaultText>
+                </View>
+            }
         </View>
     );
 }
@@ -53,7 +59,7 @@ export function FriendPreview({ friend, press, points, isOwner, isWinner }) {
         <TouchableOpacity style={searchStyles.listItem} onPress={press}>
             <Pfp url={friend.pfp} />
             {/* If given points, display them below the username */}
-            { points !== undefined ?
+            {points !== undefined ?
                 <View style={searchStyles.pointsContainer}>
                     <DefaultText numberOfLines={1} style={styles.bold}>{friend.username}</DefaultText>
                     <DefaultText>Points: {points}</DefaultText>
@@ -78,56 +84,56 @@ export function FriendPreview({ friend, press, points, isOwner, isWinner }) {
 }
 
 const searchStyles = StyleSheet.create({
-    searchBarContainer:{ 
-        flexDirection: "row", 
-        width: '90%', 
-        alignSelf:"center", 
-        justifyContent: "center", 
-        backgroundColor:colors.greyWhite, 
-        borderRadius:5, 
-        margin:2, 
-        marginHorizontal:5
+    searchBarContainer: {
+        flexDirection: "row",
+        width: '90%',
+        alignSelf: "center",
+        justifyContent: "center",
+        backgroundColor: colors.greyWhite,
+        borderRadius: 5,
+        margin: 2,
+        marginHorizontal: 5
     },
-    searchIcon:[
-        styles.iconStyle, 
+    searchIcon: [
+        styles.iconStyle,
         {
-            width:'15%'
+            width: '15%'
         }
     ],
-    textIn:[
-        styles.textIn, 
-        { 
-            width: '85%' 
+    textIn: [
+        styles.textIn,
+        {
+            width: '85%'
         }
     ],
-    listItem:[
-        styles.listItem, 
-        { 
-            padding: 10, 
-            gap: 20 
+    listItem: [
+        styles.listItem,
+        {
+            padding: 10,
+            gap: 20
         }
     ],
-    username:[
+    username: [
         styles.bold,
         {
-            width:'75%'
+            width: '75%'
         }
     ],
-    pointsContainer:{
-        flex:1,
+    pointsContainer: {
+        flex: 1,
         justifyContent: 'center',
     },
-    ownerTag:{
-        position:"absolute",
-        bottom:1,
-        right:4,
+    ownerTag: {
+        position: "absolute",
+        bottom: 1,
+        right: 4,
     },
-    iconContainer:{
-        position:"absolute",
-        top:0,
-        right:0,
-        height:23,
-        width:25
+    iconContainer: {
+        position: "absolute",
+        top: 0,
+        right: 0,
+        height: 23,
+        width: 25
     }
 
 });

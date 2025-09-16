@@ -96,6 +96,7 @@ public class UserImageService {
     }
 
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
+    @Transactional
     public void deleteImage(int id) throws IOException {
 
         UserImage userImage = userImageRepository.findById(id)
@@ -105,12 +106,16 @@ public class UserImageService {
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
         PhotoGroup photoGroup = userImage.getPhotoGroup();
+        PhotoGroupSummary summary = userImage.getSummary();
+        // if photo group is null check summary for photo group
         if(photoGroup == null){
-            photoGroup = photoGroupRepository.findById(userImage.getSummary().getGroupId())
-                    .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+            if(summary != null){
+                photoGroup = photoGroupRepository.findById(summary.getGroupId())
+                        .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+            }
         }
         if(authenticatedUserId != userImage.getUser().getId() &&
-                authenticatedUserId != photoGroup.getOwnerId()){
+                (photoGroup != null && authenticatedUserId != photoGroup.getOwnerId())){
             throw new org.springframework.security.access.AccessDeniedException("User not permitted to delete photo");
         }
 
@@ -142,9 +147,17 @@ public class UserImageService {
         }
 
         // Live update group of photo change
-        websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
+        if(photoGroup != null) {
+            websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
+        }
 
-        userImageRepository.deleteById(id);
+        // remove from parent and delete
+        if(summary != null){
+            summary.getUserImages().remove(userImage);
+        } else if (photoGroup != null){
+            photoGroup.getUserImages().remove(userImage);
+        }
+        userImageRepository.delete(userImage);
     }
 
     // DELETES USER'S PROFILE PICTURE
@@ -198,6 +211,15 @@ public class UserImageService {
         }
 
         return user.get().getUserImages().stream().map(UserImageDTO::new).toList();
+    }
+
+    // RETURNS IMAGE BY ID
+    public UserImage getImageById(int id) {
+        Optional<UserImage> image = userImageRepository.findById(id);
+        if (image.isEmpty()) {
+            throw new RuntimeException("Image not found");
+        }
+        return image.get();
     }
 
     // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP

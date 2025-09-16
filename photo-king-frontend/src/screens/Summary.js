@@ -26,7 +26,12 @@ export default function SummaryScreen({ navigation }) {
                 if (images[0].points != 0) {
                     const podium = [];
                     for (let i = 0; i < 3 && i < images.length; ++i) {
-                        podium.push(group.users.find((member) => member.id === images[i].userId));
+                        let member = group.users.find((member) => member.id === images[i].userId);
+                        if(member){
+                            podium.push(member);
+                        } else{
+                            podium.push({ username: "Deleted User", pfp: null });
+                        }
                     }
                     setPlacings(podium);
                 }

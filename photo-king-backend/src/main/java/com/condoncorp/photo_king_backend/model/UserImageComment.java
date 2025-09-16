@@ -19,11 +19,11 @@ public class UserImageComment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "user_image_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_user_image"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private UserImage userImage;
 
     @Column(name = "created_at", nullable = false, updatable = false)

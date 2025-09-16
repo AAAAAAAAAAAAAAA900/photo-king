@@ -3,6 +3,7 @@ package com.condoncorp.photo_king_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +37,8 @@ public class User implements UserDetails {
     private String bio;
     @Column(name = "apple_id")
     private String appleId;
-
+    @Column(name = "policy_accepted", nullable = false, columnDefinition = "boolean default false")
+    private boolean policyAccepted;
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -47,7 +49,7 @@ public class User implements UserDetails {
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
     @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "friends_list",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -67,6 +69,14 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "receiver", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<FriendRequest> receivedRequests = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserImageComment> userImageComments = new ArrayList<>();
+
     public User(String username, String password, String email, String name) {
         this.username = username;
         this.password = password;
@@ -76,11 +86,14 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.policyAccepted = false;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
         this.sentRequests = new HashSet<>();
         this.receivedRequests = new HashSet<>();
+        this.photoGroupPoints = new ArrayList<>();
+        this.userImageComments = new ArrayList<>();
     }
 
 
@@ -89,11 +102,14 @@ public class User implements UserDetails {
         this.profilePublicId = "";
         this.role = "user";
         this.bio = "";
+        this.policyAccepted = false;
         this.photoGroups = new HashSet<>();
         this.friends = new HashSet<>();
         this.userImages = new ArrayList<>();
         this.sentRequests = new HashSet<>();
         this.receivedRequests = new HashSet<>();
+        this.photoGroupPoints = new ArrayList<>();
+        this.userImageComments = new ArrayList<>();
     }
 
     public int getId() {
@@ -253,12 +269,36 @@ public class User implements UserDetails {
         friend.getFriends().remove(this);
     }
 
+    public boolean isPolicyAccepted() {
+        return policyAccepted;
+    }
+
+    public void setPolicyAccepted(boolean policyAccepted) {
+        this.policyAccepted = policyAccepted;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id);
+    }
+
+    public List<PhotoGroupPoints> getPhotoGroupPoints() {
+        return photoGroupPoints;
+    }
+
+    public void setPhotoGroupPoints(List<PhotoGroupPoints> photoGroupPoints) {
+        this.photoGroupPoints = photoGroupPoints;
+    }
+
+    public List<UserImageComment> getUserImageComments() {
+        return userImageComments;
+    }
+
+    public void setUserImageComments(List<UserImageComment> userImageComments) {
+        this.userImageComments = userImageComments;
     }
 
     @Override

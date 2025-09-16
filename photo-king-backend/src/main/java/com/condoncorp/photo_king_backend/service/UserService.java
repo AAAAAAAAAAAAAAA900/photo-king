@@ -1,10 +1,9 @@
 package com.condoncorp.photo_king_backend.service;
 
 import com.condoncorp.photo_king_backend.dto.*;
-import com.condoncorp.photo_king_backend.model.PhotoGroup;
-import com.condoncorp.photo_king_backend.model.User;
-import com.condoncorp.photo_king_backend.model.UserImage;
-import com.condoncorp.photo_king_backend.repository.UserRepository;
+import com.condoncorp.photo_king_backend.model.*;
+import com.condoncorp.photo_king_backend.repository.*;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +32,44 @@ public class UserService {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private WSService websocketService;
-
+    @Autowired
+    private PhotoGroupService photoGroupService;
 
     // SAVES USER TO DATABASE
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    @Transactional
+    private void deleteUserData(User user) throws IOException {
+        // REMOVES USER FROM ALL PHOTO GROUPS AND DELETE GROUPS OWNED
+        for (PhotoGroup photoGroup : new ArrayList<>(user.getPhotoGroups())) {
+            if(photoGroup.getOwnerId() == user.getId()){
+                photoGroupService.deleteGroup(photoGroup.getId());
+            }
+        }
+        for(PhotoGroup group : user.getPhotoGroups()){
+            group.getUsers().remove(user);
+        }
+        user.getPhotoGroups().clear();
+
+        // REMOVES ALL IMAGES FROM USER AND DELETES FROM DATABASE
+        for (UserImage userImage : new ArrayList<>(user.getUserImages())) {
+            try {
+                userImageService.deleteImage(userImage.getId());
+            } catch(Exception ignored){
+                // Image already deleted by previous loop
+                // because the images group and summary may have been nulled,
+                // it is more inefficient to anticipate exceptions than to ignore them
+            }
+        }
+        user.getUserImages().clear();
+
+        // REMOVES USER FROM ALL FRIENDS
+        for (User friend : user.getFriends()) {
+            friend.getFriends().remove(user);
+        }
+        user.getFriends().clear();
     }
 
     // DELETES USER FROM DATABASE BY ID
@@ -49,28 +78,10 @@ public class UserService {
     public void deleteUser(Integer id) throws IOException {
         User user = getUserById(id);
 
-        // REMOVES USER FROM ALL PHOTO GROUPS
-        for (PhotoGroup photoGroup : user.getPhotoGroups()) {
-            photoGroup.getUsers().remove(user);
-        }
+        // deletes users groups and images
+        deleteUserData(user);
 
-        user.getPhotoGroups().clear();
-
-        // REMOVES USER FROM ALL FRIENDS
-        for (User friend : user.getFriends()) {
-            friend.getFriends().remove(user);
-        }
-
-        user.getFriends().clear();
-
-        // REMOVES ALL IMAGES FROM USER AND DELETES FROM DATABASE
-        for (UserImage userImage : user.getUserImages()) {
-            userImageService.deleteImage(userImage.getId());
-        }
-
-        user.getUserImages().clear();
-
-        userRepository.deleteById(id);
+        userRepository.delete(user);
     }
 
 
@@ -92,6 +103,7 @@ public class UserService {
         newUser.setEmail(user.getEmail());
         newUser.setName(user.getName());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        newUser.setPolicyAccepted(true);
 
         userRepository.save(newUser);
 
@@ -180,7 +192,6 @@ public class UserService {
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
         return getUserByUsername(username);
-
     }
 
     // RETURNS BIO OF GIVEN USER
@@ -219,5 +230,17 @@ public class UserService {
 
         String token = authHeader.substring(7);
         return jwtService.extractUsername(token);
+    }
+
+    // Accepts privacy policy
+    @PreAuthorize("#userId == authentication.principal.id")
+    public void acceptPolicy(int userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new RuntimeException("user not found")
+        );
+
+        user.setPolicyAccepted(true);
+
+        userRepository.save(user);
     }
 }

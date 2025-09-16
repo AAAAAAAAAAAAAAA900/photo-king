@@ -39,7 +39,7 @@ public class UserImage {
     private PhotoGroupSummary summary;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "userImage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userImage", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<UserImageComment> comments = new ArrayList<>();
 
 

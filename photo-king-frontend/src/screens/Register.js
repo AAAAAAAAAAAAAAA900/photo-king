@@ -1,7 +1,6 @@
 import { StyleSheet, View, SafeAreaView, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Dimensions, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import authApi from "../api/authApi";
 import Header from '../components/Header.js';
 import DefaultText from '../components/DefaultText.js';
 import styles, { colors } from '../styles/ComponentStyles.js';
@@ -31,11 +30,7 @@ export default function RegisterScreen({ navigation }) {
             return;
         }
 
-        try {
-            await authApi.register(data).then(r => navigation.navigate("Login"));
-        } catch (e) {
-            setErrorMsg(e.response.data);
-        }
+        navigation.navigate("Policy", { registerData: data });
     }
 
     const onChangeText = () => {
@@ -202,20 +197,20 @@ const registerStyles = StyleSheet.create({
     errorText: {
         color: 'red'
     },
-    registerButton:{ 
-        width: 250, 
-        height: 40, 
-        marginVertical: 20, 
-        alignSelf: 'center', 
-        borderRadius: 20, 
-        backgroundColor: colors.secondary, 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    registerButton: {
+        width: 250,
+        height: 40,
+        marginVertical: 20,
+        alignSelf: 'center',
+        borderRadius: 20,
+        backgroundColor: colors.secondary,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    signInContainer:{ 
-        flexDirection: 'row' 
+    signInContainer: {
+        flexDirection: 'row'
     },
-    greyText:{ 
-        color: '#999999' 
+    greyText: {
+        color: '#999999'
     },
 });

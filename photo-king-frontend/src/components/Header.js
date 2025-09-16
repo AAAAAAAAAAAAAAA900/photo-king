@@ -52,7 +52,7 @@ const headerStyles = StyleSheet.create({
         width:70
     },
     headerCenter:{
-        flex:2, 
+        flex:3, 
         alignItems:'center', 
         justifyContent:'center'
     },

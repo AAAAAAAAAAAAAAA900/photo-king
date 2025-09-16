@@ -34,9 +34,13 @@ export default function LoginScreen({ navigation }) {
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
             updateUser(user_info.data);
-            navigation.navigate("Home");
+            if (user_info.data.policyAccepted) {
+                navigation.navigate("Home");
+            } else {
+                navigation.navigate("Policy");
+            }
         } catch (error) {
-            setLoginError(error.response.data ? "Check username or password" : "");
+            setLoginError(error.response.status === 401 ? "Check username or password" : "Check wifi or try again later");
         }
     }
 
@@ -47,9 +51,13 @@ export default function LoginScreen({ navigation }) {
             await SecureStore.setItemAsync("refreshToken", response.data.refreshToken);
             const user_info = await userApi.getUserInfo();
             updateUser(user_info.data);
-            navigation.navigate("Home");
+            if (user_info.data.policyAccepted) {
+                navigation.navigate("Home");
+            } else {
+                navigation.navigate("Policy");
+            }
         } catch (error) {
-            setLoginError(error.response.data ? "Check username or password" : "");
+            setLoginError(error.response.data ? "Check wifi or try again later" : "");
         }
     }
 
@@ -61,7 +69,11 @@ export default function LoginScreen({ navigation }) {
                 if (refreshToken && await isTokenValid(refreshToken)) {
                     const user_info = await userApi.getUserInfo();
                     updateUser(user_info.data);
-                    navigation.navigate("Home");
+                    if (user_info.data.policyAccepted) {
+                        navigation.navigate("Home");
+                    } else {
+                        navigation.navigate("Policy");
+                    }
                 }
                 else {
                     updateUser(null);

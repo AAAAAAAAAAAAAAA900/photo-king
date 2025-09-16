@@ -1,6 +1,8 @@
 package com.condoncorp.photo_king_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class PhotoGroupPoints {

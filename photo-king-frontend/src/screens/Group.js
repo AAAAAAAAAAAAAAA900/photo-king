@@ -64,6 +64,7 @@ export default function GroupScreen({ navigation }) {
             navigateBack();
         }
         setGroup(updateGroup);
+        checkSummary();
     }, [user]);
 
     const { showActionSheetWithOptions } = useActionSheet();
@@ -200,9 +201,7 @@ export default function GroupScreen({ navigation }) {
             return;
         }
 
-        let result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-        });
+        let result = await ImagePicker.launchCameraAsync();
 
         if (!result.canceled) {
             const pics = pictures.concat((result.assets).map((image) => { return { uri: image.url }; }));
