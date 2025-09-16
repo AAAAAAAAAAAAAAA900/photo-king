@@ -6,7 +6,7 @@ import { useUser } from "../components/UserContext.js";
 import DefaultText from "../components/DefaultText.js";
 import { clearTokens } from "../api/apiClient.js";
 import { WebView } from "react-native-webview";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CommonActions, useRoute } from "@react-navigation/native";
 import authApi from "../api/authApi.js";
 
@@ -14,6 +14,7 @@ export default function PolicyScreen({ navigation }) {
     const { user, updateUser } = useUser();
     const registerData = useRoute().params?.registerData;
     const [privacyAccepted, setPrivacyAccepted] = useState(false);
+    const loadingRef = useRef(false);
 
     const declinePressed = async () => {
         Alert.alert("This will delete your account!",
@@ -40,6 +41,8 @@ export default function PolicyScreen({ navigation }) {
     };
 
     const acceptPressed = async () => {
+        if(loadingRef.current) return; // prevent double press
+        loadingRef.current = true;
         if (privacyAccepted) {
             if (user) {
                 // existing accoung accepts (new) policy

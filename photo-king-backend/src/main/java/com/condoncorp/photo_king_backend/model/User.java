@@ -73,6 +73,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserImageComment> userImageComments = new ArrayList<>();
+
     public User(String username, String password, String email, String name) {
         this.username = username;
         this.password = password;
@@ -89,6 +93,7 @@ public class User implements UserDetails {
         this.sentRequests = new HashSet<>();
         this.receivedRequests = new HashSet<>();
         this.photoGroupPoints = new ArrayList<>();
+        this.userImageComments = new ArrayList<>();
     }
 
 
@@ -104,6 +109,7 @@ public class User implements UserDetails {
         this.sentRequests = new HashSet<>();
         this.receivedRequests = new HashSet<>();
         this.photoGroupPoints = new ArrayList<>();
+        this.userImageComments = new ArrayList<>();
     }
 
     public int getId() {
@@ -285,6 +291,14 @@ public class User implements UserDetails {
 
     public void setPhotoGroupPoints(List<PhotoGroupPoints> photoGroupPoints) {
         this.photoGroupPoints = photoGroupPoints;
+    }
+
+    public List<UserImageComment> getUserImageComments() {
+        return userImageComments;
+    }
+
+    public void setUserImageComments(List<UserImageComment> userImageComments) {
+        this.userImageComments = userImageComments;
     }
 
     @Override

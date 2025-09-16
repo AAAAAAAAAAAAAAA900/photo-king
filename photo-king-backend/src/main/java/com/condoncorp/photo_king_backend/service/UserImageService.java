@@ -106,16 +106,14 @@ public class UserImageService {
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
         PhotoGroup photoGroup = userImage.getPhotoGroup();
+        PhotoGroupSummary summary = userImage.getSummary();
         // if photo group is null check summary for photo group
         if(photoGroup == null){
-            PhotoGroupSummary summary = userImage.getSummary();
             if(summary != null){
                 photoGroup = photoGroupRepository.findById(summary.getGroupId())
                         .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
             }
         }
-        // This allows images by with null group because they should be deleted
-        // even though they are an error
         if(authenticatedUserId != userImage.getUser().getId() &&
                 (photoGroup != null && authenticatedUserId != photoGroup.getOwnerId())){
             throw new org.springframework.security.access.AccessDeniedException("User not permitted to delete photo");
@@ -153,6 +151,12 @@ public class UserImageService {
             websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
         }
 
+        // remove from parent and delete
+        if(summary != null){
+            summary.getUserImages().remove(userImage);
+        } else if (photoGroup != null){
+            photoGroup.getUserImages().remove(userImage);
+        }
         userImageRepository.delete(userImage);
     }
 

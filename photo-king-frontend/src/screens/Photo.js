@@ -274,6 +274,7 @@ export default function PhotoScreen({ navigation }) {
                                             style={photoStyles.commentInput}
                                             onChangeText={(txt) => { commentRef.current = txt; }}
                                             placeholder="Enter Comment..."
+                                            maxLength={250}
                                         />
                                         <TouchableOpacity style={styles.button} onPress={() => {
                                             uploadComment(commentRef.current);

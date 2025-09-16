@@ -39,7 +39,7 @@ public class PhotoGroup {
     private List<UserImage> userImages = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "photoGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PhotoGroupPoints> photoGroupPoints = new ArrayList<>();
 
 

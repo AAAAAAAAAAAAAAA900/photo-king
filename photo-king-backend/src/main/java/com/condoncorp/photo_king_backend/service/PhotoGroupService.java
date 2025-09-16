@@ -6,8 +6,6 @@ import com.condoncorp.photo_king_backend.dto.PhotoGroupReq;
 import com.condoncorp.photo_king_backend.dto.PhotoGroupSummaryDTO;
 import com.condoncorp.photo_king_backend.model.*;
 import com.condoncorp.photo_king_backend.repository.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,10 +47,6 @@ public class PhotoGroupService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private UserImageRepository userImageRepository;
-    @Autowired
-    private EntityManager entityManager;
-    @Autowired
-    private UserImageCommentRepository userImageCommentRepository;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         User user = userRepository.findById(photoGroupReq.getOwnerId())
@@ -94,13 +88,9 @@ public class PhotoGroupService {
             throw new AccessDeniedException("Only the owner may delete a group.");
         }
 
-        entityManager.flush();
-        System.out.println("\n\n\n" + "Delete user ranking" + "\n\n\n");
         // REMOVES USER RANKINGS FROM GROUP
         photoGroupUserRankingRepository.deleteByPhotoGroupId(groupId);
 
-        entityManager.flush();
-        System.out.println("\n\n\n" + "delete summary" + "\n\n\n");
         // DELETES SUMMARY
         Optional<PhotoGroupSummary> optionalPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
         if (optionalPhotoGroupSummary.isPresent()) {
@@ -113,8 +103,6 @@ public class PhotoGroupService {
             photoGroupSummaryRepository.delete(summary);
         }
 
-        entityManager.flush();
-        System.out.println("\n\n\n" + "remove group from users" + "\n\n\n");
         // REMOVES GROUP FROM ALL USERS
         for (User user : photoGroup.getUsers()) {
             user.getPhotoGroups().remove(photoGroup);
@@ -129,8 +117,6 @@ public class PhotoGroupService {
             websocketService.pingUser(user.getId(), newGroups);
         }
 
-        entityManager.flush();
-        System.out.println("\n\n\n" + "delete images" + "\n\n\n");
         // Deletes all images from image server
         for (UserImage userImage : photoGroup.getUserImages()) {
             try {
@@ -142,8 +128,6 @@ public class PhotoGroupService {
         }
         photoGroup.getUserImages().clear();
 
-        entityManager.flush();
-        System.out.println("\n\n\n" + "delete group" + "\n\n\n");
         photoGroupRepository.delete(photoGroup);
     }
 

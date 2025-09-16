@@ -13,12 +13,10 @@ public class PhotoGroupPoints {
 
     @ManyToOne
     @JoinColumn(name = "photo_group_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private PhotoGroup photoGroup;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(name = "points")
