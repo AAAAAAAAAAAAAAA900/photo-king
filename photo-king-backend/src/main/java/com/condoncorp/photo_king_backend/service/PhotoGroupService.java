@@ -49,6 +49,10 @@ public class PhotoGroupService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private UserImageRepository userImageRepository;
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private UserImageCommentRepository userImageCommentRepository;
 
     public PhotoGroupDTO addGroup(PhotoGroupReq photoGroupReq) {
         User user = userRepository.findById(photoGroupReq.getOwnerId())
@@ -79,6 +83,7 @@ public class PhotoGroupService {
         photoGroupRepository.save(photoGroup);
     }
 
+    @Transactional
     public void deleteGroup(int groupId) throws IOException {
         PhotoGroup photoGroup = getGroupById(groupId);
 
@@ -89,19 +94,27 @@ public class PhotoGroupService {
             throw new AccessDeniedException("Only the owner may delete a group.");
         }
 
-        Optional<PhotoGroupSummary> photoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
-        if (photoGroupSummary.isPresent()) {
-            for (UserImage userImage : photoGroupSummary.get().getUserImages()) {
+        entityManager.flush();
+        System.out.println("\n\n\n" + "Delete user ranking" + "\n\n\n");
+        // REMOVES USER RANKINGS FROM GROUP
+        photoGroupUserRankingRepository.deleteByPhotoGroupId(groupId);
+
+        entityManager.flush();
+        System.out.println("\n\n\n" + "delete summary" + "\n\n\n");
+        // DELETES SUMMARY
+        Optional<PhotoGroupSummary> optionalPhotoGroupSummary = photoGroupSummaryRepository.findByPhotoGroupId(groupId);
+        if (optionalPhotoGroupSummary.isPresent()) {
+            PhotoGroupSummary summary = optionalPhotoGroupSummary.get();
+            for (UserImage userImage : summary.getUserImages()) {
                 cloudinaryService.delete(userImage.getPublicId());
+                userImage.setSummary(null);
             }
-            photoGroupSummary.get().getUserImages().clear();
-            photoGroupSummaryRepository.deleteById(photoGroupSummary.get().getId());
+            summary.getUserImages().clear();
+            photoGroupSummaryRepository.delete(summary);
         }
 
-        // REMOVES USER RANKINGS FROM GROUP
-        List<PhotoGroupUserRanking> photoGroupUserRankings = photoGroupUserRankingRepository.findByPhotoGroupId(groupId);
-        photoGroupUserRankings.forEach(photoGroupUserRankingRepository::delete);
-
+        entityManager.flush();
+        System.out.println("\n\n\n" + "remove group from users" + "\n\n\n");
         // REMOVES GROUP FROM ALL USERS
         for (User user : photoGroup.getUsers()) {
             user.getPhotoGroups().remove(photoGroup);
@@ -114,11 +127,10 @@ public class PhotoGroupService {
                     .collect(Collectors
                             .toList()));
             websocketService.pingUser(user.getId(), newGroups);
-
         }
 
-        photoGroup.getUsers().clear();
-
+        entityManager.flush();
+        System.out.println("\n\n\n" + "delete images" + "\n\n\n");
         // Deletes all images from image server
         for (UserImage userImage : photoGroup.getUserImages()) {
             try {
@@ -126,9 +138,13 @@ public class PhotoGroupService {
             } catch (Exception e) {
                 throw new IOException("Failed to delete image: " + userImage.getPublicId());
             }
+            userImage.setPhotoGroup(null);
         }
+        photoGroup.getUserImages().clear();
 
-        photoGroupRepository.deleteById(groupId);
+        entityManager.flush();
+        System.out.println("\n\n\n" + "delete group" + "\n\n\n");
+        photoGroupRepository.delete(photoGroup);
     }
 
     public PhotoGroupDTO updateGroupName(int groupId, String name) {
@@ -211,6 +227,7 @@ public class PhotoGroupService {
     }
 
     // RESET GROUP METHODS =============================================================================================
+    @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void resetGroups() throws IOException {
         List<PhotoGroup> photoGroups = photoGroupRepository.findAll();

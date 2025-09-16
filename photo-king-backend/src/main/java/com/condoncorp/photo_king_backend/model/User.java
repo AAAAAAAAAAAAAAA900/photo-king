@@ -49,7 +49,7 @@ public class User implements UserDetails {
     private Set<PhotoGroup> photoGroups = new HashSet<>();
 
     @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "friends_list",
             joinColumns = @JoinColumn(name = "user_id"),

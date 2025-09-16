@@ -1,6 +1,8 @@
 package com.condoncorp.photo_king_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class PhotoGroupPoints {
@@ -11,10 +13,12 @@ public class PhotoGroupPoints {
 
     @ManyToOne
     @JoinColumn(name = "photo_group_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PhotoGroup photoGroup;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(name = "points")

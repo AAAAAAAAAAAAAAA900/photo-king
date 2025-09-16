@@ -1,6 +1,8 @@
 package com.condoncorp.photo_king_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class FriendRequest {
@@ -11,10 +13,12 @@ public class FriendRequest {
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
     @Enumerated(EnumType.STRING)

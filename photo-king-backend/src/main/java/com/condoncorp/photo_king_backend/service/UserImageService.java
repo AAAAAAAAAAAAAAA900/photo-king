@@ -96,6 +96,7 @@ public class UserImageService {
     }
 
     // DELETES AN IMAGE FROM IMAGE CLOUD AND DATABASE
+    @Transactional
     public void deleteImage(int id) throws IOException {
 
         UserImage userImage = userImageRepository.findById(id)
@@ -105,12 +106,18 @@ public class UserImageService {
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
         PhotoGroup photoGroup = userImage.getPhotoGroup();
+        // if photo group is null check summary for photo group
         if(photoGroup == null){
-            photoGroup = photoGroupRepository.findById(userImage.getSummary().getGroupId())
-                    .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+            PhotoGroupSummary summary = userImage.getSummary();
+            if(summary != null){
+                photoGroup = photoGroupRepository.findById(summary.getGroupId())
+                        .orElseThrow(()-> new RuntimeException("Photo's group can not be found."));
+            }
         }
+        // This allows images by with null group because they should be deleted
+        // even though they are an error
         if(authenticatedUserId != userImage.getUser().getId() &&
-                authenticatedUserId != photoGroup.getOwnerId()){
+                (photoGroup != null && authenticatedUserId != photoGroup.getOwnerId())){
             throw new org.springframework.security.access.AccessDeniedException("User not permitted to delete photo");
         }
 
@@ -142,9 +149,11 @@ public class UserImageService {
         }
 
         // Live update group of photo change
-        websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
+        if(photoGroup != null) {
+            websocketService.liveUpdatePictures(photoGroup.getId(), "delete");
+        }
 
-        userImageRepository.deleteById(id);
+        userImageRepository.delete(userImage);
     }
 
     // DELETES USER'S PROFILE PICTURE

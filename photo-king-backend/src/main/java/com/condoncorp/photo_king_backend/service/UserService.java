@@ -4,7 +4,9 @@ import com.condoncorp.photo_king_backend.dto.*;
 import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 import com.condoncorp.photo_king_backend.model.UserImage;
+import com.condoncorp.photo_king_backend.repository.PhotoGroupRepository;
 import com.condoncorp.photo_king_backend.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +35,32 @@ public class UserService {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private WSService websocketService;
+    @Autowired
+    private PhotoGroupService photoGroupService;
+    @Autowired
+    private EntityManager entityManager;
 
 
     // SAVES USER TO DATABASE
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    @Transactional
+    private void deleteUserData(User user) throws IOException {
+        // REMOVES USER FROM ALL PHOTO GROUPS AND DELETE GROUPS OWNED
+        for (PhotoGroup photoGroup : new ArrayList<>(user.getPhotoGroups())) {
+            if(photoGroup.getOwnerId() == user.getId()){
+                photoGroupService.deleteGroup(photoGroup.getId());
+            } else {
+                photoGroup.getUsers().remove(user);
+            }
+        }
+
+        // REMOVES ALL IMAGES FROM USER AND DELETES FROM DATABASE
+        for (UserImage userImage : new ArrayList<>(user.getUserImages())) {
+            userImageService.deleteImage(userImage.getId());
+        }
     }
 
     // DELETES USER FROM DATABASE BY ID
@@ -49,26 +69,13 @@ public class UserService {
     public void deleteUser(Integer id) throws IOException {
         User user = getUserById(id);
 
-        // REMOVES USER FROM ALL PHOTO GROUPS
-        for (PhotoGroup photoGroup : user.getPhotoGroups()) {
-            photoGroup.getUsers().remove(user);
-        }
-
-        user.getPhotoGroups().clear();
+        // deletes users groups and images
+        deleteUserData(user);
 
         // REMOVES USER FROM ALL FRIENDS
         for (User friend : user.getFriends()) {
             friend.getFriends().remove(user);
         }
-
-        user.getFriends().clear();
-
-        // REMOVES ALL IMAGES FROM USER AND DELETES FROM DATABASE
-        for (UserImage userImage : user.getUserImages()) {
-            userImageService.deleteImage(userImage.getId());
-        }
-
-        user.getUserImages().clear();
 
         userRepository.deleteById(id);
     }
