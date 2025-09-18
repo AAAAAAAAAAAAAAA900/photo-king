@@ -42,8 +42,8 @@ export default function PolicyScreen({ navigation }) {
 
     const acceptPressed = async () => {
         if(loadingRef.current) return; // prevent double press
-        loadingRef.current = true;
         if (privacyAccepted) {
+            loadingRef.current = true;
             if (user) {
                 // existing accoung accepts (new) policy
                 userApi.acceptPolicy(user.id);
