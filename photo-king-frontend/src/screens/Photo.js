@@ -226,7 +226,21 @@ export default function PhotoScreen({ navigation }) {
                 <View style={[{ height: (Platform.OS == 'ios' ? useSafeAreaInsets().top : 0) }, photoStyles.cover]} />
                 <SafeAreaView style={styles.safeAreaContainer}>
                     <View style={photoStyles.cover}>
-                        <Header title={group.name} backFunction={() => { navigateBack(); }} />
+                        <Header title={group.name} backFunction={() => { navigateBack(); }} buttons={
+                            /* FLAG IMAGE BUTTON */
+                            <TouchableOpacity style={photoStyles.flagButton}
+                                onPress={() => 
+                                    Alert.alert(
+                                        "Do you want to report this photo?", 
+                                        "It will make it unviewable until a team member reviews it.",
+                                        [
+                                            { text: "Cancel", style: "cancel" },
+                                            { text: "Report", onPress: () => { console.log("Image flagged") } }
+                                        ]
+                                        )}>
+                                <Image style={styles.iconStyle} source={require('../../assets/icons/flag.png')} />
+                            </TouchableOpacity>
+                        } />
                     </View>
 
                     {/* I do not understand but this view is required for the modal to work on android */}
@@ -358,6 +372,15 @@ const ZoomablePhoto = (({ url }) => {
 });
 
 const photoStyles = StyleSheet.create({
+    flagButton:{
+        backgroundColor:"orange",
+        borderRadius:25,
+        height:50,
+        width:50,
+        right:10,
+        alignItems:"center",
+        justifyContent:"center"
+    },
     fadingIcon: {
         position: "absolute",
         backgroundColor: colors.secondary,

@@ -24,12 +24,13 @@ export default function FriendsScreen({ navigation }) {
     const [searchResults, setSearchResults] = useState([]);     // query search results
     const [friendModalVisible, setFriendModalVisible] = useState(false);
     const [friendClicked, setFriendClicked] = useState(null);   // tracks which profile clicked on
-    const [invitesTab, setInvitesTab] = useState(false);        // toggling animated tab
+    const [tab, setTab] = useState(1);        // 0 = blocked, 1 = friends, 2 = invites
     const [invites, setInvites] = useState([]);                 // pending invites list
     const screenWidth = Dimensions.get("window").width;
     const slideAnim = useRef(new Animated.Value(0)).current;    // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
     const websocketServiceRef = useRef(WebsocketService);
+    const [blockedUsers, setBlockedUsers] = useState([]); // blocked users list
 
     // Queries users where username like search
     const getSearchData = async (search) => {
@@ -198,21 +199,30 @@ export default function FriendsScreen({ navigation }) {
 
     // Animates screen tabs
     useEffect(() => {
-        if (invitesTab) {
-            Animated.timing(slideAnim, {
-                toValue: -screenWidth, // Slide into view
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
+        switch (tab) {
+            case 0:
+                Animated.timing(slideAnim, {
+                    toValue: 0, // Slide into view
+                    duration: 300,
+                    useNativeDriver: true,
+                }).start();
+                break;
+            case 1:
+                Animated.timing(slideAnim, {
+                    toValue: -screenWidth, // Slide into view
+                    duration: 300,
+                    useNativeDriver: true,
+                }).start();
+                break;
+            case 2:
+                Animated.timing(slideAnim, {
+                    toValue: -2*screenWidth, // Slide into view
+                    duration: 300,
+                    useNativeDriver: true,
+                }).start();
+                break;
         }
-        else {
-            Animated.timing(slideAnim, {
-                toValue: 0, // Slide into view
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-        }
-    }, [invitesTab]);
+    }, [tab]);
 
     const closeModal = () => {
         setAddFriendModalVisible(false);
@@ -338,18 +348,33 @@ export default function FriendsScreen({ navigation }) {
 
                 {/* TAB BAR */}
                 <View style={friendsStyles.tabBarContainer}>
+                    {/* BLOCK LIST TAB BUTTON */}
                     <TouchableOpacity style={styles.containerCenterAll}
-                        onPress={() => setInvitesTab(false)}
+                        onPress={() => { Keyboard.dismiss(); setTab(0); }}
                     >
-                        <View style={[friendsStyles.tabBarButton, (invitesTab ? {} : { backgroundColor: 'rgba(0,0,0,0.1)' })]}>
+                        <View style={[friendsStyles.tabBarButton, (tab === 0 ? { backgroundColor: 'rgba(0,0,0,0.1)' } : {})]}>
+                            <DefaultText style={styles.buttonText}>Blocked</DefaultText>
+                        </View>
+                    </TouchableOpacity>
+
+                    <View style={friendsStyles.tabBarDivider} />
+
+                    {/* FRIENDS TAB BUTTON */}
+                    <TouchableOpacity style={styles.containerCenterAll}
+                        onPress={() => setTab(1)}
+                    >
+                        <View style={[friendsStyles.tabBarButton, (tab === 1 ? { backgroundColor: 'rgba(0,0,0,0.1)' } : {})]}>
                             <DefaultText style={styles.buttonText}>Friends</DefaultText>
                         </View>
                     </TouchableOpacity>
+
                     <View style={friendsStyles.tabBarDivider} />
+
+                    {/* INVITES TAB BUTTON */}
                     <TouchableOpacity style={styles.containerCenterAll}
-                        onPress={() => { Keyboard.dismiss(); setInvitesTab(true); }}
+                        onPress={() => { Keyboard.dismiss(); setTab(2); }}
                     >
-                        <View style={[friendsStyles.tabBarButton, (invitesTab ? { backgroundColor: 'rgba(0,0,0,0.1)' } : {})]}>
+                        <View style={[friendsStyles.tabBarButton, (tab === 2 ? { backgroundColor: 'rgba(0,0,0,0.1)' } : {})]}>
                             <DefaultText style={styles.buttonText}>Invites</DefaultText>
                         </View>
                     </TouchableOpacity>
@@ -358,6 +383,22 @@ export default function FriendsScreen({ navigation }) {
 
 
                 <Animated.View style={[{ transform: [{ translateX: slideAnim }] }, friendsStyles.animatedContainer]}>
+                    {/* BLOCK LIST TAB */}
+                    <View style={styles.container}>
+                        {blockedUsers.length ?
+                            <View style={friendsStyles.invitesContainer}>
+                                <FlatList
+                                    data={blockedUsers}
+                                    renderItem={({ item }) => <FriendPreview friend={item} press={() => { setFriendClicked({ ...item }); }} />}
+                                    keyExtractor={(item) => item.id}
+                                />
+                            </View>
+                            :
+                            <View style={styles.containerCenterAll}>
+                                <DefaultText>No blocked users!</DefaultText>
+                            </View>
+                        }
+                    </View>
 
                     {/* FRIENDS TAB */}
                     <View style={styles.container}>
@@ -453,7 +494,7 @@ const friendsStyles = StyleSheet.create({
         padding: 8
     },
     tabBarButton: {
-        width: '50%',
+        width: '70%',
         height: '100%',
         borderRadius: 10,
         alignItems: "center",
@@ -466,7 +507,7 @@ const friendsStyles = StyleSheet.create({
     },
     animatedContainer: {
         flex: 1,
-        width: '200%',
+        width: '300%',
         flexDirection: "row",
         backgroundColor: 'white'
     },
