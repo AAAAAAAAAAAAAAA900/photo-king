@@ -38,6 +38,8 @@ public class UserImageService {
     private UserImageCommentRepository userImageCommentRepository;
     @Autowired
     private WSService websocketService;
+    @Autowired
+    private ImageModerationService imageModerationService;
 
     // UPLOADS AN IMAGE TO IMAGE CLOUD AND DATABASE
     @PreAuthorize("#userId == authentication.principal.id")
@@ -54,6 +56,12 @@ public class UserImageService {
         }
 
         Map result = cloudinaryService.upload(file);
+
+        if (imageModerationService.moderateImage((String) result.get("url"))) {
+            cloudinaryService.delete((String) result.get("public_id"));
+            return "Image Flagged";
+        }
+
         UserImage userImage = new UserImage();
         userImage.setImageName((String) result.get("original_filename"));
         userImage.setUrl((String) result.get("url"));
@@ -311,6 +319,20 @@ public class UserImageService {
 
     public void saveAllImages(List<UserImage> userImages) {
         userImageRepository.saveAll(userImages);
+    }
+
+    public void flagImage(int id) {
+        UserImage userImage = getImageById(id);
+
+
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        if(userImage.getPhotoGroup().getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
+        }
+
+        userImage.setFlagged(true);
+        userImageRepository.save(userImage);
     }
 
 

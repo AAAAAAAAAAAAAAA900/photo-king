@@ -3,10 +3,8 @@ package com.condoncorp.photo_king_backend.controller;
 import com.condoncorp.photo_king_backend.dto.AuthRegReq;
 import com.condoncorp.photo_king_backend.dto.TokenReq;
 import com.condoncorp.photo_king_backend.dto.UserRegisterReq;
-import com.condoncorp.photo_king_backend.service.AppleService;
-import com.condoncorp.photo_king_backend.service.CustomUserDetailsService;
-import com.condoncorp.photo_king_backend.service.JwtService;
-import com.condoncorp.photo_king_backend.service.UserService;
+import com.condoncorp.photo_king_backend.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +32,8 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private AppleService appleService;
+    @Autowired
+    private ImageModerationService imageModerationService;
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> authenticateUser(@RequestBody AuthRegReq authRegReq) {
@@ -89,6 +89,5 @@ public class AuthController {
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("OK");
     }
-
 
 }

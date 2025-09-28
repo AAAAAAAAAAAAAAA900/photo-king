@@ -7,12 +7,16 @@ import com.condoncorp.photo_king_backend.service.PhotoGroupService;
 import com.condoncorp.photo_king_backend.service.UserImageService;
 import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "api/user-image")
@@ -27,24 +31,35 @@ public class UserImageController {
 
     // HANDLES IMAGE UPLOADING AND SAVES TO IMAGE CLOUD AND DATABASE
     @PostMapping(path = "/upload")
-    public String uploadImage(@RequestParam("files") List<MultipartFile> files, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) {
+    public ResponseEntity<String> uploadImage(@RequestParam("files") List<MultipartFile> files, @RequestParam("userId") int userId, @RequestParam("groupId") int groupId) {
+
         try {
             if (files == null || files.isEmpty()) {
-                return "NO FILE RECEIVED";
+                return ResponseEntity.badRequest().body("NO FILE RECEIVED");
             }
 
+            Boolean moderationFlag = false;
+
             List<String> uploadedUrls = new ArrayList<>();
+
             for (MultipartFile file : files) {
                 String url = userImageService.upload(file, userId, groupId);
+                if (url.equals("Image Flagged")) {
+                    moderationFlag = true;
+                }
                 if (url != null) {
                     uploadedUrls.add(url);
                 }
             }
-            return uploadedUrls.toString();
+
+            return ResponseEntity
+                    .ok()
+                    .header("moderationFlag", moderationFlag.toString())
+                    .body(uploadedUrls.toString());
 
         } catch (Exception e) {
             System.out.println("Upload error: " + e.getMessage());
-            return "INTERNAL SERVER ERROR";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("INTERNAL SERVER ERROR");
         }
     }
 
@@ -95,5 +110,11 @@ public class UserImageController {
     @GetMapping(path = "/get-comments/{photoId}")
     public List<UserImageCommentDTO> getComments(@PathVariable int photoId) {
         return userImageService.getComments(photoId);
+    }
+
+    @PostMapping(path = "/flag-image/{id}")
+    public ResponseEntity<?> flagImage(@PathVariable int id) {
+        userImageService.flagImage(id);
+        return ResponseEntity.ok().build();
     }
 }

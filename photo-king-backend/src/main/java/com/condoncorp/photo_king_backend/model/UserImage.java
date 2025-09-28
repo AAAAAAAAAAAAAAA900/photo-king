@@ -42,6 +42,9 @@ public class UserImage {
     @OneToMany(mappedBy = "userImage", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<UserImageComment> comments = new ArrayList<>();
 
+    @Column(name = "flagged", columnDefinition = "boolean default false")
+    private boolean flagged;
+
 
     public UserImage(String url, String publicId, String image_name, User user, PhotoGroup photoGroup) {
         this.url = url;
@@ -50,10 +53,12 @@ public class UserImage {
         this.user = user;
         this.photoGroup = photoGroup;
         this.points = 0;
+        this.flagged = false;
         this.comments = new ArrayList<>();
     }
 
     public UserImage() {
+        this.flagged = false;
         this.points = 0;
     }
 
@@ -127,5 +132,13 @@ public class UserImage {
 
     public void setSummary(PhotoGroupSummary summary) {
         this.summary = summary;
+    }
+
+    public boolean isFlagged() {
+        return flagged;
+    }
+
+    public void setFlagged(boolean flagged) {
+        this.flagged = flagged;
     }
 }
