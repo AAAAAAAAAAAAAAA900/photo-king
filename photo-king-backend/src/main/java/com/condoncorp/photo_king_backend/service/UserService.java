@@ -243,4 +243,26 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    // BLOCKS ANOTHER USER
+    @PreAuthorize("#blockerId == authentication.principal.id")
+    public void blockUser(int blockerId, int blockeeId){
+        User blocker = userRepository.findById(blockerId).orElseThrow();
+        User blockee = userRepository.findById(blockeeId).orElseThrow();
+
+        blocker.getBlockedUsers().add(blockee);
+
+        saveUser(blocker);
+    }
+
+    // UNBLOCKS ANOTHER USER
+    @PreAuthorize("#blockerId == authentication.principal.id")
+    public void unblockUser(int blockerId, int blockeeId){
+        User blocker = userRepository.findById(blockerId).orElseThrow();
+        User blockee = userRepository.findById(blockeeId).orElseThrow();
+
+        blocker.getBlockedUsers().remove(blockee);
+
+        saveUser(blocker);
+    }
 }

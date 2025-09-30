@@ -3,6 +3,8 @@ package com.condoncorp.photo_king_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -77,6 +79,15 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<UserImageComment> userImageComments = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "blocked",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "blocked_user_id")
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<User> blockedUsers = new HashSet<>();
+
     public User(String username, String password, String email, String name) {
         this.username = username;
         this.password = password;
@@ -94,6 +105,7 @@ public class User implements UserDetails {
         this.receivedRequests = new HashSet<>();
         this.photoGroupPoints = new ArrayList<>();
         this.userImageComments = new ArrayList<>();
+        this.blockedUsers = new HashSet<>();
     }
 
 
@@ -110,6 +122,7 @@ public class User implements UserDetails {
         this.receivedRequests = new HashSet<>();
         this.photoGroupPoints = new ArrayList<>();
         this.userImageComments = new ArrayList<>();
+        this.blockedUsers = new HashSet<>();
     }
 
     public int getId() {
@@ -299,6 +312,14 @@ public class User implements UserDetails {
 
     public void setUserImageComments(List<UserImageComment> userImageComments) {
         this.userImageComments = userImageComments;
+    }
+
+    public Set<User> getBlockedUsers() {
+        return blockedUsers;
+    }
+
+    public void setBlockedUsers(Set<User> blockedUsers) {
+        this.blockedUsers = blockedUsers;
     }
 
     @Override

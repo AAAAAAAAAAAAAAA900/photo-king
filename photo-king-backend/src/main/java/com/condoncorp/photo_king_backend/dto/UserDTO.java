@@ -21,6 +21,7 @@ public class UserDTO {
     private final Set<PhotoGroupDTO> groups;
     private final List<UserImageDTO> userImages;
     private final boolean policyAccepted;
+    private final Set<Integer> blockedUsers;
 
     public UserDTO(User user){
         this.id = user.getId();
@@ -34,6 +35,7 @@ public class UserDTO {
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
         this.userImages = user.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
+        this.blockedUsers = user.getBlockedUsers().stream().map(User::getId).collect(Collectors.toSet());
     }
 
     public int getId() { return id; }
@@ -64,8 +66,8 @@ public class UserDTO {
 
     public Set<FriendDTO> getFriends(){ return friends; }
     public Set<PhotoGroupDTO> getGroups(){ return groups; }
-
     public List<UserImageDTO> getUserImages() {
         return userImages;
     }
+    public Set<Integer> getBlockedUsers() {return blockedUsers;}
 }
