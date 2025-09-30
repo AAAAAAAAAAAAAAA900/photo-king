@@ -57,7 +57,7 @@ export default function PhotoScreen({ navigation }) {
         const callback = (message) => {
             setPhoto(prevPhoto => ({ ...prevPhoto, comments: [...(prevPhoto.comments), JSON.parse(message.body)] }));
         };
-         websocketServiceRef.current.subscribe(destination, callback);
+        websocketServiceRef.current.subscribe(destination, callback);
 
         // Remove back handler and unsubscribe from comments
         return () => {
@@ -229,15 +229,20 @@ export default function PhotoScreen({ navigation }) {
                         <Header title={group.name} backFunction={() => { navigateBack(); }} buttons={
                             /* FLAG IMAGE BUTTON */
                             <TouchableOpacity style={photoStyles.flagButton}
-                                onPress={() => 
-                                    Alert.alert(
-                                        "Do you want to report this photo?", 
-                                        "It will make it unviewable until a team member reviews it.",
-                                        [
-                                            { text: "Cancel", style: "cancel" },
-                                            { text: "Report", onPress: () => { console.log("Image flagged") } }
-                                        ]
-                                        )}>
+                                onPress={() => {
+                                    if (photo.flagged) {
+                                        Alert.alert("This photo has already been reported and is awaiting review.");
+                                    } else {
+                                        Alert.alert(
+                                            "Do you want to report this photo?",
+                                            "It will make it unviewable until a team member reviews it.",
+                                            [
+                                                { text: "Cancel", style: "cancel" },
+                                                { text: "Report", onPress: () => { imageApi.flagImage(photo.id); } }
+                                            ]
+                                        )
+                                    }
+                                }}>
                                 <Image style={styles.iconStyle} source={require('../../assets/icons/flag.png')} />
                             </TouchableOpacity>
                         } />
@@ -305,7 +310,7 @@ export default function PhotoScreen({ navigation }) {
 
                     {/* Photo */}
                     <View style={photoStyles.backgroundContainer}>
-                        <ZoomablePhoto url={photo.url} />
+                        <ZoomablePhoto url={photo.url} flagged={photo.flagged} />
                         <FadingIcon />
                     </View>
 
@@ -349,7 +354,7 @@ export default function PhotoScreen({ navigation }) {
     );
 }
 
-const ZoomablePhoto = (({ url }) => {
+const ZoomablePhoto = (({ url, flagged = false }) => {
     const { width, height } = useWindowDimensions();
     const { isFetching, resolution } = useImageResolution({ uri: url });
     const heightOffset = //header height + bottom bar height + top safe area
@@ -365,21 +370,27 @@ const ZoomablePhoto = (({ url }) => {
     });
 
     return (
-        <ResumableZoom maxScale={resolution}>
-            <Image source={{ uri: url }} style={{ ...size }} resizeMethod={'scale'} />
-        </ResumableZoom>
+        flagged ?
+            <View style={styles.containerCenterAll}>
+                <Image source={require('../../assets/icons/flag.png')} style={photoStyles.flaggedIcon} />
+                <DefaultText style={photoStyles.flaggedText}>A user has reported this photo: review pending.</DefaultText>
+            </View>
+        :
+            <ResumableZoom maxScale={resolution}>
+                <Image source={{ uri: url }} style={{ ...size }} resizeMethod={'scale'} />
+            </ResumableZoom>
     );
 });
 
 const photoStyles = StyleSheet.create({
-    flagButton:{
-        backgroundColor:"orange",
-        borderRadius:25,
-        height:50,
-        width:50,
-        right:10,
-        alignItems:"center",
-        justifyContent:"center"
+    flagButton: {
+        backgroundColor: "orange",
+        borderRadius: 25,
+        height: 50,
+        width: 50,
+        right: 10,
+        alignItems: "center",
+        justifyContent: "center"
     },
     fadingIcon: {
         position: "absolute",
@@ -476,5 +487,16 @@ const photoStyles = StyleSheet.create({
             width: '35%'
         }
     ],
-
+    flaggedIcon: {
+        height: '60%',
+        aspectRatio: 1,
+        resizeMode: 'contain',
+        backgroundColor: 'orange',
+        borderRadius: 1000,
+    },
+    flaggedText: {
+        marginTop: 20,
+        textAlign: 'center',
+        fontFamily: 'DMSans-Bold',
+    }
 });

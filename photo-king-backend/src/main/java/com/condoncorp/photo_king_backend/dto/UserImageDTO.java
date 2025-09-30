@@ -14,6 +14,7 @@ public class UserImageDTO {
     private final Integer summaryId;
     private final int points;
     private final List<UserImageCommentDTO> comments;
+    private final boolean flagged;
 
     public UserImageDTO(UserImage userImage) {
         this.id = userImage.getId();
@@ -25,6 +26,7 @@ public class UserImageDTO {
         this.summaryId = (userImage.getSummary() != null) ? userImage.getSummary().getId() : 0;
         this.points = userImage.getPoints();
         this.comments = userImage.getComments().stream().map(UserImageCommentDTO::new).toList();
+        this.flagged = userImage.isFlagged();
     }
 
     public int getId() {
@@ -61,5 +63,9 @@ public class UserImageDTO {
 
     public List<UserImageCommentDTO> getComments() {
         return comments;
+    }
+
+    public boolean isFlagged() {
+        return flagged;
     }
 }

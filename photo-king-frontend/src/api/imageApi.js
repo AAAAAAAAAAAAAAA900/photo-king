@@ -33,7 +33,11 @@ const imageApi = {
 
     getComments: async (photoId) => {
         return apiClient.get(`/user-image/get-comments/${photoId}`);
-    }
+    },
+
+    flagImage: async (imageID) => {
+        return apiClient.post(`/user-image/flag-image/${imageID}`);
+    },
 }
 
 export default imageApi;

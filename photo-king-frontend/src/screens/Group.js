@@ -142,10 +142,10 @@ export default function GroupScreen({ navigation }) {
         return (
             <TouchableOpacity
                 onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Group" })}
-                style={styles.picHolder}>
+                style={[styles.picHolder, photo.flagged ? picStyles.flaggedBackground : {}]}>
                 <Image
-                    style={[styles.pic, winningBorder]}
-                    source={{ uri: photo.url }}
+                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder] }
+                    source={photo.flagged ? require('../../assets/icons/flag.png') : { uri: photo.url }}
                     progressiveRenderingEnabled={true}
                 />
                 <View style={picStyles.points}>
@@ -788,5 +788,8 @@ export const picStyles = StyleSheet.create({
         backgroundColor: colors.primary,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    flaggedBackground:{
+        backgroundColor:'orange',
     },
 });

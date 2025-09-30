@@ -13,38 +13,38 @@ export const colors = {
 export default styles = StyleSheet.create({
     baseText: {
         fontFamily: 'DMSans-Regular',
-        fontSize:16
+        fontSize: 16
     },
-    bold:{
+    bold: {
         fontFamily: 'DMSans-Bold',
     },
-    titleText:{
+    titleText: {
         fontFamily: 'DMSans-Bold',
         fontSize: 25
     },
-    urlText:{
+    urlText: {
         fontFamily: 'DMSans-Bold',
         fontSize: 16,
         color: colors.secondary,
         textDecorationLine: 'underline'
     },
     textIn: {
-        height: 40, 
+        height: 40,
         width: 250,
-        padding:5,
-        color:'black',
-        borderColor: 'black', 
-        borderRadius:5,
-        backgroundColor:colors.greyWhite,
-        fontFamily: 'DMSans-Regular', 
+        padding: 5,
+        color: 'black',
+        borderColor: 'black',
+        borderRadius: 5,
+        backgroundColor: colors.greyWhite,
+        fontFamily: 'DMSans-Regular',
         fontSize: 16,
     },
     container: {
         flex: 1,
     },
     safeAreaContainer: {    // matches color of header
-        flex:1, 
-        backgroundColor:colors.secondary
+        flex: 1,
+        backgroundColor: colors.secondary
     },
     containerCenterAll: {
         flex: 1,
@@ -52,73 +52,80 @@ export default styles = StyleSheet.create({
         alignItems: 'center',
     },
     button: {
-        height:40, 
-        width:90, 
+        height: 40,
+        width: 90,
         backgroundColor: colors.secondary,
-        borderRadius:10,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },
     buttonText: {
-        color:'white',
-        textAlign:'center',
+        color: 'white',
+        textAlign: 'center',
         fontFamily: 'DMSans-Bold',
     },
     listItem: {
-        padding: 20, 
+        padding: 20,
         margin: 10,
-        marginVertical:5,
-        backgroundColor:'white',
-        borderColor: colors.greyWhite, 
+        marginVertical: 5,
+        backgroundColor: 'white',
+        borderColor: colors.greyWhite,
         borderWidth: 1,
         borderRadius: 10,
-        alignItems:'center',
-        flexDirection:'row',
-        gap:10
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 10
     },
     popupView: {
         justifyContent: 'center',
         alignItems: 'center',
-        width:'75%',
+        width: '75%',
         height: 300,
         backgroundColor: 'white'
     },
-    modalBackground:{
+    modalBackground: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)'
     },
-    redModalBanner:{ 
-        width: '75%', 
-        height: 30, 
-        backgroundColor: colors.secondary 
+    redModalBanner: {
+        width: '75%',
+        height: 30,
+        backgroundColor: colors.secondary
 
     },
-    blueModalBanner:{
-        width: '75%', 
-        height: 10, 
+    blueModalBanner: {
+        width: '75%',
+        height: 10,
         backgroundColor: colors.primary
     },
     picHolder: {
-        flex:1,
-        maxWidth: "49%",
-        aspectRatio:1,
-        alignItems:'center',
-        margin: 5
+        flex: 1,
+        maxWidth: "48%",
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 5,
+        backgroundColor: 'white',
+        borderRadius: 20,
     },
-    pic: { 
-        flex:1, 
-        height:'100%', 
-        width:'100%', 
-        resizeMode:'cover',
-        borderRadius:20,
-        backgroundColor:'white'
+    pic: {
+        flex: 1,
+        height: '100%',
+        width: '100%',
+        resizeMode: 'cover',
+        borderRadius: 20,
     },
-    iconStyle : {
-        height:'90%', 
-        width:'90%', 
-        resizeMode:'contain' 
+    flaggedPic: {
+        height: '50%',
+        width: '50%',
+        resizeMode: 'contain',
+    },
+    iconStyle: {
+        height: '90%',
+        width: '90%',
+        resizeMode: 'contain'
     },
 });
 

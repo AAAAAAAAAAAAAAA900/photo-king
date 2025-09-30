@@ -68,10 +68,11 @@ export default function RankScreen({ navigation }) {
         return (
             <TouchableOpacity
                 onPress={() => { rankPhoto(photo, imageRank, ranks); }}
-                style={styles.picHolder}>
+                style={[styles.picHolder, photo.flagged ? picStyles.flaggedBackground : {}]}>
                 <Image
-                    style={styles.pic}
-                    source={{ uri: photo.url }}
+                    style={photo.flagged ? styles.flaggedPic : styles.pic}
+                    source={photo.flagged ? require('../../assets/icons/flag.png') : { uri: photo.url }}
+                    progressiveRenderingEnabled={true}
                 />
                 {imageRank != -1 &&
                     // Image rank 

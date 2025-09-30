@@ -244,13 +244,17 @@ public class UserImageService {
         if (groupImages == null || groupImages.isEmpty()) {
             return null;
         }
-        groupImages.sort((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()));
-        return new UserImageDTO(groupImages.get(0));
+        return groupImages.stream()
+                .filter(image -> !image.isFlagged())
+                .min((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()))
+                .map(UserImageDTO::new)
+                .orElse(null);
     }
 
     // UPDATES AN IMAGE'S POINTS
     public void updatePoints(int id, int points) {
 
+        System.out.println(id);
         Optional<UserImage> userImage = userImageRepository.findById(id);
         if (userImage.isEmpty()) {
             throw new RuntimeException("Image not found");
@@ -321,20 +325,23 @@ public class UserImageService {
         userImageRepository.saveAll(userImages);
     }
 
+    // flags an image for manual moderation
     public void flagImage(int id) {
         UserImage userImage = getImageById(id);
 
-
+        // checks flagging user is in group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
         if(userImage.getPhotoGroup().getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
+        // flags image
         userImage.setFlagged(true);
         userImageRepository.save(userImage);
+
+        // pings users
+        websocketService.liveUpdatePictures(userImage.getPhotoGroup().getId(), "flag");
     }
-
-
 
 }

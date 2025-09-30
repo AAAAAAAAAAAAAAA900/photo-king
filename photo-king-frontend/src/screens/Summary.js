@@ -27,9 +27,9 @@ export default function SummaryScreen({ navigation }) {
                     const podium = [];
                     for (let i = 0; i < 3 && i < images.length; ++i) {
                         let member = group.users.find((member) => member.id === images[i].userId);
-                        if(member){
+                        if (member) {
                             podium.push(member);
-                        } else{
+                        } else {
                             podium.push({ username: "Deleted User", pfp: null });
                         }
                     }
@@ -98,10 +98,10 @@ export default function SummaryScreen({ navigation }) {
         return (
             <TouchableOpacity
                 onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Summary" })}
-                style={summaryStyles.picHolder}>
+                style={[summaryStyles.picHolder, photo.flagged ? picStyles.flaggedBackground : {}]}>
                 <Image
-                    style={[styles.pic, winningBorder]}
-                    source={{ uri: photo.url }}
+                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder]}
+                    source={photo.flagged ? require('../../assets/icons/flag.png') : { uri: photo.url }}
                     progressiveRenderingEnabled={true}
                 />
                 <View style={picStyles.points}>
