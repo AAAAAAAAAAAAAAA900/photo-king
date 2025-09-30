@@ -190,21 +190,19 @@ public class UserImageService {
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     public List<UserImageDTO> getImagesByGroup(int groupId) {
-        Optional<PhotoGroup> optionalPhotoGroup = photoGroupRepository.findById(groupId);
-        if (optionalPhotoGroup.isEmpty() ||
-                optionalPhotoGroup.get().getUserImages().isEmpty()) {
+        PhotoGroup group = photoGroupRepository.findById(groupId).orElseThrow();
+        if (group.getUserImages().isEmpty()) {
             return null;
         }
-        PhotoGroup photoGroup = optionalPhotoGroup.get();
 
         // Check authorization i.e. user belongs to group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+        if(group.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
-        return photoGroup.getUserImages().stream().map(UserImageDTO::new).toList();
+        return group.getUserImages().stream().map(UserImageDTO::new).toList();
     }
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER

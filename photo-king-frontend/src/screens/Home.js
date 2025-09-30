@@ -22,6 +22,7 @@ export default function HomeScreen({ navigation }) {
     const [daySelected, setDaySelected] = useState("Monday");
     const [thumbnails, setThumbnails] = useState({});
     const [loading, setLoading] = useState(true);
+    console.log(user);
 
     useEffect(() => {
         // Create Android back action handler

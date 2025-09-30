@@ -250,9 +250,20 @@ public class UserService {
         User blocker = userRepository.findById(blockerId).orElseThrow();
         User blockee = userRepository.findById(blockeeId).orElseThrow();
 
-        blocker.getBlockedUsers().add(blockee);
+        HashMap<String, Object> updatePayload = new HashMap<String, Object>();
 
+        if(blocker.getFriends().contains(blockee)){
+            updatePayload.put("friends", removeFriend(blockerId, blockeeId));
+        }
+
+        blocker.getBlockedUsers().add(blockee);
         saveUser(blocker);
+
+        // Send new friends list and block list
+        updatePayload.put("blockedUsers", blocker.getBlockedUsers()
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername)));
+        websocketService.pingUser(blockerId, updatePayload);
     }
 
     // UNBLOCKS ANOTHER USER
@@ -262,7 +273,13 @@ public class UserService {
         User blockee = userRepository.findById(blockeeId).orElseThrow();
 
         blocker.getBlockedUsers().remove(blockee);
-
         saveUser(blocker);
+
+        // Send new block list
+        HashMap<String, Object> updatePayload = new HashMap<String, Object>();
+        updatePayload.put("blockedUsers", blocker.getBlockedUsers()
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername)));
+        websocketService.pingUser(blockerId, updatePayload);
     }
 }

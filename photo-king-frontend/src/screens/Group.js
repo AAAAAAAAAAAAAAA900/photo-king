@@ -111,7 +111,7 @@ export default function GroupScreen({ navigation }) {
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
-        loadPictures(setPictures, group, setLoading);
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
     }
 
     // FlatList element's view
@@ -276,7 +276,7 @@ export default function GroupScreen({ navigation }) {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
         // load group images
-        loadPictures(setPictures, group, setLoading);
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
         // Check for summary
         checkSummary();
 
@@ -284,7 +284,7 @@ export default function GroupScreen({ navigation }) {
         const destination = "/topic/picture/" + group.id;
         const callback = (message) => {
             // reload pictures when changed
-            loadPictures(setPictures, group, setLoading);
+            loadPictures(setPictures, group, setLoading, user.blockedUsers);
         };
         websocketServiceRef.current.subscribe(destination, callback);
 
@@ -504,7 +504,7 @@ export default function GroupScreen({ navigation }) {
 
             {/* Group members side bar popup */}
             <Members
-                users={group.users}
+                users={group.users.filter(user => !Object.keys(user.blockedUsers).includes(String(user.id)))} // filter out blocked users
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
@@ -621,10 +621,15 @@ export default function GroupScreen({ navigation }) {
     );
 }
 
-export const loadPictures = async (setPictures, group, setLoading) => {
+export const loadPictures = async (setPictures, group, setLoading=null, blockedUsers=null) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
         if (Array.isArray(response.data)) {
+            const images = response.data;
+            // filter out pictures from blocked users if provided
+            if (blockedUsers) {
+                images = images.filter(image => !Object.keys(user.blockedUsers).includes(String(image.userId)));
+            }
             setPictures(response.data.sort((a, b) => b.points - a.points));
         } else{
             setPictures([]);

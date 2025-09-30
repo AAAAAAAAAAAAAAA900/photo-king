@@ -30,14 +30,19 @@ export default function FriendsScreen({ navigation }) {
     const slideAnim = useRef(new Animated.Value(0)).current;    // for sliding invite tab off screen
     const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
     const websocketServiceRef = useRef(WebsocketService);
-    const [blockedUsers, setBlockedUsers] = useState([]); // blocked users list
+    const [blockedUsers, setBlockedUsers] = useState(user.blockedUsers); // blocked users list
+
+    // update blocked users list on user change
+    useEffect(() => {
+        setBlockedUsers(user.blockedUsers);
+    }, [user.blockedUsers]);
 
     // Queries users where username like search
     const getSearchData = async (search) => {
         if (search) {
             try {
                 const response = await userApi.searchUsers(search);
-                setSearchResults(response.data.filter(u => u.id != user.id && !user.friends.some(f => f.id === u.id))); // remove self and existing friends
+                setSearchResults(response.data.filter(u => (u.id != user.id && !user.friends.some(f => f.id === u.id)) && !Object.keys(user.blockedUsers).includes(String(u.id)) )); // remove self, existing friends, and blocked users
             }
             catch (e) {
                 console.log(e);
@@ -216,7 +221,7 @@ export default function FriendsScreen({ navigation }) {
                 break;
             case 2:
                 Animated.timing(slideAnim, {
-                    toValue: -2*screenWidth, // Slide into view
+                    toValue: -2 * screenWidth, // Slide into view
                     duration: 300,
                     useNativeDriver: true,
                 }).start();
@@ -385,12 +390,12 @@ export default function FriendsScreen({ navigation }) {
                 <Animated.View style={[{ transform: [{ translateX: slideAnim }] }, friendsStyles.animatedContainer]}>
                     {/* BLOCK LIST TAB */}
                     <View style={styles.container}>
-                        {blockedUsers.length ?
+                        {Object.keys(blockedUsers).length !== 0 ?
                             <View style={friendsStyles.invitesContainer}>
                                 <FlatList
-                                    data={blockedUsers}
-                                    renderItem={({ item }) => <FriendPreview friend={item} press={() => { setFriendClicked({ ...item }); }} />}
-                                    keyExtractor={(item) => item.id}
+                                    data={Object.keys(blockedUsers)}
+                                    renderItem={({ item }) => <BlockedPreview blockeeId={item} username={blockedUsers[item]} />}
+                                    keyExtractor={(item) => item}
                                 />
                             </View>
                             :
@@ -437,6 +442,36 @@ export default function FriendsScreen({ navigation }) {
 
             </SafeAreaView>
         </TouchableWithoutFeedback>
+    );
+}
+
+function BlockedPreview({ blockeeId, username }) {
+    const { user, updateUser } = useUser();
+    return (
+        <View style={blockStyles.listItem}>
+            <View style={blockStyles.pfpAndUsernameContainer}>
+                <Pfp url={null} />
+                <DefaultText style={styles.bold}>{username}</DefaultText>
+            </View>
+            <TouchableOpacity style={styles.button} onPress={() => {
+                Alert.alert(
+                    `Unblock ${username}?`,
+                    "They will be able to send you friend requests and interact with you again.",
+                    [
+                        {
+                            text: "Unblock", onPress: () => {
+                                try {
+                                    userApi.unblockUser(user.id, blockeeId);
+                                } catch (error) { console.log(error); }
+                            }
+                        },
+                        { text: "Cancel", style: "cancel" }
+                    ]
+                );
+            }}>
+                <DefaultText style={styles.buttonText}>Unblock</DefaultText>
+            </TouchableOpacity>
+        </View>
     );
 }
 
@@ -570,4 +605,19 @@ const inviteStyles = StyleSheet.create({
         justifyContent: "center",
         padding: 4,
     }
+});
+
+const blockStyles = StyleSheet.create({
+    listItem: [
+        styles.listItem,
+        {
+            height: 70,
+            justifyContent: 'space-between',
+        }
+    ],
+    pfpAndUsernameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
+    },
 });

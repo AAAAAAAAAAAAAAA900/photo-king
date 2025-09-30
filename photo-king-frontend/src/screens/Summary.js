@@ -21,6 +21,7 @@ export default function SummaryScreen({ navigation }) {
         try {
             const response = await photoGroupApi.getGroupSummary(group.id);
             const images = response.data.userImages.sort((a, b) => b.points - a.points);
+            images = images.filter(image => !Object.keys(user.blockedUsers).includes(String(image.userId))); // filter out pictures from blocked users
             setPictures(images);
             if (images.length) {
                 if (images[0].points != 0) {
@@ -28,7 +29,11 @@ export default function SummaryScreen({ navigation }) {
                     for (let i = 0; i < 3 && i < images.length; ++i) {
                         let member = group.users.find((member) => member.id === images[i].userId);
                         if (member) {
-                            podium.push(member);
+                            if (Object.keys(user.blockedUsers).includes(String(member.id))) {  // hide blocked users on podium
+                                podium.push({ username: "Blocked User", pfp: null });
+                            } else {
+                                podium.push(member);
+                            }
                         } else {
                             podium.push({ username: "Deleted User", pfp: null });
                         }

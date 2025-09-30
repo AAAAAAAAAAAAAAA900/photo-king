@@ -36,6 +36,14 @@ const userApi = {
 
     acceptPolicy: async (userId) => {
         return apiClient.patch(`/user/accept-policy/${userId}`);
+    },
+
+    blockUser: async (blockerId, blockeeId) => {
+        return apiClient.post(`/user/block/${blockerId}/${blockeeId}`);
+    },
+
+    unblockUser: async (blockerId, blockeeId) => {
+        return apiClient.post(`/user/unblock/${blockerId}/${blockeeId}`);
     }
 }
 

@@ -38,7 +38,7 @@ export default function RankScreen({ navigation }) {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
         // load group images
-        loadPictures(setPictures, group);
+        loadPictures(setPictures, group, blockedUsers=user.blockedUsers);
 
         // Remove handler
         return () => backHandler.remove();

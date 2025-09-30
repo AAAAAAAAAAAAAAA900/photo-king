@@ -269,7 +269,7 @@ export default function PhotoScreen({ navigation }) {
                                 <View style={styles.container}>
                                     {photo.comments.length ?
                                         <FlatList
-                                            data={[...photo.comments].sort((a, b) => { return (new Date(b.date).getTime() - new Date(a.date).getTime()); })}
+                                            data={[...photo.comments].filter(comment => !Object.keys(user.blockedUsers).includes(String(comment.userId))).sort((a, b) => { return (new Date(b.date).getTime() - new Date(a.date).getTime()); })}
                                             keyExtractor={(item) => item.id}
                                             inverted={true}
                                             renderItem={({ item }) => <Comment comment={item} />}
