@@ -38,27 +38,20 @@ const clearTokens = async () => {
     await SecureStore.deleteItemAsync("refreshToken");
 }
 
-// CHECK TOKEN VALIDITY CAN CHECK BOTH ACCESS AND REFRESH
-const isTokenValid = async (token) => {
-    try {
-        const response = await axios.post(`${API_URL}/api/auth/validate-token`, { token }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
 
-        return response.data;
-    } catch (error) {
-        return false;
-    }
-}
 
+// GET A NEW REFRESH TOKEN
 const refreshAccessToken = async () => {
     const refreshToken = await getRefreshToken();
-    if (!refreshToken || !(await isTokenValid(refreshToken))) {
+
+    // CHECK IF REFRESH TOKEN EXISTS
+    if (!refreshToken) {
         await clearTokens();
         resetToLogin();
+        throw new Error("No refresh token found");
     }
+
+    // REFRESH ACCESS TOKEN CALL
     try {
         const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { token: refreshToken }, {
             headers: {
@@ -76,19 +69,10 @@ const refreshAccessToken = async () => {
     }
 }
 
-const getValidAccessToken = async () => {
-    let accessToken = await getAccessToken();
-    if (!accessToken || !(await isTokenValid(accessToken))) {
-        await refreshAccessToken(); // Refresh the token if expired
-        accessToken = await getAccessToken(); // Get the new token
-    }
-    return accessToken;
-}
-
 // PUT AUTHORIZATION HEADER BEFORE ANY API CALL EXCEPT AUTH
 apiClient.interceptors.request.use(async (config) => {
     if (!config.url.startsWith("/auth/")) {
-        let accessToken = await getValidAccessToken();
+        let accessToken = await getAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
@@ -102,13 +86,12 @@ apiClient.interceptors.request.use(async (config) => {
 
 apiFormClient.interceptors.request.use(async (config) => {
     if (!config.url.startsWith("/auth/")) {
-        let accessToken = await getValidAccessToken();
+        let accessToken = await getAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
     }
-
     config.headers['Content-Type'] = 'multipart/form-data';
     return config;
 }, (error) => {
@@ -116,4 +99,39 @@ apiFormClient.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 })
 
-export { WS_URL, apiClient, apiFormClient, saveAccessToken, saveRefreshToken, refreshAccessToken, getAccessToken, clearTokens, isTokenValid, getValidAccessToken };
+apiClient.interceptors.response.use((response) => {
+    return response;
+}, async (error) => {
+    const originalRequest = error.config;
+    console.log(error.response.status);
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest.retry) {
+        originalRequest.retry = true;
+        try {
+            const newToken = await refreshAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiClient(originalRequest);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+    return Promise.reject(error);
+})
+
+apiFormClient.interceptors.response.use((response) => {
+    return response;
+}, async (error) => {
+    const originalRequest = error.config;
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest.retry) {
+        originalRequest.retry = true;
+        try {
+            const newToken = await refreshAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiFormClient(originalRequest);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+    return Promise.reject(error);
+})
+
+export { WS_URL, apiClient, apiFormClient, saveAccessToken, saveRefreshToken, refreshAccessToken, getAccessToken, clearTokens };
