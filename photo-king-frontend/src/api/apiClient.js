@@ -39,6 +39,31 @@ const clearTokens = async () => {
 }
 
 
+// CHECK TOKEN VALIDITY CAN CHECK BOTH ACCESS AND REFRESH
+const isTokenValid = async (token) => {
+    try {
+        const response = await axios.post(`${API_URL}/api/auth/validate-token`, { token }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        return response.data;
+    } catch (error) {
+        return false;
+    }
+}
+
+const getValidAccessToken = async () => {
+    let accessToken = await getAccessToken();
+    if (!accessToken || !(await isTokenValid(accessToken))) {
+        await refreshAccessToken(); // Refresh the token if expired
+        accessToken = await getAccessToken(); // Get the new token
+    }
+    return accessToken;
+}
+
+
 
 // GET A NEW REFRESH TOKEN
 const refreshAccessToken = async () => {
@@ -103,7 +128,6 @@ apiClient.interceptors.response.use((response) => {
     return response;
 }, async (error) => {
     const originalRequest = error.config;
-    console.log(error.response.status);
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest.retry) {
         originalRequest.retry = true;
         try {
@@ -134,4 +158,4 @@ apiFormClient.interceptors.response.use((response) => {
     return Promise.reject(error);
 })
 
-export { WS_URL, apiClient, apiFormClient, saveAccessToken, saveRefreshToken, refreshAccessToken, getAccessToken, clearTokens };
+export { WS_URL, apiClient, apiFormClient, saveAccessToken, saveRefreshToken, refreshAccessToken, getAccessToken, clearTokens, getValidAccessToken, isTokenValid };
