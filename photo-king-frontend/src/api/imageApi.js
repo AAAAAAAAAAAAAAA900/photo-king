@@ -23,8 +23,8 @@ const imageApi = {
         return apiClient.get(`/user-image/get-group-images/${groupId}`);
     },
 
-    getTopImage: async (groupId) => {
-        return apiClient.get(`/user-image/get-top-image/${groupId}`);
+    getGroupThumbnails: async (userId) => {
+        return apiClient.get(`/user-image/thumbnails/${userId}`);
     },
 
     uploadComment: async (comment, userId, photoId) => {

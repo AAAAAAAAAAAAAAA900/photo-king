@@ -95,10 +95,10 @@ public class UserImageController {
         userImageService.deleteProfileImage(userId);
     }
 
-    // RETURNS IMAGES WITH HIGHEST POINTS
-    @GetMapping(path = "/get-top-image/{groupId}")
-    public UserImageDTO getTopImage(@PathVariable int groupId) {
-        return userImageService.getTopImage(groupId);
+    // RETURNS ALL THUMBNAIL IMAGES FOR USERS GROUPS
+    @GetMapping(path = "/thumbnails/{userId}")
+    public Map<Integer, String> getGroupThumbnails(@PathVariable int userId) {
+        return userImageService.getUsersGroupThumbnails(userId);
     }
 
     // UPLOADS A COMMENT

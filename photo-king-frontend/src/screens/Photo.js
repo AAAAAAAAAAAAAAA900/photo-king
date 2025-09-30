@@ -238,7 +238,7 @@ export default function PhotoScreen({ navigation }) {
                                             "It will make it unviewable until a team member reviews it.",
                                             [
                                                 { text: "Cancel", style: "cancel" },
-                                                { text: "Report", onPress: () => { imageApi.flagImage(photo.id); } }
+                                                { text: "Report", onPress: () => { setPhoto({...photo, flagged: true}); imageApi.flagImage(photo.id); } }
                                             ]
                                         )
                                     }

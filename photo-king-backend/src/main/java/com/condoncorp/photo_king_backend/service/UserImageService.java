@@ -230,15 +230,23 @@ public class UserImageService {
         return image.get();
     }
 
-    // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
-    public UserImageDTO getTopImage(int groupId) {
-        PhotoGroup photoGroup = photoGroupRepository.findById(groupId).orElseThrow();
+    // RETURNS ALL GROUP THUMBNAIL (TOP) IMAGES FOR A USERS GROUPS
+    @PreAuthorize("#userId == authentication.principal.id")
+    public Map<Integer, String> getUsersGroupThumbnails(int userId){
+        User user = userRepository.findById(userId).orElseThrow();
 
-        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal()).getId();
-        if(photoGroup.getUsers().stream().noneMatch((u) -> u.getId() == authenticatedUserId)){
-            throw new org.springframework.security.access.AccessDeniedException("User not in group");
+        HashMap<Integer, String> result = new HashMap<>();
+        for(PhotoGroup group : user.getPhotoGroups()){
+            String imageUrl = getTopImage(group.getId());
+            result.put(group.getId(), imageUrl);
         }
+
+        return result;
+    }
+
+    // RETURNS THE IMAGE WITH THE MOST POINTS IN A GIVEN GROUP
+    public String getTopImage(int groupId) {
+        PhotoGroup photoGroup = photoGroupRepository.findById(groupId).orElseThrow();
 
         List<UserImage> groupImages = photoGroup.getUserImages();
         if (groupImages == null || groupImages.isEmpty()) {
@@ -247,7 +255,7 @@ public class UserImageService {
         return groupImages.stream()
                 .filter(image -> !image.isFlagged())
                 .min((o1, o2) -> Integer.compare(o2.getPoints(), o1.getPoints()))
-                .map(UserImageDTO::new)
+                .map(UserImage::getUrl)
                 .orElse(null);
     }
 

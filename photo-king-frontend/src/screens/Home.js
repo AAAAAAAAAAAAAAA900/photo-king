@@ -70,16 +70,9 @@ export default function HomeScreen({ navigation }) {
     }
 
     const getGroupThumbnails = async () => {
-        const images = {};
         try {
-            // get response promises
-            const promises = user.groups.map(async (element) => {
-                images[element.id] = await imageApi.getTopImage(element.id);
-            });
-            // await all responses
-            await Promise.all(promises);
-            // get data from responses
-            Object.keys(images).forEach((key) => images[key] = images[key].data);
+            const response = await imageApi.getGroupThumbnails(user.id);
+            const images = response.data;
             setThumbnails(images);
             setLoading(false);
         } catch (error) {
@@ -163,7 +156,7 @@ export default function HomeScreen({ navigation }) {
                         <FlatList
                             data={[...user.groups].sort((a, b) => a.name.localeCompare(b.name))} // alphabetical ordering
                             renderItem={({ item }) =>
-                                <GroupPreview thumbnail={thumbnails[item.id]?.url} groupTitle={item.name} navFunction={() => {
+                                <GroupPreview thumbnail={thumbnails[item.id]} groupTitle={item.name} navFunction={() => {
                                     navigation.navigate("Group", { groupId: item.id })
                                 }}
                                 />
