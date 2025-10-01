@@ -18,6 +18,6 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, In
 
     // Deletes all friend requests between two users regardless of direction
     @Modifying
-    @Query("DELETE FROM friend_request fr WHERE (fr.receiver = :u1 OR fr.receiver = :u2) AND (fr.sender = :u1 OR fr.sender = :u2)")
+    @Query("DELETE FROM FriendRequest fr WHERE (fr.receiver = :u1 OR fr.receiver = :u2) AND (fr.sender = :u1 OR fr.sender = :u2)")
     int deleteByUsers(@Param("u1") User u1, @Param("u2") User u2);
 }
