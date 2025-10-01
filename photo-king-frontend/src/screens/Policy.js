@@ -55,7 +55,7 @@ export default function PolicyScreen({ navigation }) {
                     await authApi.register(registerData);
                 } catch (error) {
                     // Registration failed
-                    Alert.alert("Registration failed!", error.response.data, [
+                    Alert.alert("Registration failed!", error.message, [
                         { text: "OK", style: "default", onPress: () => { navigation.goBack(); } }
                     ]);
                     return;

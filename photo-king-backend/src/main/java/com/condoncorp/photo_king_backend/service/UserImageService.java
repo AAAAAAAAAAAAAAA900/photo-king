@@ -190,21 +190,19 @@ public class UserImageService {
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN GROUP
     public List<UserImageDTO> getImagesByGroup(int groupId) {
-        Optional<PhotoGroup> optionalPhotoGroup = photoGroupRepository.findById(groupId);
-        if (optionalPhotoGroup.isEmpty() ||
-                optionalPhotoGroup.get().getUserImages().isEmpty()) {
+        PhotoGroup group = photoGroupRepository.findById(groupId).orElseThrow();
+        if (group.getUserImages().isEmpty()) {
             return null;
         }
-        PhotoGroup photoGroup = optionalPhotoGroup.get();
 
         // Check authorization i.e. user belongs to group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(photoGroup.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+        if(group.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
-        return photoGroup.getUserImages().stream().map(UserImageDTO::new).toList();
+        return group.getUserImages().stream().map(UserImageDTO::new).toList();
     }
 
     // RETURNS A LIST OF IMAGES FOR A GIVEN USER
@@ -340,7 +338,11 @@ public class UserImageService {
         // checks flagging user is in group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(userImage.getPhotoGroup().getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+        PhotoGroup group = userImage.getPhotoGroup();
+        if(group == null){
+            group = photoGroupRepository.findById(userImage.getSummary().getGroupId()).orElseThrow();
+        }
+        if(group.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
@@ -349,7 +351,7 @@ public class UserImageService {
         userImageRepository.save(userImage);
 
         // pings users
-        websocketService.liveUpdatePictures(userImage.getPhotoGroup().getId(), "flag");
+        websocketService.liveUpdatePictures(group.getId(), "flag");
     }
 
 }

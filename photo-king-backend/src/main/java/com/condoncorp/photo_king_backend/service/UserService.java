@@ -34,6 +34,8 @@ public class UserService {
     private WSService websocketService;
     @Autowired
     private PhotoGroupService photoGroupService;
+    @Autowired
+    private FriendRequestRepository friendRequestRepository;
 
     // SAVES USER TO DATABASE
     public void saveUser(User user) {
@@ -242,5 +244,49 @@ public class UserService {
         user.setPolicyAccepted(true);
 
         userRepository.save(user);
+    }
+
+    // BLOCKS ANOTHER USER
+    @Transactional
+    @PreAuthorize("#blockerId == authentication.principal.id")
+    public void blockUser(int blockerId, int blockeeId){
+        User blocker = userRepository.findById(blockerId).orElseThrow();
+        User blockee = userRepository.findById(blockeeId).orElseThrow();
+
+        HashMap<String, Object> updatePayload = new HashMap<String, Object>();
+
+        // Remove from friends list and delete friend requests
+        if(blocker.getFriends().contains(blockee)){
+            updatePayload.put("friends", removeFriend(blockerId, blockeeId));
+        }
+        friendRequestRepository.deleteByUsers(blocker, blockee);
+
+        // block user
+        blocker.getBlockedUsers().add(blockee);
+        saveUser(blocker);
+
+        // Send new friends list and block list
+        updatePayload.put("blockedUsers", blocker.getBlockedUsers()
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername)));
+        websocketService.pingUser(blockerId, updatePayload);
+    }
+
+    // UNBLOCKS ANOTHER USER
+    @PreAuthorize("#blockerId == authentication.principal.id")
+    public void unblockUser(int blockerId, int blockeeId){
+        User blocker = userRepository.findById(blockerId).orElseThrow();
+        User blockee = userRepository.findById(blockeeId).orElseThrow();
+
+        // unblock user
+        blocker.getBlockedUsers().remove(blockee);
+        saveUser(blocker);
+
+        // Send new block list
+        HashMap<String, Object> updatePayload = new HashMap<String, Object>();
+        updatePayload.put("blockedUsers", blocker.getBlockedUsers()
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername)));
+        websocketService.pingUser(blockerId, updatePayload);
     }
 }

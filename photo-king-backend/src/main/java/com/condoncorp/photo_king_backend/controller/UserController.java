@@ -9,6 +9,7 @@ import com.condoncorp.photo_king_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -90,4 +91,17 @@ public class UserController {
         userService.acceptPolicy(id);
         return ResponseEntity.ok().build();
     }
+
+    // BLOCKS USER
+    @PostMapping(path = "block/{blockerId}/{blockeeId}")
+    public void blockUser(@PathVariable int blockerId, @PathVariable int blockeeId){
+        userService.blockUser(blockerId, blockeeId);
+    }
+
+    // UNBLOCKS USER
+    @PostMapping(path = "unblock/{blockerId}/{blockeeId}")
+    public void unblockUser(@PathVariable int blockerId, @PathVariable int blockeeId){
+        userService.unblockUser(blockerId, blockeeId);
+    }
+
 }

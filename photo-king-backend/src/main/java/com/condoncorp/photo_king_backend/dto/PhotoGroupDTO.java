@@ -14,7 +14,6 @@ public class PhotoGroupDTO {
     private String name;
     private int ownerId;
     private Set<FriendDTO> users;
-    private List<UserImageDTO> userImages;
     private LocalDateTime expiresAt;
     private Map<Integer, Integer> userPoints = new HashMap<>();
 
@@ -24,7 +23,6 @@ public class PhotoGroupDTO {
         this.name = photoGroup.getName();
         this.ownerId = photoGroup.getOwnerId();
         this.users = photoGroup.getUsers().stream().map(FriendDTO::new).collect(Collectors.toSet());
-        this.userImages = photoGroup.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
         this.expiresAt = photoGroup.getExpiresAt();
         this.userPoints = new HashMap<>();
         photoGroup.getPhotoGroupPoints().forEach(photoGroupPoint -> userPoints.put(photoGroupPoint.getUser().getId(), photoGroupPoint.getPoints()));
@@ -59,11 +57,6 @@ public class PhotoGroupDTO {
     public Set<FriendDTO> getUsers() {
         return users;
     }
-
-    public List<UserImageDTO> getUserImages() {
-        return userImages;
-    }
-
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }

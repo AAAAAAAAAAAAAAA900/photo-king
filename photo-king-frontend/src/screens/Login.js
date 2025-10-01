@@ -6,7 +6,6 @@ import * as SecureStore from "expo-secure-store";
 import authApi from "../api/authApi";
 import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
 import { StackActions } from '@react-navigation/native';
 import { useUser } from '../components/UserContext.js';
@@ -66,7 +65,7 @@ export default function LoginScreen({ navigation }) {
         const checkLoginStatus = async () => {
             try {
                 const refreshToken = await SecureStore.getItemAsync("refreshToken");
-                if (refreshToken && await isTokenValid(refreshToken)) {
+                if (refreshToken) {
                     const user_info = await userApi.getUserInfo();
                     updateUser(user_info.data);
                     if (user_info.data.policyAccepted) {

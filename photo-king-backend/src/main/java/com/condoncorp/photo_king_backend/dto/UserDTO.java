@@ -5,6 +5,7 @@ import com.condoncorp.photo_king_backend.model.PhotoGroup;
 import com.condoncorp.photo_king_backend.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,12 +16,10 @@ public class UserDTO {
     private final String email;
     private final String name;
     private final String profileUrl;
-    private final String profilePublicId;
-    private final String role;
     private final Set<FriendDTO> friends;
     private final Set<PhotoGroupDTO> groups;
-    private final List<UserImageDTO> userImages;
     private final boolean policyAccepted;
+    private final Map<Integer, String> blockedUsers;
 
     public UserDTO(User user){
         this.id = user.getId();
@@ -28,12 +27,10 @@ public class UserDTO {
         this.email = user.getEmail();
         this.name = user.getName();
         this.profileUrl = user.getProfileUrl();
-        this.profilePublicId = user.getProfilePublicId();
-        this.role = user.getRole();
         this.policyAccepted = user.isPolicyAccepted();
         this.friends = user.getFriends().stream().map(FriendDTO::new).collect(Collectors.toSet());
         this.groups = user.getPhotoGroups().stream().map(PhotoGroupDTO::new).collect(Collectors.toSet());
-        this.userImages = user.getUserImages().stream().map(UserImageDTO::new).collect(Collectors.toList());
+        this.blockedUsers = user.getBlockedUsers().stream().collect(Collectors.toMap(User::getId, User::getUsername));
     }
 
     public int getId() { return id; }
@@ -49,23 +46,11 @@ public class UserDTO {
     public String getName() {
         return name;
     }
-
-    public String getRole() {
-        return role;
-    }
-
     public String getProfileUrl() {
         return profileUrl;
     }
     public boolean isPolicyAccepted() {return policyAccepted;}
-    public String getProfilePublicId() {
-        return profilePublicId;
-    }
-
     public Set<FriendDTO> getFriends(){ return friends; }
     public Set<PhotoGroupDTO> getGroups(){ return groups; }
-
-    public List<UserImageDTO> getUserImages() {
-        return userImages;
-    }
+    public Map<Integer,String> getBlockedUsers() {return blockedUsers;}
 }

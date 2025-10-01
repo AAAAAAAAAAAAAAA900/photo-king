@@ -16,8 +16,8 @@
             [
                 "expo-media-library",
                 {
-                    "photosPermission": "Allow PhotoKing to access your photos.",
-                    "savePhotosPermission": "Allow PhotoKing to save photos.",
+                    "photosPermission": "The app accesses your photos to let you share them with your friends.",
+                    "savePhotosPermission": "Allow PhotoKing to save photos that your friends post in groups.",
                     "isAccessMediaLocationEnabled": true
                 }
             ],
@@ -25,7 +25,7 @@
                 "expo-image-picker",
                 {
                     "photosPermission": "The app accesses your photos to let you share them with your friends.",
-                    "cameraPermission": "Allow PhotoKing to access your camera"
+                    "cameraPermission": "Allow PhotoKing to access your camera to take pictures to share with your friends or upload profile pictures."
                 }
             ],
             "expo-secure-store"
@@ -36,9 +36,9 @@
                 "NSAppTransportSecurity": {
                     "NSAllowsArbitraryLoads": true
                 },
-                "NSPhotoLibraryUsageDescription": "We need access to your photo library to upload pictures.",
-                "NSPhotoLibraryAddUsageDescription": "We need access to save images to your library.",
-                "NSCameraUsageDescription": "We need access to your camera to take pictures.",
+                "NSPhotoLibraryUsageDescription": "We need access to your photo library to upload pictures to share with your friends.",
+                "NSPhotoLibraryAddUsageDescription": "We need access to save images from your groups to your library.",
+                "NSCameraUsageDescription": "We need access to your camera to take pictures to share with your friends.",
                 "ITSAppUsesNonExemptEncryption": false
             },
             "bundleIdentifier": "com.condoncorp.photoking"

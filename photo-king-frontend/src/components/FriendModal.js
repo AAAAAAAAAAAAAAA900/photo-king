@@ -5,12 +5,13 @@ import styles, { colors } from "../styles/ComponentStyles";
 import { useEffect, useState } from "react";
 import userApi from "../api/userApi";
 import { useUser } from "./UserContext";
+import { update } from "lodash";
 
 
 export default function FriendModal({ friendClicked, setFriendClicked, friendModalVisible, setFriendModalVisible, removeFriend, removeFriendFromGroup, ownerId }) {
 
     const [bio, setBio] = useState("");
-    const { user } = useUser();
+    const { user, updateUser } = useUser();
 
     const getBio = async (id) => {
         try {
@@ -59,14 +60,22 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                 </View>
 
                                 {/* Block button */}
-                                {   friendClicked.id !== user.id &&
+                                {friendClicked.id !== user.id &&
                                     <TouchableOpacity style={friendStyles.blockButton}
                                         onPress={() => {
                                             Alert.alert(
                                                 `Block ${friendClicked.username}?`,
                                                 "You will be removed from their friends list and they will no longer be able to interact with you.",
                                                 [
-                                                    { text: "Block", style: "destructive", onPress: () => { console.log("user block pressed") } },
+                                                    {
+                                                        text: "Block", style: "destructive", onPress: () => {
+                                                            try {
+                                                                userApi.blockUser(user.id, friendClicked.id);
+                                                                setFriendClicked(null);
+                                                                setFriendModalVisible(false);
+                                                            } catch (error) { console.log(error); }
+                                                        }
+                                                    },
                                                     { text: "Cancel", style: "cancel" }
                                                 ]
                                             );

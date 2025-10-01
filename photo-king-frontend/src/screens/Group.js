@@ -106,12 +106,14 @@ export default function GroupScreen({ navigation }) {
         formData.append('groupId', group.id);
         try {
             const response = await imageApi.uploadImages(formData);
-            console.log('Upload Success');
+            if(response.headers.moderationflag == 'true'){
+                Alert.alert("Upload Notice", "One or move of your images have been flagged by our moderation system and failed to upload.");
+            }
         }
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
         }
-        loadPictures(setPictures, group, setLoading);
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
     }
 
     // FlatList element's view
@@ -144,7 +146,7 @@ export default function GroupScreen({ navigation }) {
                 onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Group" })}
                 style={[styles.picHolder, photo.flagged ? picStyles.flaggedBackground : {}]}>
                 <Image
-                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder] }
+                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder]}
                     source={photo.flagged ? require('../../assets/icons/flag.png') : { uri: photo.url }}
                     progressiveRenderingEnabled={true}
                 />
@@ -164,7 +166,7 @@ export default function GroupScreen({ navigation }) {
         if (status !== 'granted') {
             Alert.alert(
                 "Permission Required",
-                "You need to grant gallery access to upload images.",
+                "You need to grant gallery access to upload images to share with your friends.",
                 [
                     { text: "Cancel", style: "cancel" },
                     { text: "Open Settings", onPress: () => Linking.openSettings() }
@@ -192,7 +194,7 @@ export default function GroupScreen({ navigation }) {
         if (status !== 'granted') {
             Alert.alert(
                 "Permission Required",
-                "You need to grant camera access to take pictures.",
+                "You need to grant camera access to take pictures to share with your friends.",
                 [
                     { text: "Cancel", style: "cancel" },
                     { text: "Open Settings", onPress: () => Linking.openSettings() }
@@ -276,7 +278,7 @@ export default function GroupScreen({ navigation }) {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
         // load group images
-        loadPictures(setPictures, group, setLoading);
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
         // Check for summary
         checkSummary();
 
@@ -284,7 +286,7 @@ export default function GroupScreen({ navigation }) {
         const destination = "/topic/picture/" + group.id;
         const callback = (message) => {
             // reload pictures when changed
-            loadPictures(setPictures, group, setLoading);
+            loadPictures(setPictures, group, setLoading, user.blockedUsers);
         };
         websocketServiceRef.current.subscribe(destination, callback);
 
@@ -294,6 +296,12 @@ export default function GroupScreen({ navigation }) {
             websocketServiceRef.current.unsubscribe(destination);
         }
     }, []);
+
+    // reload pictures when blocked users changes
+    useEffect(() => {
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
+    }, [user.blockedUsers]);
+
 
     const resetGroup = async () => {
         setLoading(true);
@@ -504,7 +512,7 @@ export default function GroupScreen({ navigation }) {
 
             {/* Group members side bar popup */}
             <Members
-                users={group.users}
+                users={group.users.filter(member => !Object.keys(user.blockedUsers).includes(String(member.id)))} // filter out blocked users
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
@@ -621,12 +629,17 @@ export default function GroupScreen({ navigation }) {
     );
 }
 
-export const loadPictures = async (setPictures, group, setLoading) => {
+export const loadPictures = async (setPictures, group, setLoading = null, blockedUsers = null) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
         if (Array.isArray(response.data)) {
-            setPictures(response.data.sort((a, b) => b.points - a.points));
-        } else{
+            let images = response.data;
+            // filter out pictures from blocked users if provided
+            if (blockedUsers) {
+                images = images.filter(image => !Object.keys(blockedUsers).includes(String(image.userId)));
+            }
+            setPictures(images.sort((a, b) => b.points - a.points));
+        } else {
             setPictures([]);
         }
         if (setLoading) setLoading(false);
@@ -789,7 +802,7 @@ export const picStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    flaggedBackground:{
-        backgroundColor:'orange',
+    flaggedBackground: {
+        backgroundColor: 'orange',
     },
 });

@@ -121,8 +121,13 @@ export default function PhotoScreen({ navigation }) {
 
     const Comment = ({ comment }) => {
         const [commenter, setCommenter] = useState(null);
+        const blockedRef = useRef(Object.keys(user.blockedUsers).includes(String(comment.userId)));
 
         const getCommenter = async (commenterId) => {
+            if(blockedRef.current) {
+                setCommenter({username: "Blocked User", pfp: null});
+                return;
+            }
             if (commenters.current[commenterId]) {
                 setCommenter(commenters.current[commenterId]);
             } else {
@@ -189,7 +194,7 @@ export default function PhotoScreen({ navigation }) {
                     <Pfp url={commenter?.pfp} size={40} />
                     <View style={commentStyles.commentBubble}>
                         <View style={commentStyles.textContainer}>
-                            <DefaultText style={commentStyles.commentText}>{comment.comment}</DefaultText>
+                            <DefaultText style={commentStyles.commentText}>{blockedRef.current ? "Blocked message." : comment.comment}</DefaultText>
                         </View>
                     </View>
                 </View>
@@ -316,12 +321,15 @@ export default function PhotoScreen({ navigation }) {
 
                     {/* Bottom bar */}
                     <View style={photoStyles.bottomBar}>
+                        {/* Download button */}
+                        { !photo.flagged && 
                         <TouchableOpacity
                             onPress={() => { downloadPhoto() }}
                             style={photoStyles.bottomButton}
                         >
                             <Image style={styles.iconStyle} source={require('../../assets/icons/download.png')} />
                         </TouchableOpacity>
+                        }
                         <TouchableOpacity
                             onPress={() => { setCommentsModalVisible(true); }}
                             style={photoStyles.commentsButton}
