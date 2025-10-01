@@ -70,7 +70,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
         if (status !== 'granted') {
             Alert.alert(
                 "Permission Required",
-                "You need to grant gallery access to upload images.",
+                "You need to grant gallery access to upload images to share with your friends.",
                 [
                     { text: "Cancel", style: "cancel" },
                     { text: "Open Settings", onPress: () => Linking.openSettings() }
@@ -95,7 +95,7 @@ export default function Pfp({ navigation, user, setUser, url, size = 50, borderW
         if (status !== 'granted') {
             Alert.alert(
                 "Permission Required",
-                "You need to grant camera access to take pictures.",
+                "You need to grant camera access to take pictures to share with your friends.",
                 [
                     { text: "Cancel", style: "cancel" },
                     { text: "Open Settings", onPress: () => Linking.openSettings() }
