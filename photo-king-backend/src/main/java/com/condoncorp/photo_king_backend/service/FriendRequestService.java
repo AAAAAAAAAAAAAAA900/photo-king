@@ -38,32 +38,27 @@ public class FriendRequestService {
         if (senderId == receiverId) {
             throw new RuntimeException("You can't send a friend request to yourself.");
         }
-
-        Optional<User> sender = userRepository.findById(senderId);
-        if (sender.isEmpty()) {
-            throw new RuntimeException("Sender not found.");
-        }
-
-        Optional<User> receiver = userRepository.findById(receiverId);
-        if (receiver.isEmpty()) {
-            throw new RuntimeException("Receiver not found.");
-        }
-
-        if (sender.get().getFriends().contains(receiver.get())) {
+        User sender = userRepository.findById(senderId).orElseThrow(() -> new RuntimeException("Sender not found."));
+        User receiver = userRepository.findById(receiverId).orElseThrow(()-> new RuntimeException("Receiver not found."));
+        if (sender.getFriends().contains(receiver)) {
             throw new RuntimeException("You are already friends.");
         }
+        if(receiver.getBlockedUsers().contains(sender)){
+            throw new AccessDeniedException("User has you blocked");
+        }
 
-        Optional<FriendRequest> existingRequest = friendRequestRepository.findBySenderAndReceiver(sender.get(), receiver.get());
+        Optional<FriendRequest> existingRequest = friendRequestRepository.findBySenderAndReceiver(sender, receiver);
         if (existingRequest.isPresent() && existingRequest.get().getStatus() == FriendRequestStatus.PENDING) {
             throw new RuntimeException("Friend request already sent.");
         }
 
-        FriendRequest friendRequest = new FriendRequest(sender.get(), receiver.get());
+        FriendRequest friendRequest = new FriendRequest(sender, receiver);
         friendRequestRepository.save(friendRequest);
 
     }
 
 
+    @Transactional
     public void acceptFriendRequest(int friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
                 .orElseThrow(() -> new RuntimeException("Friend request not found") );
@@ -82,7 +77,8 @@ public class FriendRequestService {
         receiver.getFriends().add(sender);
         userRepository.save(sender);
         userRepository.save(receiver);
-        friendRequestRepository.deleteById(friendRequestId);
+        // deletes all friend requests between the users regardless of direction
+        friendRequestRepository.deleteByUsers(sender,receiver);
 
         // Send new friends list to senders websocket to live notify acceptance
         HashMap<String, Object> newFriends = new HashMap<String, Object>();
