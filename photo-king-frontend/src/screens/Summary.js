@@ -5,7 +5,7 @@ import { CommonActions, useRoute } from "@react-navigation/native";
 import Pfp from "../components/Pfp";
 import DefaultText from "../components/DefaultText";
 import { loadPictures, picStyles } from "./Group";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import photoGroupApi from "../api/photoGroupApi";
 import { useUser } from "../components/UserContext";
 
@@ -16,13 +16,14 @@ export default function SummaryScreen({ navigation }) {
     const [pictures, setPictures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [placings, setPlacings] = useState([]);
+    const unfilteredImagesRef = useRef([]);
 
     const getSummary = async () => {
         try {
             const response = await photoGroupApi.getGroupSummary(group.id);
-            const images = response.data.userImages.sort((a, b) => b.points - a.points);
-            images = images.filter(image => !Object.keys(user.blockedUsers).includes(String(image.userId))); // filter out pictures from blocked users
-            setPictures(images);
+            let images = response.data.userImages.sort((a, b) => b.points - a.points);
+            unfilteredImagesRef.current = images;
+            // Get podium
             if (images.length) {
                 if (images[0].points != 0) {
                     const podium = [];
@@ -41,6 +42,9 @@ export default function SummaryScreen({ navigation }) {
                     setPlacings(podium);
                 }
             }
+            // filter blocked users images
+            images = images.filter(image => !Object.keys(user.blockedUsers).includes(String(image.userId))); // filter out pictures from blocked users
+            setPictures(images);
             setLoading(false);
         } catch (e) {
             console.log(e);
@@ -82,8 +86,8 @@ export default function SummaryScreen({ navigation }) {
         // Checks if picture is first, second, or third
         let winningBorder = {};
         if (photo.points != 0) {
-            for (let i = 0; i < pictures.length && i < 3; ++i) {
-                if (pictures[i].id == photo.id) {
+            for (let i = 0; i < unfilteredImagesRef.current.length && i < 3; ++i) {
+                if (unfilteredImagesRef.current[i].id == photo.id) {
                     switch (i) {
                         case 0:
                             winningBorder = picStyles.firstBorder;

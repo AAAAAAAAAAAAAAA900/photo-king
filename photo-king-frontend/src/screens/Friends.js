@@ -1,6 +1,6 @@
 import { Modal, Alert, Image, SafeAreaView, TextInput, TouchableOpacity, View, Animated, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, StyleSheet, BackHandler } from "react-native";
 import DefaultText from "../components/DefaultText";
-import { StackActions, useRoute } from '@react-navigation/native';
+import { StackActions } from '@react-navigation/native';
 import NavBar from "../components/NavBar";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FriendSearch, { FriendPreview } from "../components/FriendSearch";
@@ -42,7 +42,7 @@ export default function FriendsScreen({ navigation }) {
         if (search) {
             try {
                 const response = await userApi.searchUsers(search);
-                setSearchResults(response.data.filter(u => (u.id != user.id && !user.friends.some(f => f.id === u.id)) && !Object.keys(user.blockedUsers).includes(String(u.id)) )); // remove self, existing friends, and blocked users
+                setSearchResults(response.data.filter(u => (u.id != user.id && !user.friends.some(f => f.id === u.id)) && !Object.keys(blockedUsers).includes(String(u.id)) )); // remove self, existing friends, and blocked users
             }
             catch (e) {
                 console.log(e);
@@ -52,7 +52,7 @@ export default function FriendsScreen({ navigation }) {
             setSearchResults([]);
         }
     }
-    const debouncedSearch = useMemo(() => debounce(getSearchData, 500), []);
+    const debouncedSearch = useMemo(() => debounce(getSearchData, 500), [blockedUsers]);
     useEffect(() => {
         debouncedSearch(userSearch);
         return () => debouncedSearch.cancel();

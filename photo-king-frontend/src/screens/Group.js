@@ -144,7 +144,7 @@ export default function GroupScreen({ navigation }) {
                 onPress={() => navigation.navigate("Photo", { groupId: group.id, photo: photo, from: "Group" })}
                 style={[styles.picHolder, photo.flagged ? picStyles.flaggedBackground : {}]}>
                 <Image
-                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder] }
+                    style={photo.flagged ? styles.flaggedPic : [styles.pic, winningBorder]}
                     source={photo.flagged ? require('../../assets/icons/flag.png') : { uri: photo.url }}
                     progressiveRenderingEnabled={true}
                 />
@@ -294,6 +294,12 @@ export default function GroupScreen({ navigation }) {
             websocketServiceRef.current.unsubscribe(destination);
         }
     }, []);
+
+    // reload pictures when blocked users changes
+    useEffect(() => {
+        loadPictures(setPictures, group, setLoading, user.blockedUsers);
+    }, [user.blockedUsers]);
+
 
     const resetGroup = async () => {
         setLoading(true);
@@ -504,7 +510,7 @@ export default function GroupScreen({ navigation }) {
 
             {/* Group members side bar popup */}
             <Members
-                users={group.users.filter(user => !Object.keys(user.blockedUsers).includes(String(user.id)))} // filter out blocked users
+                users={group.users.filter(member => !Object.keys(user.blockedUsers).includes(String(member.id)))} // filter out blocked users
                 membersPopUpVisible={membersPopUpVisible}
                 setMembersPopUpVisible={setMembersPopUpVisible}
                 press={(friend) => { setFriendClicked(friend); setFriendModalVisible(true); }}
@@ -621,17 +627,17 @@ export default function GroupScreen({ navigation }) {
     );
 }
 
-export const loadPictures = async (setPictures, group, setLoading=null, blockedUsers=null) => {
+export const loadPictures = async (setPictures, group, setLoading = null, blockedUsers = null) => {
     try {
         const response = await imageApi.getGroupImages(group.id);
         if (Array.isArray(response.data)) {
-            const images = response.data;
+            let images = response.data;
             // filter out pictures from blocked users if provided
             if (blockedUsers) {
-                images = images.filter(image => !Object.keys(user.blockedUsers).includes(String(image.userId)));
+                images = images.filter(image => !Object.keys(blockedUsers).includes(String(image.userId)));
             }
-            setPictures(response.data.sort((a, b) => b.points - a.points));
-        } else{
+            setPictures(images.sort((a, b) => b.points - a.points));
+        } else {
             setPictures([]);
         }
         if (setLoading) setLoading(false);
@@ -794,7 +800,7 @@ export const picStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    flaggedBackground:{
-        backgroundColor:'orange',
+    flaggedBackground: {
+        backgroundColor: 'orange',
     },
 });
