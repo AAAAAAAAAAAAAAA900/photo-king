@@ -338,7 +338,11 @@ public class UserImageService {
         // checks flagging user is in group
         int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId();
-        if(userImage.getPhotoGroup().getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+        PhotoGroup group = userImage.getPhotoGroup();
+        if(group == null){
+            group = photoGroupRepository.findById(userImage.getSummary().getGroupId()).orElseThrow();
+        }
+        if(group.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
             throw new org.springframework.security.access.AccessDeniedException("User not in group");
         }
 
@@ -347,7 +351,7 @@ public class UserImageService {
         userImageRepository.save(userImage);
 
         // pings users
-        websocketService.liveUpdatePictures(userImage.getPhotoGroup().getId(), "flag");
+        websocketService.liveUpdatePictures(group.getId(), "flag");
     }
 
 }

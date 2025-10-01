@@ -128,7 +128,7 @@ apiClient.interceptors.response.use((response) => {
     return response;
 }, async (error) => {
     const originalRequest = error.config;
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest.retry) {
+    if (error.response?.status === 403 && !originalRequest.retry) {
         originalRequest.retry = true;
         try {
             const newToken = await refreshAccessToken();
@@ -145,7 +145,7 @@ apiFormClient.interceptors.response.use((response) => {
     return response;
 }, async (error) => {
     const originalRequest = error.config;
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest.retry) {
+    if (error.response?.status === 403 && !originalRequest.retry) {
         originalRequest.retry = true;
         try {
             const newToken = await refreshAccessToken();

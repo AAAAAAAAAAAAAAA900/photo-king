@@ -321,12 +321,15 @@ export default function PhotoScreen({ navigation }) {
 
                     {/* Bottom bar */}
                     <View style={photoStyles.bottomBar}>
+                        {/* Download button */}
+                        { !photo.flagged && 
                         <TouchableOpacity
                             onPress={() => { downloadPhoto() }}
                             style={photoStyles.bottomButton}
                         >
                             <Image style={styles.iconStyle} source={require('../../assets/icons/download.png')} />
                         </TouchableOpacity>
+                        }
                         <TouchableOpacity
                             onPress={() => { setCommentsModalVisible(true); }}
                             style={photoStyles.commentsButton}

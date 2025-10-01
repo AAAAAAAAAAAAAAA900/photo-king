@@ -6,7 +6,6 @@ import * as SecureStore from "expo-secure-store";
 import authApi from "../api/authApi";
 import userApi from "../api/userApi";
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { isTokenValid } from "../api/apiClient";
 import { Controller, useForm } from 'react-hook-form';
 import { StackActions } from '@react-navigation/native';
 import { useUser } from '../components/UserContext.js';
