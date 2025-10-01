@@ -106,7 +106,9 @@ export default function GroupScreen({ navigation }) {
         formData.append('groupId', group.id);
         try {
             const response = await imageApi.uploadImages(formData);
-            console.log('Upload Success');
+            if(response.headers.moderationflag == 'true'){
+                Alert.alert("Upload Notice", "One or move of your images have been flagged by our moderation system and failed to upload.");
+            }
         }
         catch (error) {
             console.log('Upload Error:', error.response?.data || error.message);
