@@ -179,7 +179,12 @@ export default function PhotoScreen({ navigation }) {
                     "Do you want to report this comment?",
                     "It will make it unviewable until a team member reviews it.",
                     [
-                        { text: "Report", style: 'destructive', onPress: () => { setFlagged(true); imageApi.flagComment(comment.id) } },
+                        { text: "Report", style: 'destructive', onPress: () => { 
+                            setFlagged(true); 
+                            const commentIndex = photo.comments.indexOf(comment);
+                            setPhoto((prevPhoto) => { return {...prevPhoto, comments: prevPhoto.comments.with(commentIndex, {...comment, flagged:true})};}); 
+                            imageApi.flagComment(comment.id)
+                         }},
                         { text: "Cancel", style: "cancel" },
                     ]
                 )
