@@ -3,7 +3,7 @@ import { Animated, FlatList, Image, Modal, SafeAreaView, TextInput, TouchableOpa
 import styles, { colors } from "../styles/ComponentStyles";
 import DefaultText from "../components/DefaultText";
 import { CommonActions } from "@react-navigation/native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { act, useCallback, useEffect, useRef, useState } from "react";
 import imageApi from "../api/imageApi";
 import Header from "../components/Header";
 import userApi from "../api/userApi";
@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
 import WebsocketService from "../utilities/WebsocketService";
 import { useUser } from "../components/UserContext";
+import { Filter } from "bad-words";
 
 export default function PhotoScreen({ navigation }) {
     const route = useRoute();
@@ -30,6 +31,7 @@ export default function PhotoScreen({ navigation }) {
     const commentBoxRef = useRef(null);     // for clearing text input on send
     const commenters = useRef({});          // map for previously queried commenters to reduce api calls
     const websocketServiceRef = useRef(WebsocketService);
+    const profanityFilterRef = useRef(new Filter());
 
     const navigateBack = () => {
         navigation.dispatch((state) => {
@@ -121,26 +123,68 @@ export default function PhotoScreen({ navigation }) {
 
     const Comment = ({ comment }) => {
         const [commenter, setCommenter] = useState(null);
+        const isUserRef = useRef(comment.userId === user.id);
         const blockedRef = useRef(Object.keys(user.blockedUsers).includes(String(comment.userId)));
+        const [touched, setTouched] = useState(false);
+        const [flagged, setFlagged] = useState(comment.flagged);
 
         const getCommenter = async (commenterId) => {
-            if(blockedRef.current) {
-                setCommenter({username: "Blocked User", pfp: null});
+            if (blockedRef.current) {
+                setCommenter({ username: "Blocked User", pfp: null });
                 return;
             }
             if (commenters.current[commenterId]) {
-                setCommenter(commenters.current[commenterId]);
+                const cached = commenters.current[commenterId];
+                if (cached instanceof Promise) {
+                    const commenter = await cached;
+                    setCommenter(commenters.current[commenterId]);
+                } else {
+                    setCommenter(cached);
+                }
             } else {
                 try {
-                    const response = await userApi.getFriendById(commenterId);
-                    setCommenter(response.data);
-                    commenters.current[commenterId] = response.data;
+                    commenters.current[commenterId] = userApi.getFriendById(commenterId).then(
+                        (response) => {
+                            commenters.current[commenterId] = response.data;
+                            setCommenter(response.data);
+                        });
                 }
                 catch (e) {
                     console.log(e);
+                    delete commenters.current[commenterId];
                 }
             }
         }
+
+        const blockCommentPressed = useCallback(() => {
+            if (blockedRef.current) {
+                Alert.alert("This user is already blocked.");
+            } else {
+                Alert.alert(
+                    "Do you want to report this user?",
+                    "It will make all of their content unviewable.",
+                    [
+                        { text: "Block", style: "destructive", onPress: () => { userApi.blockUser(user.id, comment.userId) } },
+                        { text: "Cancel", style: "cancel" },
+                    ]
+                )
+            }
+        }, [blockedRef.current]);
+
+        const flagCommentPressed = useCallback(() => {
+            if (flagged) {
+                Alert.alert("This comment has already been reported and is awaiting review.");
+            } else {
+                Alert.alert(
+                    "Do you want to report this comment?",
+                    "It will make it unviewable until a team member reviews it.",
+                    [
+                        { text: "Report", style: 'destructive', onPress: () => { setFlagged(true); imageApi.flagComment(comment.id) } },
+                        { text: "Cancel", style: "cancel" },
+                    ]
+                )
+            }
+        }, [flagged]);
 
         useEffect(() => {
             getCommenter(comment.userId);
@@ -148,56 +192,104 @@ export default function PhotoScreen({ navigation }) {
 
         const commentStyles = StyleSheet.create({
             commentContainer: {
-                alignSelf: comment.userId === user.id ? "flex-end" : "flex-start",
+                alignSelf: isUserRef.current ? "flex-end" : "flex-start",
                 margin: 10,
-                marginHorizontal: 20
             },
             commentBubble: {
                 maxWidth: '70%',
                 minWidth: '15%',
                 padding: 10,
+                marginRight: isUserRef.current ? 20 : 0,
+                marginLeft: isUserRef.current ? 0 : 20,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: comment.userId === user.id ? colors.secondary : colors.primary,
+                alignSelf: isUserRef.current ? 'flex-end' : 'flex-start',
+                backgroundColor: flagged ? "orange" : isUserRef.current ? colors.secondary : colors.primary,
                 borderRadius: 20,
+                borderTopRightRadius: isUserRef.current ? 5 : 20,
+                borderTopLeftRadius: isUserRef.current ? 20 : 5,
             },
             textContainer: {
                 justifyContent: "center"
             },
             commenterContainer: {
                 gap: 5,
-                flexDirection: comment.userId === user.id ? 'row-reverse' : 'row',
-                alignSelf: 'baseline',
+                flexDirection: isUserRef.current ? 'row-reverse' : 'row',
+                alignSelf: isUserRef.current ? 'flex-end' : 'flex-start',
+                alignItems: "center",
+                justifyContent: "center",
+                paddingBottom: 3,
             },
             commenterName: {
-                alignSelf: comment.userId === user.id ? "flex-end" : "flex-start",
-                paddingRight: comment.userId === user.id ? 45 : 0,
-                paddingLeft: comment.userId === user.id ? 0 : 45,
+                fontSize: 14,
                 maxWidth: '80%',
-            },
-            date: {
-                alignSelf: comment.userId === user.id ? "flex-end" : "flex-start",
-                paddingRight: comment.userId === user.id ? 45 : 0,
-                paddingLeft: comment.userId === user.id ? 0 : 45,
-                maxWidth: '80%',
-                color: colors.grey,
-
             },
             commentText: {
-                color: comment.userId === user.id ? 'white' : 'black',
+                color: isUserRef.current ? 'white' : 'black',
             },
+            actionContainer: {
+                flexDirection: 'row',
+                width: 150,
+                height: 25,
+                alignSelf: isUserRef.current ? 'flex-end' : 'flex-start',
+                marginHorizontal: 30,
+                gap: 5,
+                marginBottom: 10
+            },
+            blockButton: {
+                flex: 1,
+                backgroundColor: 'red',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                paddingHorizontal: 5,
+            },
+            flagButton: {
+                flex: 1,
+                backgroundColor: 'orange',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                paddingHorizontal: 5,
+            },
+            iconStyle: [
+                styles.iconStyle,
+                {
+                    width: '25%',
+                }
+            ],
         });
         return (
-            <View style={commentStyles.commentContainer}>
-                <DefaultText numberOfLines={1} style={commentStyles.commenterName}>{(commenter && commenter.username ? commenter.username : '')}</DefaultText>
-                <View style={commentStyles.commenterContainer}>
-                    <Pfp url={commenter?.pfp} size={40} />
+            <View>
+                <TouchableOpacity style={commentStyles.commentContainer} activeOpacity={1} onPress={() => { setTouched((touched) => { return !touched }); }}>
+                    <View style={commentStyles.commenterContainer}>
+                        <Pfp url={commenter?.pfp} size={30} />
+                        <DefaultText numberOfLines={1} style={commentStyles.commenterName}>{(commenter && commenter.username ? commenter.username : '')}</DefaultText>
+                    </View>
                     <View style={commentStyles.commentBubble}>
                         <View style={commentStyles.textContainer}>
-                            <DefaultText style={commentStyles.commentText}>{blockedRef.current ? "Blocked message." : comment.comment}</DefaultText>
+                            <DefaultText style={commentStyles.commentText}>{blockedRef.current || flagged ? "Blocked message." : profanityFilterRef.current.clean(comment.comment)}</DefaultText>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
+
+                {/* FLAG AND BLOCK BUTTONS */}
+                {(touched && !isUserRef.current) &&
+                    <View style={commentStyles.actionContainer}>
+                        <TouchableOpacity style={commentStyles.flagButton}
+                            onPress={flagCommentPressed}>
+                            <DefaultText style={styles.buttonText}>Flag</DefaultText>
+                            <Image style={commentStyles.iconStyle} source={require('../../assets/icons/flag.png')} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={commentStyles.blockButton}
+                            onPress={blockCommentPressed}>
+                            <DefaultText style={styles.buttonText}>Block</DefaultText>
+                            <Image style={commentStyles.iconStyle} source={require('../../assets/icons/block.png')} />
+                        </TouchableOpacity>
+                    </View>
+                }
             </View>
         );
     }
@@ -243,7 +335,7 @@ export default function PhotoScreen({ navigation }) {
                                             "It will make it unviewable until a team member reviews it.",
                                             [
                                                 { text: "Cancel", style: "cancel" },
-                                                { text: "Report", onPress: () => { setPhoto({...photo, flagged: true}); imageApi.flagImage(photo.id); } }
+                                                { text: "Report", onPress: () => { setPhoto({ ...photo, flagged: true }); imageApi.flagImage(photo.id); } }
                                             ]
                                         )
                                     }
@@ -322,13 +414,13 @@ export default function PhotoScreen({ navigation }) {
                     {/* Bottom bar */}
                     <View style={photoStyles.bottomBar}>
                         {/* Download button */}
-                        { !photo.flagged && 
-                        <TouchableOpacity
-                            onPress={() => { downloadPhoto() }}
-                            style={photoStyles.bottomButton}
-                        >
-                            <Image style={styles.iconStyle} source={require('../../assets/icons/download.png')} />
-                        </TouchableOpacity>
+                        {!photo.flagged &&
+                            <TouchableOpacity
+                                onPress={() => { downloadPhoto() }}
+                                style={photoStyles.bottomButton}
+                            >
+                                <Image style={styles.iconStyle} source={require('../../assets/icons/download.png')} />
+                            </TouchableOpacity>
                         }
                         <TouchableOpacity
                             onPress={() => { setCommentsModalVisible(true); }}
@@ -383,7 +475,7 @@ const ZoomablePhoto = (({ url, flagged = false }) => {
                 <Image source={require('../../assets/icons/flag.png')} style={photoStyles.flaggedIcon} />
                 <DefaultText style={photoStyles.flaggedText}>A user has reported this photo: review pending.</DefaultText>
             </View>
-        :
+            :
             <ResumableZoom maxScale={resolution}>
                 <Image source={{ uri: url }} style={{ ...size }} resizeMethod={'scale'} />
             </ResumableZoom>

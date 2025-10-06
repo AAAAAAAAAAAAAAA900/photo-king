@@ -12,6 +12,7 @@ public class UserImageCommentDTO {
     private int imageId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
+    private boolean flagged;
 
     public UserImageCommentDTO(UserImageComment userImageComment) {
         this.id = userImageComment.getId();
@@ -19,12 +20,14 @@ public class UserImageCommentDTO {
         this.date = userImageComment.getCreatedAt();
         this.userId = userImageComment.getUser().getId();
         this.imageId = userImageComment.getUserImage().getId();
+        this.flagged = userImageComment.isFlagged();
     }
 
     public UserImageCommentDTO(String comment, int userId, int photoId){
         this.comment = comment;
         this.userId = userId;
         this.imageId = photoId;
+        this.flagged = false;
     }
 
     public UserImageCommentDTO() {
@@ -50,4 +53,6 @@ public class UserImageCommentDTO {
     public int getImageId() {
         return imageId;
     }
+
+    public boolean isFlagged() {return flagged; }
 }

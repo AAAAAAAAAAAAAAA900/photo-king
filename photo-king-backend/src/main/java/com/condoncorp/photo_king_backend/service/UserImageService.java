@@ -354,4 +354,25 @@ public class UserImageService {
         websocketService.liveUpdatePictures(group.getId(), "flag");
     }
 
+    // flags a comment for manual moderation
+    public void flagComment(int id){
+        UserImageComment comment = userImageCommentRepository.findById(id).orElseThrow();
+
+        // checks flagging user is in group
+        UserImage userImage = comment.getUserImage();
+        int authenticatedUserId = ((CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal()).getId();
+        PhotoGroup group = userImage.getPhotoGroup();
+        if(group == null){
+            group = photoGroupRepository.findById(userImage.getSummary().getGroupId()).orElseThrow();
+        }
+        if(group.getUsers().stream().noneMatch((u)-> u.getId() == authenticatedUserId)){
+            throw new org.springframework.security.access.AccessDeniedException("User not in group");
+        }
+
+        // flags comment
+        comment.setFlagged(true);
+        userImageCommentRepository.save(comment);
+    }
+
 }

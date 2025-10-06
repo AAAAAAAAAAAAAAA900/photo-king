@@ -29,22 +29,20 @@ public class UserImageComment {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+    @Column(name = "flagged", columnDefinition = "boolean default false")
+    private boolean flagged;
 
     public UserImageComment(String comment, User user, UserImage userImage) {
         this.comment = comment;
         this.user = user;
         this.userImage = userImage;
         this.createdAt = LocalDateTime.now();
+        this.flagged = false;
     }
 
-    public UserImageComment(Comment comment) {
-        this.comment = comment.getMessage();
-        this.user = comment.getSender();
-        this.userImage = comment.getUserImage();
-        this.createdAt = comment.getCreatedAt();
+    public UserImageComment() {
+        this.flagged = false;
     }
-
-    public UserImageComment() {}
 
     public int getId() {
         return id;
@@ -81,8 +79,9 @@ public class UserImageComment {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    public boolean isFlagged() {return flagged;}
+    public void setFlagged(boolean flagged) {this.flagged = flagged;}
 }

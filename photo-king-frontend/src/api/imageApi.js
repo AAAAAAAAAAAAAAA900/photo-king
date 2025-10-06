@@ -38,6 +38,10 @@ const imageApi = {
     flagImage: async (imageID) => {
         return apiClient.post(`/user-image/flag-image/${imageID}`);
     },
+
+    flagComment: async (commentId) => {
+        return apiClient.post(`/user-image/flag-comment/${commentId}`);
+    }
 }
 
 export default imageApi;
