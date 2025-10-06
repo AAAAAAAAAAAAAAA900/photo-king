@@ -117,4 +117,10 @@ public class UserImageController {
         userImageService.flagImage(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping(path = "/flag-comment/{id}")
+    public ResponseEntity<?> flagComment(@PathVariable int id){
+        userImageService.flagComment(id);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -47,7 +47,7 @@ export default function FriendSearch({ searchData, onSelect }) {
                 />
                 :
                 <View style={styles.containerCenterAll}>
-                    <DefaultText>Need more friends? Try adding some!</DefaultText>
+                    <DefaultText>Try adding friends!</DefaultText>
                 </View>
             }
         </View>

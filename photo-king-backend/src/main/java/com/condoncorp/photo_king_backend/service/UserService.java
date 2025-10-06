@@ -250,6 +250,9 @@ public class UserService {
     @Transactional
     @PreAuthorize("#blockerId == authentication.principal.id")
     public void blockUser(int blockerId, int blockeeId){
+        if(blockerId == blockeeId){
+            throw new RuntimeException("Can not block yourself");
+        }
         User blocker = userRepository.findById(blockerId).orElseThrow();
         User blockee = userRepository.findById(blockeeId).orElseThrow();
 

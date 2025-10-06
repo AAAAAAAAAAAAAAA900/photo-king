@@ -65,7 +65,7 @@ export default function FriendModal({ friendClicked, setFriendClicked, friendMod
                                         onPress={() => {
                                             Alert.alert(
                                                 `Block ${friendClicked.username}?`,
-                                                "You will be removed from their friends list and they will no longer be able to interact with you.",
+                                                "You will be removed from their friends list and all their content will be unviewable.",
                                                 [
                                                     {
                                                         text: "Block", style: "destructive", onPress: () => {
