@@ -22,7 +22,7 @@ public class CloudinaryService {
 
     public Map upload(MultipartFile multipartFile) throws IOException {
         File file = convert(multipartFile);
-        Map result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+        Map result = cloudinary.uploader().upload(file, ObjectUtils.asMap("format","jpg"));
         if (!Files.deleteIfExists(file.toPath())) {
             throw new IOException("Failed to delete temporary file: " + file.getAbsolutePath());
         }

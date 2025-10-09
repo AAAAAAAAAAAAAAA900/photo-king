@@ -50,11 +50,6 @@ public class UserImageService {
             throw new AccessDeniedException("User does not belong to group");
         }
 
-        BufferedImage bi = ImageIO.read(file.getInputStream());
-        if (bi == null) {
-            return null;
-        }
-
         Map result = cloudinaryService.upload(file);
 
         if (imageModerationService.moderateImage((String) result.get("url"))) {
@@ -73,7 +68,6 @@ public class UserImageService {
 
         // Live update group of photo change
         websocketService.liveUpdatePictures(groupId, "upload");
-
         return userImage.getUrl();
     }
 
@@ -82,11 +76,6 @@ public class UserImageService {
 
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
-            return null;
-        }
-
-        BufferedImage bi = ImageIO.read(file.getInputStream());
-        if (bi == null) {
             return null;
         }
 
