@@ -38,7 +38,8 @@
     "react-native-webview": "13.12.5",
     "react-native-zoom-toolkit": "^4.0.2",
     "sockjs": "^0.3.24",
-    "stompjs": "^2.3.3"
+    "stompjs": "^2.3.3",
+    "expo-build-properties": "~0.13.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

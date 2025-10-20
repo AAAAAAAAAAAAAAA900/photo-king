@@ -14,6 +14,14 @@
         },
         "plugins": [
             [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "targetSdkVersion": 35
+                    }
+                }
+            ],
+            [
                 "expo-media-library",
                 {
                     "photosPermission": "The app accesses your photos to let you share them with your friends.",
